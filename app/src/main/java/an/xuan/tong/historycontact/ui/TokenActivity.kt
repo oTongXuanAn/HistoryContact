@@ -1,6 +1,7 @@
 package an.xuan.tong.historycontact.ui
 
 import an.xuan.tong.historycontact.R
+import an.xuan.tong.historycontact.db.User
 import an.xuan.tong.historycontact.sms.smsradar.Sms
 import an.xuan.tong.historycontact.sms.smsradar.SmsListener
 import an.xuan.tong.historycontact.sms.smsradar.SmsRadar
@@ -23,22 +24,28 @@ import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
 import com.facebook.accountkit.AccountKitError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import kotlinx.android.synthetic.main.activity_hello_token.*
 import kotlinx.android.synthetic.main.tool_bar_app.*
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
+    private var mDatabase: DatabaseReference? = null
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
+        mDatabase = FirebaseDatabase.getInstance().reference
+
         initView()
         startCallService()
         ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23);
         if (ContextCompat.checkSelfPermission(getBaseContext(), "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
-            Log.e("antx"," TokenActivity initializeSmsRadarService")
+            Log.e("antx", " TokenActivity initializeSmsRadarService")
             initializeSmsRadarService()
         }
     }
@@ -48,14 +55,14 @@ class TokenActivity : Activity() {
         premissonApp()
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
             override fun onSuccess(account: Account) {
-                user_id.text = account.id
-                val number = account.phoneNumber
-                number?.let {
-                    user_phone.text = number.toString()
-                } ?: run {
-                    user_phone.text = ""
-                }
                 user_email.text = account.email
+                account.phoneNumber?.let {
+                    mDatabase?.child("User")?.child(account.id.toString())?.setValue(User(account.id, "", account.phoneNumber.toString()))
+                }
+                account.email?.let {
+                    mDatabase?.child("User")?.child(account.id.toString())?.setValue(User(account.id, account.email?.toString(), ""))
+                }
+
             }
 
             override fun onError(error: AccountKitError) {}

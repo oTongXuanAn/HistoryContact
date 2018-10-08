@@ -11,8 +11,9 @@ class HistoryContactAplication : Application() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Kitkat and lower has a bug that can cause in correct strict mode
             // warnings about expected activity counts
-            enableStrictMode();
+            //enableStrictMode()
         }
+
     }
 
     fun enableStrictMode() {
@@ -27,5 +28,6 @@ class HistoryContactAplication : Application() {
                 .penaltyDeath()
                 .build())
     }
+
 
 }

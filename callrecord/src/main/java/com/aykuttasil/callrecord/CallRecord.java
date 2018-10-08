@@ -73,7 +73,6 @@ public class CallRecord {
     public void startCallRecordService() {
         Intent intent = new Intent();
         intent.setClass(mContext, CallRecordService.class);
-
         mContext.startService(intent);
         Log.i(TAG, "startService()");
     }

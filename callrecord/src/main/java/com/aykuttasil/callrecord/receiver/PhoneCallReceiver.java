@@ -77,7 +77,6 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
                 isIncoming = true;
                 callStartTime = new Date();
                 savedNumber = number;
-
                 onIncomingCallReceived(context, number, callStartTime);
                 break;
             case TelephonyManager.CALL_STATE_OFFHOOK:
@@ -85,7 +84,6 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
                 if (lastState != TelephonyManager.CALL_STATE_RINGING) {
                     isIncoming = false;
                     callStartTime = new Date();
-
                     onOutgoingCallStarted(context, savedNumber, callStartTime);
                 } else {
                     isIncoming = true;

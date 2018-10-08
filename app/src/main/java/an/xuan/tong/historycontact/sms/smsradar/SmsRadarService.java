@@ -63,7 +63,7 @@ public class SmsRadarService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("antx", "sms: onStartCommand "+initialized);
+        Log.e("antx", "sms: onStartCommand " + initialized);
         if (initialized == false) {
             initializeService();
             mSMSreceiver = new SMSreceiver();
@@ -83,6 +83,7 @@ public class SmsRadarService extends Service {
         super.onDestroy();
         Log.e("antx", "onDestroy finishService");
         finishService();
+        this.unregisterReceiver(mSMSreceiver);
     }
 
     @Override
@@ -130,6 +131,8 @@ public class SmsRadarService extends Service {
         Log.e("antx", "SMS finishService");
         initialized = false;
         unregisterSmsContentObserver();
+
+
     }
 
 
@@ -141,6 +144,7 @@ public class SmsRadarService extends Service {
 
     private void unregisterSmsContentObserver() {
         contentResolver.unregisterContentObserver(smsObserver);
+
     }
 
     private void restartService() {

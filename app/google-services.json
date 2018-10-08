@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "602365431776",
+    "firebase_url": "https://chartview3.firebaseio.com",
+    "project_id": "chartview3",
+    "storage_bucket": "chartview3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:602365431776:android:65b17b6d2ae982a0",
+        "android_client_info": {
+          "package_name": "an.xuan.tong.historycontact"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "602365431776-pmef2cv3288piq71klvpuitbh7chruea.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6eKPFd0OkfbM0MS3P2iSM3_vJbrpIea8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
