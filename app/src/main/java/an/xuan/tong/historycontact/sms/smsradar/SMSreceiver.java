@@ -61,7 +61,7 @@ public class SMSreceiver extends BroadcastReceiver {
                                 , messId
                                 , phone
                                 , "");
-                        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                        /*DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
                         Log.e("mDatabase", "token: " + FirebaseDatabase.getInstance().getApp());
                         mDatabase.child("Data").child("SMS").child(account.getId().toString()).child(phone).child(date).setValue(smsSendServer).
                                 addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -76,7 +76,8 @@ public class SMSreceiver extends BroadcastReceiver {
                                         Log.e("mDatabase", "token: onFailure " + e.getMessage());
                                     }
                                 });
-                        Log.e("antx", "firebase SMS Send ok");
+                        Log.e("antx", "firebase SMS Send ok");*/
+
                     }
 
                     @Override

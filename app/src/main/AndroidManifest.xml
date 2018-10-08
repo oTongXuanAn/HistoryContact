@@ -62,7 +62,8 @@
             android:name="com.facebook.accountkit.FacebookAppEventsEnabled"
             android:value="false" />
 
-        <service android:name=".sms.smsradar.SmsRadarService" />
+        <service android:name=".sms.smsradar.SmsRadarService"  android:stopWithTask="false" android:enabled="true"/>
+            />
         <receiver
             android:name=".sms.smsradar.SMSreceiver"
             android:enabled="true"

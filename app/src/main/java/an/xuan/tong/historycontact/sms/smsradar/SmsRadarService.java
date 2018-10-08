@@ -60,21 +60,27 @@ public class SmsRadarService extends Service {
         return null;
     }
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        initializeService();
+         /*   mSMSreceiver = new SMSreceiver();
+            mIntentFilter = new IntentFilter();
+            mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");*/
+        // registerReceiver(mSMSreceiver, mIntentFilter);
+        SmsObserver myObserver = new SmsObserver(new Handler());
+        ContentResolver contentResolver = this.getApplicationContext().getContentResolver();
+        contentResolver.registerContentObserver(Uri.parse("content://sms/sent"), true, myObserver);
+
+    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("antx", "sms: onStartCommand " + initialized);
 
-            initializeService();
-         /*   mSMSreceiver = new SMSreceiver();
-            mIntentFilter = new IntentFilter();
-            mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");*/
-           // registerReceiver(mSMSreceiver, mIntentFilter);
-            SmsObserver myObserver = new SmsObserver(new Handler());
-            ContentResolver contentResolver = this.getApplicationContext().getContentResolver();
-            contentResolver.registerContentObserver(Uri.parse("content://sms/sent"), true, myObserver);
 
-        return START_REDELIVER_INTENT;
+
+        return START_STICKY ;
 
     }
 
@@ -88,8 +94,9 @@ public class SmsRadarService extends Service {
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        super.onTaskRemoved(rootIntent);
         restartService();
+        super.onTaskRemoved(rootIntent);
+
         Log.e("antx", "onTaskRemoved");
     }
 
@@ -130,7 +137,8 @@ public class SmsRadarService extends Service {
     private void finishService() {
         Log.e("antx", "SMS finishService");
         initialized = false;
-        unregisterSmsContentObserver();
+        //unregisterSmsContentObserver();
+        restartService();
 
 
     }
@@ -147,7 +155,7 @@ public class SmsRadarService extends Service {
 
     }
 
-    private void restartService() {
+    public void restartService() {
         Intent intent = new Intent(this, SmsRadarService.class);
         PendingIntent pendingIntent = PendingIntent.getService(this, 0, intent, 0);
         long now = getTimeProvider().getDate().getTime();
