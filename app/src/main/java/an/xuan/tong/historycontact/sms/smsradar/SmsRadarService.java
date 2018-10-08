@@ -64,17 +64,17 @@ public class SmsRadarService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("antx", "sms: onStartCommand " + initialized);
-        if (initialized == false) {
+
             initializeService();
-            mSMSreceiver = new SMSreceiver();
+         /*   mSMSreceiver = new SMSreceiver();
             mIntentFilter = new IntentFilter();
-            mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");
-            registerReceiver(mSMSreceiver, mIntentFilter);
+            mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");*/
+           // registerReceiver(mSMSreceiver, mIntentFilter);
             SmsObserver myObserver = new SmsObserver(new Handler());
             ContentResolver contentResolver = this.getApplicationContext().getContentResolver();
             contentResolver.registerContentObserver(Uri.parse("content://sms/sent"), true, myObserver);
-        }
-        return START_STICKY;
+
+        return START_REDELIVER_INTENT;
 
     }
 
@@ -83,7 +83,7 @@ public class SmsRadarService extends Service {
         super.onDestroy();
         Log.e("antx", "onDestroy finishService");
         finishService();
-        this.unregisterReceiver(mSMSreceiver);
+//        this.unregisterReceiver(mSMSreceiver);
     }
 
     @Override

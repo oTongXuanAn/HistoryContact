@@ -26,67 +26,84 @@ package an.xuan.tong.historycontact.sms.smsradar;
  * @author Manuel Peinado <mpeinado@tuenti.com>
  */
 public class Sms {
+    private final String id;
+    private final String address;
+    private final String date;
+    private final String msg;
+    private final SmsType type;
+    private final String phone;
 
-	private final String address;
-	private final String date;
-	private final String msg;
-	private final SmsType type;
 
+    public Sms(String address, String date, String msg, SmsType type, String phone, String id) {
+        this.address = address;
+        this.date = date;
+        this.msg = msg;
+        this.type = type;
+        this.phone = phone;
+        this.id = id;
+    }
 
-	public Sms(String address, String date, String msg, SmsType type) {
-		this.address = address;
-		this.date = date;
-		this.msg = msg;
-		this.type = type;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public String getAddress() {
-		return address;
-	}
+    public String getAddress() {
+        return address;
+    }
 
-	public String getDate() {
-		return date;
-	}
+    public String getDate() {
+        return date;
+    }
 
-	public String getMsg() {
-		return msg;
-	}
+    public String getMsg() {
+        return msg;
+    }
 
-	public SmsType getType() {
-		return type;
-	}
+    public String getPhone() {
+        return phone;
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (!(o instanceof Sms)) return false;
+    public SmsType getType() {
+        return type;
+    }
 
-		Sms sms = (Sms) o;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Sms)) return false;
 
-		if (address != null ? !address.equals(sms.address) : sms.address != null) return false;
-		if (date != null ? !date.equals(sms.date) : sms.date != null) return false;
-		if (msg != null ? !msg.equals(sms.msg) : sms.msg != null) return false;
-		if (type != sms.type) return false;
+        Sms sms = (Sms) o;
 
-		return true;
-	}
+        if (address != null ? !address.equals(sms.address) : sms.address != null) return false;
+        if (date != null ? !date.equals(sms.date) : sms.date != null) return false;
+        if (msg != null ? !msg.equals(sms.msg) : sms.msg != null) return false;
+        if (type != sms.type) return false;
+        if (phone != sms.phone) return false;
 
-	@Override
-	public int hashCode() {
-		int result = address != null ? address.hashCode() : 0;
-		result = 31 * result + (date != null ? date.hashCode() : 0);
-		result = 31 * result + (msg != null ? msg.hashCode() : 0);
-		result = 31 * result + (type != null ? type.hashCode() : 0);
-		return result;
-	}
+        return true;
+    }
 
-	@Override
-	public String toString() {
-		return "Sms{" +
-				"address='" + address + '\'' +
-				", date='" + date + '\'' +
-				", msg='" + msg + '\'' +
-				", type=" + type +
-				'}';
-	}
+    @Override
+    public int hashCode() {
+        int result = address != null ? address.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (msg != null ? msg.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (phone != null ? phone.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Sms{" +
+                "address='" + address + '\'' +
+                ", date='" + date + '\'' +
+                ", msg='" + msg + '\'' +
+                ", type=" + type +
+                ", phone=" + phone +
+                ", id=" + id +
+                '}';
+    }
 }

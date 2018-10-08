@@ -246,6 +246,7 @@ class MainActivity : AppCompatActivity() {
         val RECORD_AUDIO = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.RECORD_AUDIO)
         val READ_SMS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_SMS)
         val SEND_SMS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.SEND_SMS)
+        val READ_CONTACTS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CONTACTS)
 
         if (ACCESS_FINE_LOCATION != PackageManager.PERMISSION_GRANTED
                 || ACCESS_COARSE_LOCATION != PackageManager.PERMISSION_GRANTED
@@ -256,8 +257,11 @@ class MainActivity : AppCompatActivity() {
                 || RECORD_AUDIO != PackageManager.PERMISSION_GRANTED
                 || READ_SMS != PackageManager.PERMISSION_GRANTED
                 || SEND_SMS != PackageManager.PERMISSION_GRANTED
+                || READ_CONTACTS != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECEIVE_SMS, Manifest.permission.GET_ACCOUNTS, Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO), requestCode)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECEIVE_SMS, Manifest.permission.GET_ACCOUNTS
+                    , Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_SMS
+                    , Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS), requestCode)
             return false
         }
         return true

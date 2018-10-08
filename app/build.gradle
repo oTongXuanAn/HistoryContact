@@ -43,5 +43,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     implementation 'com.google.android.gms:play-services-auth:16.0.0'
     implementation 'com.google.firebase:firebase-auth:16.0.3'
+    compile 'com.google.api-client:google-api-client:1.22.0'
+    compile 'com.google.http-client:google-http-client-gson:1.22.0'
 }
 apply plugin: 'com.google.gms.google-services'

