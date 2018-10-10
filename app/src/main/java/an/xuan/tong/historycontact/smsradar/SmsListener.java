@@ -13,14 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package an.xuan.tong.historycontact.sms.smsradar;
+package an.xuan.tong.historycontact.smsradar;
 
-import java.util.Date;
+/**
+ * This interface has to be implemented to be notified when an sms be received or sent.
+ *
+ * @author Pedro Vcente Gómez Sánchez <pgomez@tuenti.com>
+ * @author Manuel Peinado <mpeinado@tuenti.com>
+ */
+public interface SmsListener {
 
-class TimeProvider {
+	/**
+	 * Invoked when an incoming sms is intercepted.
+	 *
+	 * @param sms intercepted.
+	 */
+	public void onSmsSent(Sms sms);
 
-	public Date getDate() {
-		return new Date();
-	}
+	/**
+	 * Invoked when an outgoing sms is intercepted.
+	 *
+	 * @param sms
+	 */
+	public void onSmsReceived(Sms sms);
 
 }

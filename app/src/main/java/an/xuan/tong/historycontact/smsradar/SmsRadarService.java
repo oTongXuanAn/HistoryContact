@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package an.xuan.tong.historycontact.sms.smsradar;
+package an.xuan.tong.historycontact.smsradar;
 
 
 import android.app.AlarmManager;
@@ -25,10 +25,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.telephony.SmsMessage;
 import android.util.Log;
 
 
@@ -77,19 +75,16 @@ public class SmsRadarService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.e("antx", "sms: onStartCommand " + initialized);
-
-
-
-        return START_STICKY ;
+        return START_STICKY;
 
     }
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         Log.e("antx", "onDestroy finishService");
+       // this.unregisterReceiver(mSMSreceiver);
         finishService();
-//        this.unregisterReceiver(mSMSreceiver);
+        super.onDestroy();
     }
 
     @Override
@@ -137,8 +132,8 @@ public class SmsRadarService extends Service {
     private void finishService() {
         Log.e("antx", "SMS finishService");
         initialized = false;
-        //unregisterSmsContentObserver();
-        restartService();
+        unregisterSmsContentObserver();
+        //restartService();
 
 
     }

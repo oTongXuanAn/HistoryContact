@@ -13,28 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package an.xuan.tong.historycontact.sms.smsradar;
+package an.xuan.tong.historycontact.smsradar;
 
 /**
- * This interface has to be implemented to be notified when an sms be received or sent.
+ * The SmsStorage has the responsibility to store the last sms intercepted by the library.
  *
- * @author Pedro Vcente Gómez Sánchez <pgomez@tuenti.com>
+ * @author Pedro Vicente Gómez Sánchez <pgomez@tuenti.com>
  * @author Manuel Peinado <mpeinado@tuenti.com>
  */
-public interface SmsListener {
+interface SmsStorage {
 
-	/**
-	 * Invoked when an incoming sms is intercepted.
-	 *
-	 * @param sms intercepted.
-	 */
-	public void onSmsSent(Sms sms);
 
-	/**
-	 * Invoked when an outgoing sms is intercepted.
-	 *
-	 * @param sms
-	 */
-	public void onSmsReceived(Sms sms);
+	void updateLastSmsIntercepted(int smsId);
 
+	int getLastSmsIntercepted();
+
+	boolean isFirstSmsIntercepted();
 }

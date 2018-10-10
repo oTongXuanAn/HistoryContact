@@ -33,4 +33,9 @@ ext {
     libraryVersion = "1.2.8"
     libraryVersionCode = 18
     supportVersion = "27.1.0"
+    lib_versions = [
+            okhttp  : '3.10.1',
+            retrofit: '2.0.2',
+            jdeferred: '1.2.4'
+    ]
 }

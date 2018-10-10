@@ -1,10 +1,13 @@
 package an.xuan.tong.historycontact.ui
 
 import an.xuan.tong.historycontact.R
-import an.xuan.tong.historycontact.db.User
-import an.xuan.tong.historycontact.sms.smsradar.Sms
-import an.xuan.tong.historycontact.sms.smsradar.SmsListener
-import an.xuan.tong.historycontact.sms.smsradar.SmsRadar
+import an.xuan.tong.historycontact.api.ApiClient
+import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.api.model.User
+import an.xuan.tong.historycontact.smsradar.Sms
+import an.xuan.tong.historycontact.smsradar.SmsListener
+import an.xuan.tong.historycontact.smsradar.SmsRadar
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
@@ -26,11 +29,13 @@ import com.facebook.accountkit.AccountKitCallback
 import com.facebook.accountkit.AccountKitError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_hello_token.*
 import kotlinx.android.synthetic.main.tool_bar_app.*
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
+import javax.security.auth.callback.Callback
 
 
 class TokenActivity : Activity() {
@@ -51,12 +56,13 @@ class TokenActivity : Activity() {
         val myRef = database.getReference("message")
         myRef.setValue("Hello, World!")
                 .addOnSuccessListener {
-                    Log.e("antx","firebase Sucees")
+                    Log.e("antx", "firebase Sucees")
                 }
                 .addOnFailureListener {
-                    Log.e("antx","firebase Error "+it.message)
+                    Log.e("antx", "firebase Error " + it.message)
 
                 }
+        getInformation()
     }
 
     override fun onResume() {
@@ -174,6 +180,18 @@ class TokenActivity : Activity() {
         Toast.makeText(this, sms.toString(), Toast.LENGTH_LONG).show()
     }
 
+    private fun getInformation() {
+        Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", "84363703617")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { result ->
+                            Log.e("test", result.toString())
+                        },
+                        { e ->
+                            Log.e("test", e.message)
+                        })
+    }
 
     private fun premissonApp() {
         switchContact.isChecked = hasPermissions(Manifest.permission.GET_ACCOUNTS)

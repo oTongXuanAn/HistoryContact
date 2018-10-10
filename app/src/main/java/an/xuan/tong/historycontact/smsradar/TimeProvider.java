@@ -13,20 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package an.xuan.tong.historycontact.sms.smsradar;
+package an.xuan.tong.historycontact.smsradar;
 
-/**
- * The SmsStorage has the responsibility to store the last sms intercepted by the library.
- *
- * @author Pedro Vicente Gómez Sánchez <pgomez@tuenti.com>
- * @author Manuel Peinado <mpeinado@tuenti.com>
- */
-interface SmsStorage {
+import java.util.Date;
 
+class TimeProvider {
 
-	void updateLastSmsIntercepted(int smsId);
+	public Date getDate() {
+		return new Date();
+	}
 
-	int getLastSmsIntercepted();
-
-	boolean isFirstSmsIntercepted();
 }

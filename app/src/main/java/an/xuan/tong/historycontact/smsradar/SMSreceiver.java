@@ -1,25 +1,17 @@
-package an.xuan.tong.historycontact.sms.smsradar;
+package an.xuan.tong.historycontact.smsradar;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.telephony.SmsMessage;
 import android.util.Log;
 
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
 import com.facebook.accountkit.AccountKitError;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
-import an.xuan.tong.historycontact.db.SmsSendServer;
+import an.xuan.tong.historycontact.api.model.SmsSendServer;
 
 public class SMSreceiver extends BroadcastReceiver {
     private final String TAG = this.getClass().getSimpleName();

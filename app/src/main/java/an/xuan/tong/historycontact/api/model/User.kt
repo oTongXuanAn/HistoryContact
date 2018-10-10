@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.db
+package an.xuan.tong.historycontact.api.model
 
 
 import com.google.firebase.database.Exclude
