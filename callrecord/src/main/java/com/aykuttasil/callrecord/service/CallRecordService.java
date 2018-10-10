@@ -26,9 +26,7 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
  */
 
 public class CallRecordService extends Service {
-
     private static final String TAG = CallRecordService.class.getSimpleName();
-
     protected CallRecord mCallRecord;
 
     @Nullable
@@ -36,7 +34,6 @@ public class CallRecordService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
-
     @Override
     public void onCreate() {
         super.onCreate();
