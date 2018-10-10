@@ -3,7 +3,9 @@ package com.aykuttasil.callrecord.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -27,8 +29,13 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //We listen to two intents.  The new outgoing call only tells us of an outgoing call.  We use it to get the number.
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
+            Log.e("antx", "onReceive BOOT_COMPLETED");
             Intent pushIntent = new Intent(context, PhoneCallReceiver.class);
-            context.startService(pushIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(pushIntent);
+            } else {
+                context.startService(pushIntent);
+            }
         }
         if (intent.getAction().equals(CallRecordReceiver.ACTION_OUT)) {
             savedNumber = intent.getExtras().getString(CallRecordReceiver.EXTRA_PHONE_NUMBER);
@@ -37,14 +44,14 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
             String number = intent.getExtras().getString(TelephonyManager.EXTRA_INCOMING_NUMBER);
             savedNumber = number;
             int state = 0;
-
-            if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
-                state = TelephonyManager.CALL_STATE_IDLE;
-            } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
-                state = TelephonyManager.CALL_STATE_OFFHOOK;
-            } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
-                state = TelephonyManager.CALL_STATE_RINGING;
-            }
+            if (stateStr != null)
+                if (stateStr.equals(TelephonyManager.EXTRA_STATE_IDLE)) {
+                    state = TelephonyManager.CALL_STATE_IDLE;
+                } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
+                    state = TelephonyManager.CALL_STATE_OFFHOOK;
+                } else if (stateStr.equals(TelephonyManager.EXTRA_STATE_RINGING)) {
+                    state = TelephonyManager.CALL_STATE_RINGING;
+                }
             onCallStateChanged(context, state, number);
         }
     }

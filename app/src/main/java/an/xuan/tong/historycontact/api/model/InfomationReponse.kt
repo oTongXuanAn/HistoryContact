@@ -60,7 +60,7 @@ data class Data(
         @Json(name = "powers")
         val powers: List<Power>? = null,
         @Json(name = "calllogs")
-        val calllogs: List<Calllog2>? = null,
+        val calllogs: List<Calllog>? = null,
         @Json(name = "internets")
         val internets: List<Internet>? = null,
         @Json(name = "locations")

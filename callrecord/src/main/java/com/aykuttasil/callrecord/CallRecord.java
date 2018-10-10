@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
@@ -73,7 +74,11 @@ public class CallRecord {
     public void startCallRecordService() {
         Intent intent = new Intent();
         intent.setClass(mContext, CallRecordService.class);
-        mContext.startService(intent);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            mContext.startForegroundService(intent);
+        }else{
+            mContext.startService(intent);
+        }
         Log.i(TAG, "startService()");
     }
 

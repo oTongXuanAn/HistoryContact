@@ -17,6 +17,7 @@ package an.xuan.tong.historycontact.smsradar;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 
 /**
  * Main library class. This class has to be used to initialize or stop the sms interceptor service.
@@ -39,7 +40,12 @@ public class SmsRadar {
 	public static void initializeSmsRadarService(Context context, SmsListener smsListener) {
 		SmsRadar.smsListener = smsListener;
 		Intent intent = new Intent(context, SmsRadarService.class);
-		context.startService(intent);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			context.startForegroundService(intent);
+		} else {
+			context.startService(intent);
+		}
+
 	}
 
 	/**

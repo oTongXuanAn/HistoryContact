@@ -3,6 +3,7 @@ package an.xuan.tong.historycontact.ui
 import an.xuan.tong.historycontact.R
 import android.Manifest
 import android.annotation.TargetApi
+import android.app.Notification
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -40,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {
             startActivity(Intent(this, TokenActivity::class.java))
         }
-
     }
 
 

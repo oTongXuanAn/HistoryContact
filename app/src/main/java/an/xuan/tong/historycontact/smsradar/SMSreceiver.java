@@ -3,9 +3,11 @@ package an.xuan.tong.historycontact.smsradar;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.aykuttasil.callrecord.receiver.PhoneCallReceiver;
 import com.facebook.accountkit.Account;
 import com.facebook.accountkit.AccountKit;
 import com.facebook.accountkit.AccountKitCallback;
@@ -18,8 +20,24 @@ public class SMSreceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED"))
+       /* if (intent.getAction().equals("android.provider.Telephony.SMS_RECEIVED"))
             Log.e(TAG + "antx", "SMSreceiver onReceive SMS_RECEIVED");
+        if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
+            Log.e("antx", "onReceive sms BOOT_COMPLETED");
+            Intent intentSms = new Intent(context, SmsRadarService.class);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intentSms);
+            } else {
+                context.startService(intentSms);
+            }
+        }*/
+        if ("android.intent.action.QUICKBOOT_POWEROFF".equals(intent.getAction())) {
+            Log.e("antx", "onReceive sms BOOT_COMPLETED");
+        }
+        if ("android.intent.action.ACTION_SHUTDOWN".equals(intent.getAction())) {
+            Log.e("antx", "onReceive sms ACTION_SHUTDOWN");
+        }
+
         Bundle extras = intent.getExtras();
         String strMessage = "";
         final String fAccountId;

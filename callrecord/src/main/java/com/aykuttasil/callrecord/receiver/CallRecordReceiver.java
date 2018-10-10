@@ -42,34 +42,40 @@ public class CallRecordReceiver extends PhoneCallReceiver {
 
     @Override
     protected void onIncomingCallAnswered(Context context, String number, Date start) {
+        Log.e("antx","call onIncomingCallAnswered");
         startRecord(context, "incoming", number);
     }
 
     @Override
     protected void onIncomingCallEnded(Context context, String number, Date start, Date end) {
+        Log.e("antx","call onIncomingCallEnded");
         stopRecord(context);
     }
 
     @Override
     protected void onOutgoingCallStarted(Context context, String number, Date start) {
         startRecord(context, "outgoing", number);
+        Log.e("antx","call onOutgoingCallStarted");
     }
 
     @Override
     protected void onOutgoingCallEnded(Context context, String number, Date start, Date end) {
         stopRecord(context);
+        Log.e("antx","call onOutgoingCallEnded");
     }
 
     @Override
     protected void onMissedCall(Context context, String number, Date start) {
-
+        Log.e("antx","call onMissedCall");
     }
 
     // Derived classes could override these to respond to specific events of interest
     protected void onRecordingStarted(Context context, CallRecord callRecord, File audioFile) {
+        Log.e("antx","call onRecordingStarted");
     }
 
     protected void onRecordingFinished(Context context, CallRecord callRecord, File audioFile) {
+        Log.e("antx","call onRecordingFinished");
     }
 
     private void startRecord(Context context, String seed, String phoneNumber) {
