@@ -48,6 +48,8 @@ private fun savePowerOnOff(isPowerOn: Boolean, isSend: Boolean) {
 private fun filterPowerNotSend() {
     val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
     //mRealm.where(PowerHistoryCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-    mRealm.where(PowerHistoryCaching::class.java).findAll()
+    mRealm.where(PowerHistoryCaching::class.java).findAll().find { i ->
+        i.isSend == true
+    }
 
 }
