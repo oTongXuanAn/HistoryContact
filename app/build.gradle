@@ -3,6 +3,9 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'realm-android'
+apply plugin: 'kotlin-kapt'
+
 
 
 android {
@@ -34,6 +37,9 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     compile project(':callrecord')
+    //kotlin
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     implementation 'com.facebook.android:account-kit-sdk:4.+'
 
@@ -55,7 +61,6 @@ dependencies {
     compile "com.squareup.retrofit2:retrofit:2.3.0"
     compile "com.squareup.retrofit2:adapter-rxjava2:2.3.0"
     compile "com.squareup.retrofit2:converter-gson:2.3.0"
-
     compile "io.reactivex.rxjava2:rxandroid:2.0.1"
 
 }

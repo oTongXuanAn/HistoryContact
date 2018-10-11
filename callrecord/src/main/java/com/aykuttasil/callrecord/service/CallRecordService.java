@@ -34,11 +34,12 @@ public class CallRecordService extends Service {
     public IBinder onBind(Intent intent) {
         return null;
     }
+
     @Override
     public void onCreate() {
         super.onCreate();
         Log.e(TAG + "antx", "onCreate()");
-        /*NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         String channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
         Notification notification = notificationBuilder.setOngoing(true)
@@ -46,7 +47,7 @@ public class CallRecordService extends Service {
                 .setPriority(PRIORITY_MIN)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .build();
-        startForeground(99, notification);*/
+        startForeground(99, notification);
 
     }
 
@@ -93,7 +94,7 @@ public class CallRecordService extends Service {
     public void onDestroy() {
         super.onDestroy();
         mCallRecord.stopCallReceiver();
-       // stopForeground(true);
+        stopForeground(true);
         Log.e(TAG + "antx", "onDestroy()");
     }
 }

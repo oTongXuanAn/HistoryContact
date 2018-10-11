@@ -1,10 +1,13 @@
 package an.xuan.tong.historycontact.ui
 
 import an.xuan.tong.historycontact.R
-import an.xuan.tong.historycontact.api.ApiClient
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.api.model.InformationResponse
+import an.xuan.tong.historycontact.api.model.Message
 import an.xuan.tong.historycontact.api.model.User
+import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.smsradar.Sms
 import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
@@ -28,41 +31,36 @@ import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
 import com.facebook.accountkit.AccountKitError
 import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_hello_token.*
 import kotlinx.android.synthetic.main.tool_bar_app.*
+import retrofit2.http.GET
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.security.auth.callback.Callback
+import kotlin.collections.HashMap
 
 
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
     private var mDatabase: DatabaseReference? = null
+
+    private val mKeyAPI: String by lazy {
+        // Get Value of annotation API for save cache as KEY_CACHE
+        val method = ApiService::getInfomation
+        val get = method.annotations.find { it is GET } as? GET
+        get?.value + ""
+    }
+
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
-        mDatabase = FirebaseDatabase.getInstance().reference
         initView()
-        startCallService()
-        ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23);
-        if (ContextCompat.checkSelfPermission(getBaseContext(), "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
-            Log.e("antx", " TokenActivity initializeSmsRadarService")
-            initializeSmsRadarService()
-        }
-        val database = FirebaseDatabase.getInstance()
-        val myRef = database.getReference("message")
-        myRef.setValue("Hello, World!")
-                .addOnSuccessListener {
-                    Log.e("antx", "firebase Sucees")
-                }
-                .addOnFailureListener {
-                    Log.e("antx", "firebase Error " + it.message)
-
-                }
         getInformation()
+        //insertSms()
     }
 
     override fun onResume() {
@@ -85,6 +83,7 @@ class TokenActivity : Activity() {
     }
 
     private fun initView() {
+
         switchContact.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -123,7 +122,7 @@ class TokenActivity : Activity() {
                 intent.data = Uri.parse("package:$packageName")
                 startActivity(intent)
             }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+            event.actionMasked == MotionEvent.ACTION_MOVE
         }
         switchSMS.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
@@ -135,6 +134,8 @@ class TokenActivity : Activity() {
         }
         log_out_button.setOnClickListener {
             AccountKit.logOut()
+            stopSmsRadarService()
+            stopCallService()
             finish()
         }
         toolbarImageLeft.setOnClickListener {
@@ -176,21 +177,74 @@ class TokenActivity : Activity() {
         SmsRadar.stopSmsRadarService(this)
     }
 
-    private fun showSmsToast(sms: Sms) {
-        Toast.makeText(this, sms.toString(), Toast.LENGTH_LONG).show()
-    }
-
     private fun getInformation() {
-        Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", "84363703617")
+        Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", "84927356834")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { result ->
                             Log.e("test", result.toString())
+                            handlerGetInformationSccess(result)
+                            Log.e("antx", "token: " + convertJsonToObject(getCacheInformation()?.data).token)
+                            insertSms()
                         },
                         { e ->
                             Log.e("test", e.message)
                         })
+    }
+
+    private fun insertSms() {
+        val token = convertJsonToObject(getCacheInformation()?.data).token
+        var hmAuthToken = hashMapOf("Authorization" to "Bearer$token")
+        var acountId = convertJsonToObject(getCacheInformation()?.data).data?.id
+        val mAuthToken = HashMap(hmAuthToken)
+        var message=Message(3, acountId, "84927356834",
+                -121212, "location", "tin nhan test", true,convertJsonToObject(getCacheInformation()?.data).data)
+        acountId?.let {
+            Repository.createService(ApiService::class.java, mAuthToken).insertMessage(message, "2b11k2h3foes9f0809zdn398f0fasdmkj30")
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { result ->
+                                Log.e("antx", "insertSms" + result.toString())
+
+                            },
+                            { e ->
+                                Log.e("test", "insertSms error" + e.message)
+                            })
+        }
+    }
+
+
+    fun handlerGetInformationSccess(listData: InformationResponse) {
+        startCallService()
+        ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23)
+        if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
+            initializeSmsRadarService()
+        }
+        saveCacheInformation(listData)
+    }
+
+    private fun saveCacheInformation(listData: InformationResponse) {
+        val objCache = ApiCaching(mKeyAPI, Gson().toJson(listData), System.currentTimeMillis().toString())
+        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+        mRealm.beginTransaction()
+        mRealm.insertOrUpdate(objCache)
+        mRealm.commitTransaction()
+        mRealm.close()
+    }
+
+    private fun convertJsonToObject(json: String?): InformationResponse {
+        return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+    }
+
+    private fun getCacheInformation(): ApiCaching? {
+        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+        val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
+        // clone data if don't have this line -> crash app after "mRealm.close()"
+        val result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
+        mRealm.close()
+        return result
     }
 
     private fun premissonApp() {

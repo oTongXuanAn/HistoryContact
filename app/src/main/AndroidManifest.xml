@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.ACTION_SHUTDOWN" />
     <uses-permission android:name="Manifest.permission.FOREGROUND_SERVICE" />
 
@@ -72,17 +72,18 @@
             android:stopWithTask="false" />
         />
         <receiver
-            android:name=".smsradar.SMSreceiver"
+            android:name=".Service.SMSreceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
-                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                    tools:ignore="BatteryLife" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>

@@ -3,7 +3,7 @@ package an.xuan.tong.historycontact.api.model
 
 import com.squareup.moshi.Json
 
-data class Account (
+data class Account22(
         @Json(name = "id")
     var id: Int = 0,
         @Json(name = "phone")
@@ -43,7 +43,7 @@ data class Account (
 
 )
 
-data class InfomationReponse (
+data class InfomationReponse2 (
     @Json(name = "id")
     var id: Int = 0,
     @Json(name = "idaccount")

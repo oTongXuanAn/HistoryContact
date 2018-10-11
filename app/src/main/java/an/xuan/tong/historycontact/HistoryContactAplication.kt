@@ -4,17 +4,15 @@ import android.app.Application
 import android.os.Build
 import android.os.StrictMode
 import com.google.firebase.database.FirebaseDatabase
+import io.realm.Realm
+import io.realm.RealmConfiguration
 
 
 class HistoryContactAplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // Kitkat and lower has a bug that can cause in correct strict mode
-            // warnings about expected activity counts
-            //enableStrictMode()
-        }
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+        Realm.init(this)
 
     }
 

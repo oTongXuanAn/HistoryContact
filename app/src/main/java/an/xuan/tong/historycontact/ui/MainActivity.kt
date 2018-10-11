@@ -40,6 +40,8 @@ class MainActivity : AppCompatActivity() {
         checkAndRequestLocationPermissionApp(0)
         if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {
             startActivity(Intent(this, TokenActivity::class.java))
+        }else{
+            onLogin(LoginType.PHONE)
         }
     }
 

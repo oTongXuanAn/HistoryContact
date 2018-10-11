@@ -32,7 +32,7 @@ data class City(
         @Json(name = "accounts")
         val accounts: List<Any>? = null)
 
-data class Data(
+data class Account(
         @Json(name = "id")
         val id: Int? = null,
         @Json(name = "phone")
@@ -110,7 +110,9 @@ data class Message(
         @Json(name = "contentmessage")
         val contentmessage: String? = null,
         @Json(name = "status")
-        val status: Boolean? = null)
+        val status: Boolean? = null,
+        val accounts: Account? = null
+)
 
 
 data class Power(
@@ -123,11 +125,11 @@ data class Power(
         @Json(name = "status")
         val status: Boolean? = null)
 
-data class TokenReponse(
+data class InformationResponse(
         @Json(name = "token")
         val token: String? = null,
         @Json(name = "data")
-        val data: Data? = null,
+        val data: Account? = null,
         @Json(name = "status")
         val status: String? = null,
         @Json(name = "message")

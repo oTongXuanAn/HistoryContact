@@ -34,6 +34,8 @@ import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import an.xuan.tong.historycontact.Service.SMSreceiver;
+
 
 /**
  * Service created to handle the SmsContentObserver registration. This service has the responsibility of register and
@@ -66,12 +68,21 @@ public class SmsRadarService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        initializeService();
-         /*   mSMSreceiver = new SMSreceiver();
-            mIntentFilter = new IntentFilter();
-            mIntentFilter.addAction("android.provider.Telephony.SMS_RECEIVED");*/
-        // registerReceiver(mSMSreceiver, mIntentFilter);
 
+        initializeService();
+        Log.e("antx", "sms: onStartCommand " + initialized);
+        if (Build.VERSION.SDK_INT >= 26) {
+            String CHANNEL_ID = "my_channel_01";
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+
+            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
+            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("")
+                    .setContentText("").build();
+            startForeground(99, notification);
+        }
 
         SmsObserver myObserver = new SmsObserver(new Handler());
         ContentResolver contentResolver = this.getApplicationContext().getContentResolver();
@@ -81,21 +92,7 @@ public class SmsRadarService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.e("antx", "sms: onStartCommand " + initialized);
-        if (Build.VERSION.SDK_INT >= 26) {
-            String CHANNEL_ID = "my_channel_01";
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                    "Channel human readable title",
-                    NotificationManager.IMPORTANCE_DEFAULT);
 
-            ((NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE)).createNotificationChannel(channel);
-
-            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                    .setContentTitle("")
-                    .setContentText("").build();
-
-            startForeground(1, notification);
-        }
         return START_STICKY;
 
     }
