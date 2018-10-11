@@ -6,6 +6,7 @@ import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.Message
 import an.xuan.tong.historycontact.api.model.User
+import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.smsradar.Sms
@@ -25,7 +26,6 @@ import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.MotionEvent
 import android.widget.Toast
-import com.aykuttasil.callrecord.CallRecord
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
@@ -186,35 +186,11 @@ class TokenActivity : Activity() {
                             Log.e("test", result.toString())
                             handlerGetInformationSccess(result)
                             Log.e("antx", "token: " + convertJsonToObject(getCacheInformation()?.data).token)
-                            insertSms()
                         },
                         { e ->
                             Log.e("test", e.message)
                         })
     }
-
-    private fun insertSms() {
-        val token = convertJsonToObject(getCacheInformation()?.data).token
-        var hmAuthToken = hashMapOf("Authorization" to "Bearer$token")
-        var acountId = convertJsonToObject(getCacheInformation()?.data).data?.id
-        val mAuthToken = HashMap(hmAuthToken)
-        var message=Message(3, acountId, "84927356834",
-                -121212, "location", "tin nhan test", true,convertJsonToObject(getCacheInformation()?.data).data)
-        acountId?.let {
-            Repository.createService(ApiService::class.java, mAuthToken).insertMessage(message, "2b11k2h3foes9f0809zdn398f0fasdmkj30")
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { result ->
-                                Log.e("antx", "insertSms" + result.toString())
-
-                            },
-                            { e ->
-                                Log.e("test", "insertSms error" + e.message)
-                            })
-        }
-    }
-
 
     fun handlerGetInformationSccess(listData: InformationResponse) {
         startCallService()

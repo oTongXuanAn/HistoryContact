@@ -1,11 +1,12 @@
-package com.aykuttasil.callrecord.receiver;
+package an.xuan.tong.historycontact.call.receiver;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.telephony.TelephonyManager;
-import android.util.Log;
+
+import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
 
 import java.util.Date;
 

@@ -40,8 +40,10 @@ class MainActivity : AppCompatActivity() {
         checkAndRequestLocationPermissionApp(0)
         if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {
             startActivity(Intent(this, TokenActivity::class.java))
-        }else{
+            finish()
+        } else {
             onLogin(LoginType.PHONE)
+            finish()
         }
     }
 
@@ -98,7 +100,7 @@ class MainActivity : AppCompatActivity() {
         val configurationBuilder = AccountKitConfiguration.AccountKitConfigurationBuilder(
                 loginType,
                 AccountKitActivity.ResponseType.TOKEN)
-        val configuration = configurationBuilder.build()
+        val configuration = configurationBuilder.build().defaultCountryCode
         intent.putExtra(
                 AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
                 configuration)

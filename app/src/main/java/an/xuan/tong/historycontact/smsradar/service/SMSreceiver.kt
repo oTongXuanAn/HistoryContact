@@ -1,11 +1,10 @@
-package an.xuan.tong.historycontact.Service
+package an.xuan.tong.historycontact.smsradar.service
 
 import an.xuan.tong.historycontact.api.ApiService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.support.annotation.RequiresPermission
 import android.util.Log
 
 import an.xuan.tong.historycontact.realm.ApiCaching
@@ -13,7 +12,6 @@ import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.smsradar.SmsRadarService
 import io.realm.Realm
 import retrofit2.http.GET
-import android.net.NetworkInfo
 import android.net.ConnectivityManager
 
 

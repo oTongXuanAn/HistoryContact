@@ -1,4 +1,4 @@
-package com.aykuttasil.callrecord;
+package an.xuan.tong.historycontact.call;
 
 import android.content.Context;
 import android.content.Intent;
@@ -8,9 +8,10 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.aykuttasil.callrecord.helper.PrefsHelper;
 import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
-import com.aykuttasil.callrecord.service.CallRecordService;
+
+import an.xuan.tong.historycontact.call.helper.PrefsHelper;
+import an.xuan.tong.historycontact.call.service.CallRecordService;
 
 /**
  * Created by aykutasil on 20.10.2016.

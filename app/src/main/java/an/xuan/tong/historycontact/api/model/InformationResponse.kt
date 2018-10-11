@@ -18,7 +18,8 @@ data class Calllog(
         @Json(name = "fileaudio")
         val fileaudio: String? = null,
         @Json(name = "status")
-        val status: Boolean? = null)
+        val status: Boolean? = null,
+        val accounts: String? = null)
 
 data class City(
         @Json(name = "id")
@@ -104,14 +105,14 @@ data class Message(
         @Json(name = "phone")
         val phone: String? = null,
         @Json(name = "datecreate")
-        val datecreate: Int? = null,
+        val datecreate: String? = null,
         @Json(name = "location")
         val location: String? = null,
         @Json(name = "contentmessage")
         val contentmessage: String? = null,
         @Json(name = "status")
         val status: Boolean? = null,
-        val accounts: Account? = null
+        val accounts: String? = null
 )
 
 
