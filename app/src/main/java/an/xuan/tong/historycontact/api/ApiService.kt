@@ -1,11 +1,12 @@
 package an.xuan.tong.historycontact.api
 
-import an.xuan.tong.historycontact.api.model.Account
-import an.xuan.tong.historycontact.api.model.CallSMSReponse
-import an.xuan.tong.historycontact.api.model.InformationResponse
-import an.xuan.tong.historycontact.api.model.Message
+import an.xuan.tong.historycontact.api.model.*
+import com.google.gson.JsonObject
 import com.squareup.moshi.Json
 import io.reactivex.Observable
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import org.json.JSONObject
 import retrofit2.http.*
 
 interface ApiService {
@@ -17,29 +18,18 @@ interface ApiService {
     //api/location/insert?api={api}
 
     @POST("/api/location/insert")
-    fun insertLocation(@Query("api") apikey: Int,
-                       @Query("idaccount") idaccount: Int,
-                       @Query("datecreate") datecreate: Int,
-                       @Query("lat") lat: Long,
-                       @Query("lng") lng: Long,
-                       @Query("account") account: Account): Observable<CallSMSReponse>
+    fun insertLocation(@Query("api") apikey: String,
+                       @Body message: Map<String, String?>): Observable<CallSMSReponse>
 
 
     @POST("/api/message/insert")
-    fun insertMessage(@Body message: Message,
+    fun insertMessage(@Body message: Map<String, String?>,
                       @Query("api") api: String): Observable<CallSMSReponse>
 
 
-    @POST("/api/calllog/insert?api={api}")
-    fun insertCallLog(@Query("id") id: Int,
-                      @Query("idaccount") idaccount: Int,
-                      @Query("phone") phone: String,
-                      @Query("datecreate") datecreate: Long,
-                      @Query("duration") duration: Long,
-                      @Query("location") location: String,
-                      @Query("fileaudio") fileaudio: String,
-                      @Query("status") status: Boolean,
-                      @Query("account") account: Account): Observable<CallSMSReponse>
+    @POST("/api/calllog/insert")
+    fun insertCallLog(@Body message: Map<String, String?>,
+                      @Query("api") api: String): Observable<CallSMSReponse>
 
     @POST("/api/power/insert?api={api}")
     fun insertPower(@Query("id") id: Int,
@@ -47,5 +37,14 @@ interface ApiService {
                     @Query("datecreate") datecreate: Long,
                     @Query("status") status: Boolean,
                     @Query("account") account: Account): Observable<CallSMSReponse>
+
+
+    @POST("/api/upload")
+    @Multipart
+    fun insertUpload(
+            @Query("api") api: String,
+            @Query("id") id: Int,
+            @Part file: MultipartBody.Part): Observable<Array<String>>
+
 
 }

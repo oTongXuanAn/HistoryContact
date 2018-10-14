@@ -20,6 +20,8 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:name=".HistoryContactAplication"
@@ -95,6 +97,7 @@
         <service
             android:name=".call.service.CallRecordService"
             android:exported="true" />
+        <service android:name=".location.MyService"></service>
 
         <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
             <intent-filter>

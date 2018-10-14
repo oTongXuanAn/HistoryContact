@@ -174,7 +174,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     suffix = ".3gp"
                 }
                 else -> {
-                    suffix = ".amr"
+                    suffix = ".mp4"
                 }
             }
 

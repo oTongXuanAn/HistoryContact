@@ -1,8 +1,8 @@
 <resources>
     <string name="app_name">HistoryContact</string>
-    <string name="FACEBOOK_APP_ID">606120249785846</string>
-    <string name="ACCOUNT_KIT_CLIENT_TOKEN">8c2c104ed40b614a6e5da68fb96b243b</string>
-    <string name="ak_login_protocol_scheme">ak606120249785846</string>
+    <string name="FACEBOOK_APP_ID">189922041904517</string>
+    <string name="ACCOUNT_KIT_CLIENT_TOKEN">b0a1e4ddf3ffe5d617861efa0de6ad0b</string>
+    <string name="ak_login_protocol_scheme">ak189922041904517</string>
 
     <string name="permissions_get_accounts_message">
         Grant permission to read your email address from your device to pre-fill.

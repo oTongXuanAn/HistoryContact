@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -87,7 +88,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_contact" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchContact"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
@@ -110,7 +111,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_location" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchLocation"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
@@ -133,7 +134,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_microphone" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchMicrophone"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
@@ -156,7 +157,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_phone" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchPhone"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
@@ -179,7 +180,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_sms" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switchSMS"
                     android:layout_width="60dp"
                     android:layout_height="40dp"
@@ -202,7 +203,7 @@
                     android:layout_centerVertical="true"
                     android:text="@string/permission_storage" />
 
-                <Switch
+                <android.support.v7.widget.SwitchCompat
                     android:id="@+id/switcStorage"
                     android:layout_width="60dp"
                     android:layout_height="40dp"

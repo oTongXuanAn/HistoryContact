@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
-    android:layout_height="?attr/actionBarSize"
+    android:layout_height="@dimen/_45dp"
     android:background="@color/colorPrimary">
 
     <RelativeLayout
@@ -19,8 +19,7 @@
             android:layout_centerVertical="true"
             android:adjustViewBounds="true"
             android:cropToPadding="true"
-            android:scaleType="centerInside"
-            android:src="@drawable/ic_arrow_back_black_24dp" />
+            android:scaleType="centerInside" />
 
     </RelativeLayout>
 

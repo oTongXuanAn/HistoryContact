@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             onLogin(LoginType.PHONE)
-            finish()
+           // finish()
         }
     }
 
@@ -83,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                 toastMessage = ("Success:" + accessToken.accountId
                         + tokenRefreshIntervalInSeconds)
                 startActivity(Intent(this, TokenActivity::class.java))
+                finish()
             } else {
                 toastMessage = "Unknown response type"
             }
@@ -100,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         val configurationBuilder = AccountKitConfiguration.AccountKitConfigurationBuilder(
                 loginType,
                 AccountKitActivity.ResponseType.TOKEN)
-        val configuration = configurationBuilder.build().defaultCountryCode
+        val configuration = configurationBuilder.build()
         intent.putExtra(
                 AccountKitActivity.ACCOUNT_KIT_ACTIVITY_CONFIGURATION,
                 configuration)

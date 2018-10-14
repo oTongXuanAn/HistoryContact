@@ -5,24 +5,38 @@ import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.Message
+import an.xuan.tong.historycontact.api.model.SmsSendServer
+import an.xuan.tong.historycontact.api.model.sendCallLogService
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
 import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
+import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import android.content.Context
 import android.media.MediaRecorder
+import android.net.Uri
 import android.util.Log
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.schedulers.Schedulers.*
 import io.realm.Realm
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.io.File
 import java.io.IOException
 import java.util.Date
+import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 import kotlin.collections.hashMapOf
 
@@ -34,6 +48,7 @@ class CallRecordReceiver : PhoneCallReceiver {
     protected lateinit var callRecord: CallRecord
     private var audiofile: File? = null
     private var isRecordStarted = false
+    var startTime = 0L
 
     constructor() {}
 
@@ -52,7 +67,13 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
-        stopRecord(context)
+        if (recorder != null && isRecordStarted) {
+            var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+            insertCall(number, dateStop.toString(), (dateStop - startTime).toString(), callRecord.recordFileName, true)
+        }
+
+        stopRecord(context, number)
+
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
@@ -61,8 +82,14 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
-        stopRecord(context)
+        var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        if (recorder != null && isRecordStarted) {
+            var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+            insertCall(number, dateStop.toString(), (dateStop - startTime).toString(), callRecord.recordFileName, false)
+        }
         Log.e("antx", "call onOutgoingCallEnded")
+        stopRecord(context)
+
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
@@ -106,6 +133,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     recorder!!.start()
                     isRecordStarted = true
                     onRecordingStarted(context, callRecord, audiofile)
+                    startTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
                     Log.i(TAG, "record start")
                 } else {
                     releaseMediaRecorder()
@@ -125,12 +153,19 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     }
 
-    private fun stopRecord(context: Context) {
+    private fun stopRecord(context: Context, number: String? = "") {
         try {
+
             if (recorder != null && isRecordStarted) {
                 releaseMediaRecorder()
                 isRecordStarted = false
                 onRecordingFinished(context, callRecord, audiofile)
+                audiofile?.path?.let {
+                    val file = File(it)
+                    Log.e("antx", "path " + it + " name: " + file.name)
+                    sendRcoderToServer(it);
+                }
+
                 Log.i(TAG, "record stop")
             }
         } catch (e: Exception) {
@@ -152,7 +187,6 @@ class CallRecordReceiver : PhoneCallReceiver {
             val audio_encoder = PrefsHelper.readPrefInt(context, CallRecord.PREF_AUDIO_ENCODER)
 
             val sampleDir = File("$dir_path/$dir_name")
-
             if (!sampleDir.exists()) {
                 sampleDir.mkdirs()
             }
@@ -189,7 +223,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     suffix = ".3gp"
                 }
                 else -> {
-                    suffix = ".amr"
+                    suffix = ".mp4"
                 }
             }
 
@@ -227,6 +261,7 @@ class CallRecordReceiver : PhoneCallReceiver {
             recorder!!.reset()
             recorder!!.release()
             recorder = null
+
         }
     }
 
@@ -238,27 +273,59 @@ class CallRecordReceiver : PhoneCallReceiver {
         private var recorder: MediaRecorder? = null
     }
 
-    private fun insertCall(acountId: Int, phoneNunber: String, datecreate: String, contentmessage: String, type: String) {
-        var status = (type == "SENT")
-        val token = convertJsonToObject(getCacheInformation()?.data).token
-        var hmAuthToken = hashMapOf("Authorization" to "Bearer$token")
-        var id = convertJsonToObject(getCacheInformation()?.data).data?.id
-        val mAuthToken = HashMap(hmAuthToken)
-        var account = Gson().toJson(convertJsonToObject(getCacheInformation()?.data).data)
-        var message = Message(id, acountId, phoneNunber,
-                datecreate, "location", contentmessage, status, account)
-        Log.e("dataSend", " " + message.toString())
-        acountId?.let {
-            Repository.createService(ApiService::class.java, mAuthToken).insertMessage(message, Constant.KEY_API)
-                    .subscribeOn(io())
+    private fun sendRcoderToServer(path: String) {
+        try {
+            val file = File("/storage/emulated/0/Historycontact/Record_14102018155758_outgoing_0363703617_947598073.mp4")
+            val token = convertJsonToObject(getCacheInformation()?.data).token
+            val result: HashMap<String, String> = HashMap()
+            result.put("Authorization", "Bearer $token")
+            result.put("Content-Type", "text/plain")
+            val temp = RequestBody.create(MediaType.parse("text/plain"), file)
+            var imageFile = MultipartBody.Part.createFormData("Audiofile", file.name, temp);
+            Log.e("imageFile: ", file.getName() + "   " + imageFile.toString())
+            Log.e("temp: ", "   " + temp)
+            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, 13, imageFile)
+                    .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
-                                Log.e("antx", "insertSms" + result.toString())
+                                for (i in result)
+                                Log
+                                         .e("antx", "sendRcoderToServer call " + i)
 
                             },
                             { e ->
-                                Log.e("test", "insertSms error" + e.message)
+                                Log.e("test", "sendRcoderToServer call error " + e.message)
+                            })
+        } catch (e: Exception) {
+            Log.e("antx Exception", e.message)
+        }
+
+    }
+
+    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean) {
+        val token = convertJsonToObject(getCacheInformation()?.data).token
+        val result: HashMap<String, String> = HashMap()
+        result.put("Authorization", "Bearer $token")
+        var id = convertJsonToObject(getCacheInformation()?.data).data?.id
+        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+        val locationCurrentRealm: LocationCurrent? = mRealm.where(LocationCurrent::class.java).contains("idCurrent", "current").findFirst()
+        var locationCurrent = LocationCurrent(null, locationCurrentRealm?.lat, locationCurrentRealm?.log)
+        mRealm.close()
+        var message = sendCallLogService(id, phoneNunber,
+                datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type)
+        Log.e("call send", " " + message.toString())
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { result ->
+                                Log.e("antx", "insert call " + result.toString())
+
+                            },
+                            { e ->
+                                Log.e("test", "insert call error " + e.message)
                             })
         }
     }
@@ -282,5 +349,4 @@ class CallRecordReceiver : PhoneCallReceiver {
         val get = method.annotations.find { it is GET } as? GET
         get?.value + ""
     }
-
 }

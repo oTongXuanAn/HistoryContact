@@ -17,31 +17,27 @@ package an.xuan.tong.historycontact.smsradar
 
 
 import an.xuan.tong.historycontact.Constant
-import android.content.ContentResolver
-import android.database.ContentObserver
-import android.database.Cursor
-import android.net.Uri
-import android.os.Handler
-import android.provider.ContactsContract
-import android.util.Log
-
-import com.facebook.accountkit.Account
-import com.facebook.accountkit.AccountKit
-import com.facebook.accountkit.AccountKitCallback
-import com.facebook.accountkit.AccountKitError
-import com.google.android.gms.tasks.OnFailureListener
-import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
-import com.google.gson.Gson
-
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
-import an.xuan.tong.historycontact.api.model.Message
 import an.xuan.tong.historycontact.api.model.SmsSendServer
+import an.xuan.tong.historycontact.location.LocationCurrent
+import an.xuan.tong.historycontact.location.MyService
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import android.content.ContentResolver
+import android.content.Context
+import android.content.SharedPreferences
+import android.database.ContentObserver
+import android.database.Cursor
+import android.location.Location
+import android.net.Uri
+import android.os.Bundle
+import android.os.Handler
+import android.provider.ContactsContract
+import android.util.Log
+import com.google.android.gms.flags.impl.SharedPreferencesFactory.getSharedPreferences
+import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -133,26 +129,7 @@ internal class SmsObserver : ContentObserver {
                     // mConno.add(position,phoneNumber);
                 }
                 phones.close()
-                sms?.let { insertSms(1, sms.address, it.date, it.msg, it.type.toString()); }
-
-                /*if (sms != null) {
-                    val finalPhonesNumber = phonesNumber
-                    AccountKit.getCurrentAccount(
-                            object : AccountKitCallback<Account> {
-                                override fun onSuccess(account: Account) {
-                                    val smsSendServer = SmsSendServer(account.id.toString(), sms.type.toString(), sms.msg, sms.date, sms.id, sms.address, finalPhonesNumber)
-                                    val mDatabase = FirebaseDatabase.getInstance().reference
-                                    Log.e("mDatabase", "token: processSms")
-                                    mDatabase.child("SMS").child(account.id.toString()).child(sms.phone).child(sms.id).setValue(smsSendServer)
-                                            .addOnSuccessListener { Log.e("mDatabase", "token: onSuccess") }
-                                            .addOnFailureListener { e -> Log.e("mDatabase", "token: onFailure " + e.message) }
-                                }
-
-                                override fun onError(accountKitError: AccountKitError) {
-
-                                }
-                            })
-                }*/
+                sms?.let { insertSms(sms.address, (it.date.toLong() / 1000).toString(), it.msg, it.type.toString()); }
             }
 
 
@@ -244,27 +221,29 @@ internal class SmsObserver : ContentObserver {
         private val SMS_ORDER = "date DESC"
     }
 
-    private fun insertSms(acountId: Int, phoneNunber: String, datecreate: String, contentmessage: String, type: String) {
+    private fun insertSms(phoneNunber: String, datecreate: String, contentmessage: String, type: String) {
         var status = (type == "SENT")
         val token = convertJsonToObject(getCacheInformation()?.data).token
-        var hmAuthToken = hashMapOf("Authorization" to "Bearer$token")
+        val result: HashMap<String, String> = HashMap()
+        result.put("Authorization", "Bearer $token")
         var id = convertJsonToObject(getCacheInformation()?.data).data?.id
-        val mAuthToken = HashMap(hmAuthToken)
-        var account = Gson().toJson(convertJsonToObject(getCacheInformation()?.data).data)
-        var message = Message(id, acountId, phoneNunber,
-                datecreate, "location", contentmessage, status, account)
+        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+        val locationCurrent: LocationCurrent? = mRealm.where(LocationCurrent::class.java).findFirst()
+        mRealm.close()
+        var message = SmsSendServer(id, phoneNunber,
+                datecreate, locationCurrent?.lat, locationCurrent?.log, contentmessage, status)
         Log.e("dataSend", " " + message.toString())
-        acountId?.let {
-            Repository.createService(ApiService::class.java, mAuthToken).insertMessage(message, Constant.KEY_API)
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
-                                Log.e("antx", "insertSms" + result.toString())
+                                Log.e("antx", "insertSms " + result.toString())
 
                             },
                             { e ->
-                                Log.e("test", "insertSms error" + e.message)
+                                Log.e("test", "insertSms error " + e.message)
                             })
         }
     }
@@ -288,6 +267,36 @@ internal class SmsObserver : ContentObserver {
         val get = method.annotations.find { it is GET } as? GET
         get?.value + ""
     }
+}
 
+class LocationListener(provider: String) : android.location.LocationListener {
+    companion object {
 
+    }
+
+    var mLastLocation: Location
+    var TAG = "Test"
+
+    init {
+
+        mLastLocation = Location(provider)
+        Log.e(TAG, "LocationListener ${mLastLocation.latitude} ${mLastLocation.longitude}")
+    }
+
+    override fun onLocationChanged(location: Location) {
+        Log.e(TAG, "onLocationChanged: $location")
+        mLastLocation.set(location)
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        Log.e(TAG, "onProviderDisabled: $provider")
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        Log.e(TAG, "onProviderEnabled: $provider")
+    }
+
+    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
+        Log.e(TAG, "onStatusChanged: $provider")
+    }
 }
