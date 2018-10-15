@@ -27,11 +27,9 @@ class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
         if (isOnline(context)) {
-
-            Log.e("antx", "Online Connect Intenet ");
+            Log.e("antx", "Online Connect Intenet ")
         } else {
-
-            Log.e("antx", "Conectivity Failure !!! ");
+            Log.e("antx", "Conectivity Failure !!! ")
         }
 
         // start device

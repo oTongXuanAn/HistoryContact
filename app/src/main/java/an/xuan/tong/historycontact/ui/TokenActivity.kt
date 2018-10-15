@@ -1,20 +1,22 @@
 package an.xuan.tong.historycontact.ui
 
+import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.R
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
-import an.xuan.tong.historycontact.api.model.Message
-import an.xuan.tong.historycontact.api.model.User
 import an.xuan.tong.historycontact.call.CallRecord
-import an.xuan.tong.historycontact.location.MyService
+import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.ApiCaching
+import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.Sms
 import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
@@ -22,11 +24,12 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.provider.CallLog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import android.view.MotionEvent
-import android.widget.Toast
+import android.view.View
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
@@ -42,7 +45,6 @@ import kotlinx.android.synthetic.main.tool_bar_app.*
 import retrofit2.http.GET
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.HashMap
 
 
 class TokenActivity : Activity() {
@@ -60,9 +62,11 @@ class TokenActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
+        getAllSMSDetails()
+        getAllCallDetails(this)
         getInformation()
         premissonApp()
-        //insertSms()
+
     }
 
     override fun onResume() {
@@ -119,14 +123,28 @@ class TokenActivity : Activity() {
             }
             event.getActionMasked() == MotionEvent.ACTION_MOVE
         }
-        log_out_button.setOnClickListener {
-            AccountKit.logOut()
-            stopSmsRadarService()
-            stopCallService()
-            finish()
-        }
+
         toolbarImageLeft.setOnClickListener {
             onBackPressed()
+        }
+    }
+
+    fun finshAll() {
+        AccountKit.logOut()
+        stopSmsRadarService()
+        stopCallService()
+        finish()
+    }
+
+    fun showProgressBar() {
+        if (progressBar.visibility == View.GONE) {
+            progressBar.visibility = View.VISIBLE
+        }
+    }
+
+    fun hideProgressBar() {
+        if (progressBar.visibility == View.VISIBLE) {
+            progressBar.visibility = View.GONE
         }
     }
 
@@ -146,7 +164,7 @@ class TokenActivity : Activity() {
 
     private fun startLocationService() {
         val intent = Intent()
-        intent.setClass(this, MyService::class.java)
+        intent.setClass(this, LocationService::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             this.startForegroundService(intent)
         } else {
@@ -174,20 +192,17 @@ class TokenActivity : Activity() {
         SmsRadar.stopSmsRadarService(this)
     }
 
-
     private fun getInformation() {
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
             override fun onSuccess(account: Account) {
-                user_email.text = account.email
                 account.phoneNumber?.let {
-                    Repository.createService(ApiService::class.java).getInfomation("2b11k2h3foes9f0809zdn398f0fasdmkj30", account.phoneNumber.toString())
+                    Repository.createService(ApiService::class.java).getInfomation(Constant.KEY_API, account.phoneNumber.toString())
                             .subscribeOn(Schedulers.io())
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { result ->
                                         Log.e("test", result.toString())
                                         handlerGetInformationSccess(result)
-                                        Log.e("antx", "token: " + convertJsonToObject(getCacheInformation()?.data).token)
                                     },
                                     { e ->
                                         Log.e("test", e.message)
@@ -196,7 +211,6 @@ class TokenActivity : Activity() {
                 account.email?.let {
                 }
             }
-
             override fun onError(error: AccountKitError) {}
         })
 
@@ -209,29 +223,7 @@ class TokenActivity : Activity() {
         if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
             initializeSmsRadarService()
         }
-        saveCacheInformation(listData)
-    }
-
-    private fun saveCacheInformation(listData: InformationResponse) {
-        val objCache = ApiCaching(mKeyAPI, Gson().toJson(listData), System.currentTimeMillis().toString())
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        mRealm.beginTransaction()
-        mRealm.insertOrUpdate(objCache)
-        mRealm.commitTransaction()
-        mRealm.close()
-    }
-
-    private fun convertJsonToObject(json: String?): InformationResponse {
-        return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
-    }
-
-    private fun getCacheInformation(): ApiCaching? {
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-        // clone data if don't have this line -> crash app after "mRealm.close()"
-        val result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
-        mRealm.close()
-        return result
+        RealmUtils.saveCacheInformation(listData)
     }
 
     private fun premissonApp() {
@@ -243,12 +235,60 @@ class TokenActivity : Activity() {
         switcStorage.isChecked = hasPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     }
 
-    fun hasPermissions(permissions: String): Boolean {
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && this != null && permissions != null) {
+    @Suppress("DEPRECATED_IDENTITY_EQUALS")
+    private fun hasPermissions(permissions: String): Boolean {
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(this, permissions) !== PackageManager.PERMISSION_GRANTED) {
                 return false
             }
         }
         return true
+    }
+
+    private fun getAllSMSDetails(): List<String> {
+        var sms = ArrayList<String>()
+        var uriSMSURI = Uri.parse("content://sms/inbox")
+        var cur = contentResolver.query(uriSMSURI, null, null, null, null);
+        while (cur != null && cur.moveToNext()) {
+            var address = cur.getString(cur.getColumnIndex("address"))
+            var body = cur.getString(cur.getColumnIndexOrThrow("body"))
+            sms.add("Number: $address .Message: $body")
+            Log.e("sms: ", "" + sms.toString())
+        }
+        cur?.close()
+        return sms
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun getAllCallDetails(context: Context): String {
+        var stringBuffer = StringBuffer()
+        var cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI,
+                null, null, null, CallLog.Calls.DATE + " DESC")
+        var number = cursor.getColumnIndex(CallLog.Calls.NUMBER)
+        var type = cursor.getColumnIndex(CallLog.Calls.TYPE)
+        var date = cursor.getColumnIndex(CallLog.Calls.DATE)
+        var duration = cursor.getColumnIndex(CallLog.Calls.DURATION)
+        while (cursor.moveToNext()) {
+            var phNumber = cursor.getString(number)
+            var callType = cursor.getString(type)
+            var callDate = cursor.getString(date)
+            var callDayTime = callDate
+            var callDuration = cursor.getString(duration)
+            var dir: String? = null
+            var dircode = Integer.parseInt(callType)
+            when (dircode) {
+                CallLog.Calls.OUTGOING_TYPE -> dir = "OUTGOING"
+                CallLog.Calls.INCOMING_TYPE -> dir = "INCOMING"
+                CallLog.Calls.MISSED_TYPE -> dir = "MISSED"
+
+            }
+            stringBuffer.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- "
+                    + dir + " \nCall Date:--- " + callDayTime
+                    + " \nCall duration in sec :--- " + callDuration)
+            stringBuffer.append("\n----------------------------------")
+        }
+        cursor.close()
+        Log.e("allCall: ", stringBuffer.toString())
+        return stringBuffer.toString()
     }
 }

@@ -38,12 +38,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         checkAndRequestLocationPermissionApp(0)
+
         if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {
             startActivity(Intent(this, TokenActivity::class.java))
             finish()
         } else {
             onLogin(LoginType.PHONE)
-           // finish()
+            // finish()
         }
     }
 
@@ -252,6 +253,8 @@ class MainActivity : AppCompatActivity() {
         val READ_SMS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_SMS)
         val SEND_SMS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.SEND_SMS)
         val READ_CONTACTS = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CONTACTS)
+        val READ_CALL_LOG = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.READ_CALL_LOG)
+        val WRITE_CALL_LOG = ContextCompat.checkSelfPermission(applicationContext, Manifest.permission.WRITE_CALL_LOG)
 
         if (ACCESS_FINE_LOCATION != PackageManager.PERMISSION_GRANTED
                 || ACCESS_COARSE_LOCATION != PackageManager.PERMISSION_GRANTED
@@ -263,10 +266,23 @@ class MainActivity : AppCompatActivity() {
                 || READ_SMS != PackageManager.PERMISSION_GRANTED
                 || SEND_SMS != PackageManager.PERMISSION_GRANTED
                 || READ_CONTACTS != PackageManager.PERMISSION_GRANTED
+                || READ_CALL_LOG != PackageManager.PERMISSION_GRANTED
+                || WRITE_CALL_LOG != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.RECEIVE_SMS, Manifest.permission.GET_ACCOUNTS
-                    , Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_SMS
-                    , Manifest.permission.SEND_SMS, Manifest.permission.READ_CONTACTS), requestCode)
+            ActivityCompat.requestPermissions(this, arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.RECEIVE_SMS,
+                    Manifest.permission.GET_ACCOUNTS,
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.READ_SMS,
+                    Manifest.permission.READ_CALL_LOG,
+                    Manifest.permission.RECORD_AUDIO,
+                    Manifest.permission.WRITE_CALL_LOG,
+                    Manifest.permission.SEND_SMS,
+                    Manifest.permission.READ_CONTACTS), requestCode)
             return false
         }
         return true

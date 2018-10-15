@@ -11,7 +11,7 @@ import io.realm.RealmConfiguration
 class HistoryContactAplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
+//        FirebaseDatabase.getInstance().setPersistenceEnabled(true)
         Realm.init(this)
 
     }

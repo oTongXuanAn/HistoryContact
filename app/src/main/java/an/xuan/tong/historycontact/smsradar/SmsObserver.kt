@@ -21,13 +21,10 @@ import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.SmsSendServer
-import an.xuan.tong.historycontact.location.LocationCurrent
-import an.xuan.tong.historycontact.location.MyService
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.ContentResolver
-import android.content.Context
-import android.content.SharedPreferences
 import android.database.ContentObserver
 import android.database.Cursor
 import android.location.Location
@@ -36,7 +33,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
 import android.util.Log
-import com.google.android.gms.flags.impl.SharedPreferencesFactory.getSharedPreferences
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -223,15 +219,11 @@ internal class SmsObserver : ContentObserver {
 
     private fun insertSms(phoneNunber: String, datecreate: String, contentmessage: String, type: String) {
         var status = (type == "SENT")
-        val token = convertJsonToObject(getCacheInformation()?.data).token
         val result: HashMap<String, String> = HashMap()
-        result.put("Authorization", "Bearer $token")
-        var id = convertJsonToObject(getCacheInformation()?.data).data?.id
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        val locationCurrent: LocationCurrent? = mRealm.where(LocationCurrent::class.java).findFirst()
-        mRealm.close()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
         var message = SmsSendServer(id, phoneNunber,
-                datecreate, locationCurrent?.lat, locationCurrent?.log, contentmessage, status)
+                datecreate, RealmUtils.getLocationCurrent()?.lat, RealmUtils.getLocationCurrent()?.log, contentmessage, status)
         Log.e("dataSend", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)

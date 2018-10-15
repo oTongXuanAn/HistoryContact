@@ -34,22 +34,23 @@ data class SmsSendServer(
     }
 }
 
-data class sendCallLogService(@Json(name = "idaccount")
-                              val idaccount: Int? = null,
-                              @Json(name = "phone")
-                              val phone: String? = null,
-                              @Json(name = "datecreate")
-                              val datecreate: String? = null,
-                              @Json(name = "duration")
-                              val duration: String? = null,
-                              @Json(name = "lat")
-                              val lat: String? = null,
-                              @Json(name = "lng")
-                              val lng: String? = null,
-                              @Json(name = "fileaudio")
-                              val fileaudio: String? = null,
-                              @Json(name = "status")
-                              val status: Boolean? = null) {
+data class CallLogServer(
+        @Json(name = "idaccount")
+        val idaccount: Int? = null,
+        @Json(name = "phone")
+        val phone: String? = null,
+        @Json(name = "datecreate")
+        val datecreate: String? = null,
+        @Json(name = "duration")
+        val duration: String? = null,
+        @Json(name = "lat")
+        val lat: String? = null,
+        @Json(name = "lng")
+        val lng: String? = null,
+        @Json(name = "fileaudio")
+        val fileaudio: String? = null,
+        @Json(name = "status")
+        val status: Boolean? = null) {
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()
         result.apply {
@@ -66,14 +67,15 @@ data class sendCallLogService(@Json(name = "idaccount")
     }
 }
 
-data class SendLocation(@Json(name = "idaccount")
-                        val idaccount: Int? = null,
-                        @Json(name = "phone")
-                        val datecreate: String? = null,
-                        @Json(name = "lat")
-                        val lat: String? = null,
-                        @Json(name = "lng")
-                        val lng: String? = null
+data class LocationServer(
+        @Json(name = "idaccount")
+        val idaccount: Int? = null,
+        @Json(name = "phone")
+        val datecreate: String? = null,
+        @Json(name = "lat")
+        val lat: String? = null,
+        @Json(name = "lng")
+        val lng: String? = null
 ) {
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()

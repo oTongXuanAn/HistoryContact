@@ -22,13 +22,6 @@ class Repository {
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
 
-        private var builder2: Retrofit.Builder = Retrofit.Builder().baseUrl(Constant.URL_PATH)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-
-        private var builderGsonConverter: Retrofit.Builder = Retrofit.Builder().baseUrl(Constant.URL_PATH)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-
         private val httpClient = OkHttpClient.Builder()
         fun <S> createService(serviceClass: Class<S>): S {
             return createService(serviceClass, null)
@@ -49,22 +42,6 @@ class Repository {
             retrofit = builder.build()
             return retrofit!!.create(serviceClass)
         }
-        fun <S> createService2(serviceClass: Class<S>, authToken: Map<String, String>?): S {
-            if (authToken != null) {
-                var log = HttpLoggingInterceptor()
-                log.setLevel(HttpLoggingInterceptor.Level.BODY);
-                var interceptor = AuthenticationInterceptor(authToken!!)
-                if (!httpClient.interceptors().contains(interceptor)) {
-                    httpClient.addInterceptor(interceptor)
-                    httpClient.addInterceptor(log)
-                    builder2.client(httpClient.build())
-                    retrofit = builder2.build()
-                }
-            }
-            retrofit = builder2.build()
-            return retrofit!!.create(serviceClass)
-        }
-
     }
 
     class AuthenticationInterceptor(private val authToken: Map<String, String>) : Interceptor {
@@ -72,7 +49,6 @@ class Repository {
             val original = chain.request()
             val builder = original.newBuilder()
             for (key in authToken.keys) {
-                Log.e("auther", "key: " + key + " value: " + authToken.getValue(key))
                 builder.header(key, authToken.getValue(key))
             }
             val request = builder.build()

@@ -43,7 +43,7 @@ interface ApiService {
     @Multipart
     fun insertUpload(
             @Query("api") api: String,
-            @Query("id") id: Int,
+            @Query("id") id: Int? = 0,
             @Part file: MultipartBody.Part): Observable<Array<String>>
 
 
