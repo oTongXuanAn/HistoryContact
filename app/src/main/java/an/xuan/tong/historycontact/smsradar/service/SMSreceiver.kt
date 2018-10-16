@@ -28,8 +28,8 @@ class SMSreceiver : BroadcastReceiver() {
         if (isOnline(context)) {
             val ListCallLogFail = RealmUtils.getAllCallLog()
             for (i in ListCallLogFail) {
-                sendCallFail(i.id, i.phone.toString(), i.datecreate.toString(), i.duration.toString(),
-                        i.fileaudio.toString(), i.lat.toString(), i.lng.toString(), i.type)
+               /* sendCallFail(i.id, i.phone.toString(), i.datecreate.toString(), i.duration.toString(),
+                        i.fileaudio.toString(), i.lat.toString(), i.lng.toString(), i.type)*/
             }
 
         } else {
@@ -92,7 +92,7 @@ class SMSreceiver : BroadcastReceiver() {
     }
 
     //file audio server
-    private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
+    private fun sendRecoderToServer(realmID: Int, filePath: String, number: String, dataCreate: String, duaration: String, lat: String, lng: String, typeCall: Boolean) {
         try {
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
@@ -106,10 +106,7 @@ class SMSreceiver : BroadcastReceiver() {
                     .subscribe(
                             { result ->
                                 if (result.isNotEmpty()) {
-                                    var diffInMs = endDate.time - startDate.time
-                                    var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
-                                    var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-                                    sendCallFail(number, dateStop.toString(), (diffInSec).toString(), result[0], true)
+                                    sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall)
                                 }
                             },
                             { e ->
