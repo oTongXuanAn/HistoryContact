@@ -6,9 +6,12 @@ import io.realm.RealmMigration
 
 
 class CacheRealmMigration : RealmMigration {
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
 
     override fun equals(other: Any?): Boolean {
-        return other === HistoryContactConfiguration
+        return other is CacheRealmMigration
     }
 
     override fun migrate(realm: DynamicRealm?, oldVersion: Long, newVersion: Long) {

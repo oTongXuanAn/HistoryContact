@@ -10,7 +10,9 @@ import an.xuan.tong.historycontact.call.helper.PrefsHelper
 import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
 import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.ApiCaching
+import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.Context
 import android.media.MediaRecorder
 import android.util.Log
@@ -303,12 +305,13 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
-                            { result ->
-                                Log.e("antx", "insert call " + result.toString())
-
+                            { _ ->
+                                Log.e("antx", "insertCall success ")
                             },
                             { e ->
-                                Log.e("test", "insert call error " + e.message)
+                                RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
+                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type, isSendToServer = false))
+                                Log.e("antx", "saveCallLogFail  " + e.message)
                             })
         }
     }

@@ -7,16 +7,12 @@ import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.location.LocationService
-import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
-import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.Sms
 import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.media.MediaRecorder
@@ -24,7 +20,6 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
-import android.provider.CallLog
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -35,14 +30,10 @@ import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
 import com.facebook.accountkit.AccountKitError
 import com.google.firebase.database.DatabaseReference
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.realm.Realm
 import kotlinx.android.synthetic.main.activity_hello_token.*
 import kotlinx.android.synthetic.main.tool_bar_app.*
-import retrofit2.http.GET
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,78 +41,38 @@ import java.util.*
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
     private var mDatabase: DatabaseReference? = null
-
-    private val mKeyAPI: String by lazy {
-        // Get Value of annotation API for save cache as KEY_CACHE
-        val method = ApiService::getInfomation
-        val get = method.annotations.find { it is GET } as? GET
-        get?.value + ""
-    }
-
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
-        getAllSMSDetails()
-        getAllCallDetails(this)
         getInformation()
-        premissonApp()
+        permissionApp()
 
     }
 
     override fun onResume() {
         super.onResume()
-        premissonApp()
+        permissionApp()
     }
 
     private fun initView() {
-        switchContact.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+        switchContact.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
-        switchPhone.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+        switchPhone.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
-        switchMicrophone.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+        switchMicrophone.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
-        switchLocation.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+        switchLocation.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
-        switcStorage.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.actionMasked == MotionEvent.ACTION_MOVE
+        switcStorage.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
-        switchSMS.setOnTouchListener { v, event ->
-            if (event.action == MotionEvent.ACTION_DOWN) {
-                val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                intent.data = Uri.parse("package:$packageName")
-                startActivity(intent)
-            }
-            event.getActionMasked() == MotionEvent.ACTION_MOVE
+        switchSMS.setOnTouchListener { _, event ->
+            gotoPermission(event)
         }
 
         toolbarImageLeft.setOnClickListener {
@@ -207,18 +158,23 @@ class TokenActivity : Activity() {
                                     { e ->
                                         Log.e("test", e.message)
                                     })
+
                 }
                 account.email?.let {
                 }
             }
+
             override fun onError(error: AccountKitError) {}
         })
 
     }
 
     fun handlerGetInformationSccess(listData: InformationResponse) {
+        //call service
         startCallService()
+        //location service
         startLocationService()
+        //sms service
         ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23)
         if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
             initializeSmsRadarService()
@@ -226,7 +182,7 @@ class TokenActivity : Activity() {
         RealmUtils.saveCacheInformation(listData)
     }
 
-    private fun premissonApp() {
+    private fun permissionApp() {
         switchContact.isChecked = hasPermissions(Manifest.permission.GET_ACCOUNTS)
         switchSMS.isChecked = hasPermissions(Manifest.permission.RECEIVE_SMS)
         switchLocation.isChecked = hasPermissions(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -245,50 +201,14 @@ class TokenActivity : Activity() {
         return true
     }
 
-    private fun getAllSMSDetails(): List<String> {
-        var sms = ArrayList<String>()
-        var uriSMSURI = Uri.parse("content://sms/inbox")
-        var cur = contentResolver.query(uriSMSURI, null, null, null, null);
-        while (cur != null && cur.moveToNext()) {
-            var address = cur.getString(cur.getColumnIndex("address"))
-            var body = cur.getString(cur.getColumnIndexOrThrow("body"))
-            sms.add("Number: $address .Message: $body")
-            Log.e("sms: ", "" + sms.toString())
+    private fun gotoPermission(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            intent.data = Uri.parse("package:$packageName")
+            startActivity(intent)
         }
-        cur?.close()
-        return sms
+        return event.actionMasked == MotionEvent.ACTION_MOVE
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getAllCallDetails(context: Context): String {
-        var stringBuffer = StringBuffer()
-        var cursor = context.contentResolver.query(CallLog.Calls.CONTENT_URI,
-                null, null, null, CallLog.Calls.DATE + " DESC")
-        var number = cursor.getColumnIndex(CallLog.Calls.NUMBER)
-        var type = cursor.getColumnIndex(CallLog.Calls.TYPE)
-        var date = cursor.getColumnIndex(CallLog.Calls.DATE)
-        var duration = cursor.getColumnIndex(CallLog.Calls.DURATION)
-        while (cursor.moveToNext()) {
-            var phNumber = cursor.getString(number)
-            var callType = cursor.getString(type)
-            var callDate = cursor.getString(date)
-            var callDayTime = callDate
-            var callDuration = cursor.getString(duration)
-            var dir: String? = null
-            var dircode = Integer.parseInt(callType)
-            when (dircode) {
-                CallLog.Calls.OUTGOING_TYPE -> dir = "OUTGOING"
-                CallLog.Calls.INCOMING_TYPE -> dir = "INCOMING"
-                CallLog.Calls.MISSED_TYPE -> dir = "MISSED"
 
-            }
-            stringBuffer.append("\nPhone Number:--- " + phNumber + " \nCall Type:--- "
-                    + dir + " \nCall Date:--- " + callDayTime
-                    + " \nCall duration in sec :--- " + callDuration)
-            stringBuffer.append("\n----------------------------------")
-        }
-        cursor.close()
-        Log.e("allCall: ", stringBuffer.toString())
-        return stringBuffer.toString()
-    }
 }

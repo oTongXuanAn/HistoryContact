@@ -1,38 +1,41 @@
 package an.xuan.tong.historycontact.smsradar.service
 
+import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.api.model.CallLogServer
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 
-import an.xuan.tong.historycontact.realm.ApiCaching
-import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.SmsRadarService
-import io.realm.Realm
-import retrofit2.http.GET
 import android.net.ConnectivityManager
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class SMSreceiver : BroadcastReceiver() {
-    private val TAG = this.javaClass.simpleName
-    private val mKeyAPI: String by lazy {
-        // Get Value of annotation API for save cache as KEY_CACHE
-        val method = ApiService::getInfomation
-        val get = method.annotations.find { it is GET } as? GET
-        get?.value + ""
-    }
-
     override fun onReceive(context: Context, intent: Intent) {
-
         if (isOnline(context)) {
-            Log.e("antx", "Online Connect Intenet ")
+            val ListCallLogFail = RealmUtils.getAllCallLog()
+            for (i in ListCallLogFail) {
+                sendCallFail(i.id, i.phone.toString(), i.datecreate.toString(), i.duration.toString(),
+                        i.fileaudio.toString(), i.lat.toString(), i.lng.toString(), i.type)
+            }
+
         } else {
             Log.e("antx", "Conectivity Failure !!! ")
         }
 
-        // start device
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
             val intentSms = Intent(context, SmsRadarService::class.java)
@@ -51,15 +54,6 @@ class SMSreceiver : BroadcastReceiver() {
         }
     }
 
-    private fun getCacheInformation(): ApiCaching? {
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-        // clone data if don't have this line -> crash app after "mRealm.close()"
-        val result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
-        mRealm.close()
-        return result
-    }
-
     private fun isOnline(context: Context): Boolean {
         try {
             val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -69,6 +63,60 @@ class SMSreceiver : BroadcastReceiver() {
         } catch (e: NullPointerException) {
             e.printStackTrace()
             return false
+        }
+
+    }
+
+    //file audio local
+    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String, duration: String, fileAAudio: String, lat: String, lng: String, type: Boolean?) {
+        val result: HashMap<String, String> = HashMap()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
+        var message = CallLogServer(id, phoneNumber,
+                dateCreate, duration, lat, lng, fileAAudio, type)
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            {
+                                RealmUtils.deleteItemCachingCallLog(realmId)
+                                Log.e("antx", "sendCallFail sucess")
+
+                            }
+                    ) {
+                        Log.e("antx", "sendCallFail error")
+
+                    }
+        }
+    }
+
+    //file audio server
+    private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
+        try {
+            val file = File(filePath)
+            val result: HashMap<String, String> = HashMap()
+            result["Authorization"] = RealmUtils.getAuthorization()
+            var id = RealmUtils.getAccountId()
+            val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+            var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
+            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { result ->
+                                if (result.isNotEmpty()) {
+                                    var diffInMs = endDate.time - startDate.time
+                                    var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
+                                    var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+                                    sendCallFail(number, dateStop.toString(), (diffInSec).toString(), result[0], true)
+                                }
+                            },
+                            { e ->
+                                Log.e("test", "sendRcoderToServer  error " + e.message)
+                            })
+        } catch (e: Exception) {
+            Log.e("antx Exception", "sendRcoderToServer " + e.message)
         }
 
     }

@@ -2,9 +2,10 @@ package an.xuan.tong.historycontact.api.model
 
 import com.google.firebase.database.Exclude
 import com.squareup.moshi.Json
+import io.realm.RealmObject
 
 data class SmsSendServer(
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = -1,
         @Json(name = "phone")
         val phone: String? = null,
@@ -22,7 +23,7 @@ data class SmsSendServer(
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()
         result.apply {
-            put("idaccount", idaccount.toString())
+            put("idAccount", idaccount.toString())
             put("phone", phone)
             put("datecreate", datecreate)
             put("lng", lng)
@@ -35,7 +36,7 @@ data class SmsSendServer(
 }
 
 data class CallLogServer(
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "phone")
         val phone: String? = null,
@@ -54,7 +55,7 @@ data class CallLogServer(
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()
         result.apply {
-            put("idaccount", idaccount.toString())
+            put("idAccount", idaccount.toString())
             put("phone", phone)
             put("datecreate", datecreate)
             put("lat", lat)
@@ -68,7 +69,7 @@ data class CallLogServer(
 }
 
 data class LocationServer(
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "phone")
         val datecreate: String? = null,
@@ -80,7 +81,7 @@ data class LocationServer(
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()
         result.apply {
-            put("idaccount", idaccount.toString())
+            put("idAccount", idaccount.toString())
             put("datecreate", datecreate)
             put("lat", lat)
             put("lng", lng)

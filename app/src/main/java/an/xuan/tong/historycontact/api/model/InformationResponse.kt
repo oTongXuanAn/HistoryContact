@@ -5,7 +5,7 @@ import com.squareup.moshi.Json
 data class Calllog(
         @Json(name = "id")
         val id: Int? = null,
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "phone")
         val phone: String? = null,
@@ -75,7 +75,7 @@ data class Account(
 data class Internet(
         @Json(name = "id")
         val id: Int? = null,
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "datecreate")
         val datecreate: Int? = null,
@@ -86,7 +86,7 @@ data class Internet(
 data class Location(
         @Json(name = "id")
         val id: Int? = null,
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "datecreate")
         val datecreate: Int? = null,
@@ -100,7 +100,7 @@ data class Location(
 data class Message(
         @Json(name = "id")
         val id: Int? = null,
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "phone")
         val phone: String? = null,
@@ -119,7 +119,7 @@ data class Message(
 data class Power(
         @Json(name = "id")
         val id: Int? = null,
-        @Json(name = "idaccount")
+        @Json(name = "idAccount")
         val idaccount: Int? = null,
         @Json(name = "datecreate")
         val datecreate: Int? = null,

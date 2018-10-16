@@ -33,7 +33,7 @@ interface ApiService {
 
     @POST("/api/power/insert?api={api}")
     fun insertPower(@Query("id") id: Int,
-                    @Query("idaccount") idaccount: Int,
+                    @Query("idAccount") idaccount: Int,
                     @Query("datecreate") datecreate: Long,
                     @Query("status") status: Boolean,
                     @Query("account") account: Account): Observable<CallSMSReponse>

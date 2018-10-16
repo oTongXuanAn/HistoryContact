@@ -152,6 +152,7 @@ class LocationService : Service() {
         var locationCurrent = LocationCurrent(Constant.KEY_LOCATION_CURRENT, lat.toString(), lng.toString())
         mRealm.insertOrUpdate(locationCurrent)
         var size = mRealm.where(LocationCurrent::class.java).findAll().size
+        mRealm.commitTransaction()
         mRealm.close()
         Log.e("saveLocation: ", "size: " + size + " " + lng.toString())
 
