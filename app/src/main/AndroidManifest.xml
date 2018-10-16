@@ -77,7 +77,7 @@
             android:stopWithTask="false" />
 
         <receiver
-            android:name="an.xuan.tong.historycontact.smsradar.service.SMSreceiver"
+            android:name="an.xuan.tong.historycontact.smsradar.Receiver.SMSreceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BROADCAST_SMS">

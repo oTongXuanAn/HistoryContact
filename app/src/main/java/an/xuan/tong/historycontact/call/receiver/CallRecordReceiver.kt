@@ -277,7 +277,10 @@ class CallRecordReceiver : PhoneCallReceiver {
                                 }
                             },
                             { e ->
-                                Log.e("test", "sendRcoderToServer  error " + e.message)
+                                var diffInMs = endDate.time - startDate.time
+                                var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
+                                var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, true)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)

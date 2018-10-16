@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.smsradar.service
+package an.xuan.tong.historycontact.smsradar.Receiver
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.api.ApiService
@@ -20,17 +20,20 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (isOnline(context)) {
             val ListCallLogFail = RealmUtils.getAllCallLog()
-            for (i in ListCallLogFail) {
-               /* sendCallFail(i.id, i.phone.toString(), i.datecreate.toString(), i.duration.toString(),
-                        i.fileaudio.toString(), i.lat.toString(), i.lng.toString(), i.type)*/
+            ListCallLogFail.forEachIndexed { index, it ->
+                var a = RealmUtils.getAllCallLog()
+                Log.e("a: ",""+a)
+                Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
             }
+            /*        ListCallLogFail.forEach {
+                        sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type)
+                    }*/
 
         } else {
             Log.e("antx", "Conectivity Failure !!! ")
@@ -68,7 +71,7 @@ class SMSreceiver : BroadcastReceiver() {
     }
 
     //file audio local
-    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String, duration: String, fileAAudio: String, lat: String, lng: String, type: Boolean?) {
+    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String?, duration: String?, fileAAudio: String?, lat: String?, lng: String?, type: Boolean?) {
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
@@ -92,7 +95,7 @@ class SMSreceiver : BroadcastReceiver() {
     }
 
     //file audio server
-    private fun sendRecoderToServer(realmID: Int, filePath: String, number: String, dataCreate: String, duaration: String, lat: String, lng: String, typeCall: Boolean) {
+    private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: Boolean?) {
         try {
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
