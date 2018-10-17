@@ -104,6 +104,10 @@
             android:enabled="true"
             android:stopWithTask="false" />
 
+        <service
+            android:name=".service.TokenService"
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
         <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />

