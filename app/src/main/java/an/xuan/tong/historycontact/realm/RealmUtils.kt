@@ -11,6 +11,7 @@ import io.realm.Realm
 import io.realm.RealmModel
 import io.realm.exceptions.RealmException
 import retrofit2.http.GET
+import java.util.concurrent.TimeUnit
 
 
 class RealmUtils {
@@ -48,10 +49,11 @@ class RealmUtils {
         }
 
         fun getLocationCurrent(): LocationCurrent? {
+            var locationCurrent: LocationCurrent? = null
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-            mRealm.beginTransaction()
-            val locationCurrent: LocationCurrent? = mRealm.where(LocationCurrent::class.java).findFirst()
-            mRealm.close()
+            mRealm.executeTransaction {
+                locationCurrent = mRealm.where(LocationCurrent::class.java).findFirst()
+            }
             return locationCurrent
         }
 
@@ -64,23 +66,64 @@ class RealmUtils {
             }
         }
 
-        fun savePowerOnOff(isPowerOn: Boolean, isSend: Boolean) {
-            val dateCreate = System.currentTimeMillis().toString()
-            val objCache = PowerHistoryCaching(dateCreate, isPowerOn, isSend)
+        //Power
+
+        fun savePowerOnOff(isPowerOn: Boolean) {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-            mRealm.beginTransaction()
-            mRealm.insertOrUpdate(objCache)
-            mRealm.commitTransaction()
-            mRealm.close()
+            mRealm.executeTransaction {
+                var dateCreate = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+                val objCache = PowerHistoryCaching(idAutoIncrement(PowerHistoryCaching::class.java), dateCreate.toString(), isPowerOn)
+                mRealm.insertOrUpdate(objCache)
+            }
+
         }
 
-        fun filterPowerNotSend() {
+        fun getAllPowerCaching(): List<PowerHistoryCaching>? {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-            //mRealm.where(PowerHistoryCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-            var lista = mRealm.where(PowerHistoryCaching::class.java).findAll().filter { i ->
-                i.isSend == true
+            var listPower: List<PowerHistoryCaching>? = null
+            mRealm.executeTransaction {
+                listPower = mRealm.where(PowerHistoryCaching::class.java).findAll()
+            }
+            return listPower
+
+        }
+
+        fun deleteItemPower(id: Int? = 0) {
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                mRealm.where(PowerHistoryCaching::class.java).equalTo("id", id).findAll().deleteAllFromRealm()
             }
         }
+
+
+        //Internet
+        fun saveInternetOnOff(isOn: Boolean) {
+            var dateCreate = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                val objCache = InternetHistoryCaching(idAutoIncrement(InternetHistoryCaching::class.java), dateCreate.toString(), isOn)
+                mRealm.insertOrUpdate(objCache)
+            }
+
+        }
+
+        fun getAllInternetCaching(): List<InternetHistoryCaching>? {
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            var listPower: List<InternetHistoryCaching>? = null
+            mRealm.executeTransaction {
+                listPower = mRealm.where(InternetHistoryCaching::class.java).findAll()
+            }
+            return listPower
+        }
+
+        fun deleteItemInternet(id: Int? = 0) {
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                mRealm.where(InternetHistoryCaching::class.java).equalTo("id", id).findAll().deleteAllFromRealm()
+            }
+
+        }
+
 
         fun getCurrentLocation() {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
@@ -107,6 +150,8 @@ class RealmUtils {
             return convertJsonToObject(getCacheInformation()?.data).token
         }
 
+        //=============handler call====================
+
         fun saveCallLogFail(callLog: CachingCallLog) {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
             mRealm.executeTransaction {
@@ -115,17 +160,48 @@ class RealmUtils {
 
         }
 
-        fun getAllCallLog(): List<CachingCallLog> {
+        fun getAllCallLog(): List<CachingCallLog>? {
+            var getAllCall: List<CachingCallLog>? = null
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-            return mRealm.where(CachingCallLog::class.java).findAll()
+            mRealm.executeTransaction {
+                getAllCall = mRealm.where(CachingCallLog::class.java).findAll()
+            }
+            return getAllCall
+
         }
 
         fun deleteItemCachingCallLog(id: Int?) {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
             mRealm.executeTransaction {
-                mRealm.where(CachingCallLog::class.java).contains("id", id.toString()).findAll().deleteAllFromRealm()
+                mRealm.where(CachingCallLog::class.java).equalTo("id", id).findAll().deleteAllFromRealm()
             }
         }
+
+        //=============handler sms====================
+
+        fun saveSmsFail(smsFail: CachingMessage) {
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                mRealm.insert(smsFail)
+            }
+        }
+
+        fun deleteItemCachingMess(id: Int?) {
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                mRealm.where(CachingMessage::class.java).equalTo("id", id).findAll().deleteAllFromRealm()
+            }
+        }
+
+        fun getAllMessCaching(): List<CachingMessage>? {
+            var listMess: List<CachingMessage>? = null
+            val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+            mRealm.executeTransaction {
+                listMess = mRealm.where(CachingMessage::class.java).findAll()
+            }
+            return listMess
+        }
+
 
         fun <E : RealmModel> idAutoIncrement(clazz: Class<E>): Int {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())

@@ -45,8 +45,8 @@ class TokenActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
-        getInformation()
         permissionApp()
+        getInformation()
 
     }
 
@@ -105,7 +105,7 @@ class TokenActivity : Activity() {
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                 .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                 .setShowSeed(true)
                 .build()
@@ -144,6 +144,7 @@ class TokenActivity : Activity() {
     }
 
     private fun getInformation() {
+        showProgressBar()
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
             override fun onSuccess(account: Account) {
                 account.phoneNumber?.let {
@@ -154,9 +155,11 @@ class TokenActivity : Activity() {
                                     { result ->
                                         Log.e("test", result.toString())
                                         handlerGetInformationSccess(result)
+                                        hideProgressBar()
                                     },
                                     { e ->
                                         Log.e("test", e.message)
+                                        hideProgressBar()
                                     })
 
                 }

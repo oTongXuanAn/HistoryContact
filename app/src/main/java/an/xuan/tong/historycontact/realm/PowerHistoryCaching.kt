@@ -5,8 +5,15 @@ import io.realm.annotations.PrimaryKey
 
 open class PowerHistoryCaching(
         @PrimaryKey
+        var id: Int? = 0,
         var datecreate: String? = "",
-        var power: Boolean? = true,//true:Start -false:
-        var isSend: Boolean? = false //true: Send to server
+        var isPowerOn: Boolean? = true//true:Start -false:
 
+) : RealmObject()
+
+open class InternetHistoryCaching(
+        @PrimaryKey
+        var id: Int? = 0,
+        var datecreate: String? = "",
+        var isInternet: Boolean? = true//true:on -off
 ) : RealmObject()

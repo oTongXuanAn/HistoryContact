@@ -31,12 +31,14 @@ interface ApiService {
     fun insertCallLog(@Body message: Map<String, String?>,
                       @Query("api") api: String): Observable<CallSMSReponse>
 
-    @POST("/api/power/insert?api={api}")
-    fun insertPower(@Query("id") id: Int,
-                    @Query("idAccount") idaccount: Int,
-                    @Query("datecreate") datecreate: Long,
-                    @Query("status") status: Boolean,
-                    @Query("account") account: Account): Observable<CallSMSReponse>
+    @POST("/api/power/insert")
+    fun insertPowerLog(@Body message: Map<String, String?>,
+                       @Query("api") api: String): Observable<CallSMSReponse>
+
+
+    @POST("/api/internet/insert")
+    fun insertInternet(@Body message: Map<String, String?>,
+                       @Query("api") api: String): Observable<CallSMSReponse>
 
 
     @POST("/api/upload")

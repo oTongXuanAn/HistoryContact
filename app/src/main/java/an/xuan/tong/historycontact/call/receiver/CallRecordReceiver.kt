@@ -273,14 +273,14 @@ class CallRecordReceiver : PhoneCallReceiver {
                                     var diffInMs = endDate.time - startDate.time
                                     var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
                                     var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], true)
+                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], true, filePath)
                                 }
                             },
                             { e ->
                                 var diffInMs = endDate.time - startDate.time
                                 var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
                                 var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, true)
+                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, true, filePath)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)
@@ -288,7 +288,7 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     }
 
-    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean) {
+    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean, file_path: String? = "") {
         val token = convertJsonToObject(getCacheInformation()?.data).token
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = "Bearer $token"
@@ -309,11 +309,17 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { _ ->
-                                Log.e("antx", "insertCall success ")
+                                try {
+                                    val fdelete = File(file_path)
+                                    fdelete.delete()
+                                } catch (e: Exception) {
+
+                                }
+
                             },
                             { e ->
                                 RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
-                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type, isSendToServer = false))
+                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type))
                                 Log.e("antx", "saveCallLogFail  " + e.message)
                             })
         }

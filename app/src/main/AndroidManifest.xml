@@ -99,7 +99,10 @@
             android:name=".call.service.CallRecordService"
             android:enabled="true"
             android:stopWithTask="false" />
-        <service android:name=".location.LocationService" />
+        <service
+            android:name=".location.LocationService"
+            android:enabled="true"
+            android:stopWithTask="false" />
 
         <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
             <intent-filter>

@@ -90,5 +90,23 @@ data class LocationServer(
     }
 }
 
+data class PowerAndInternet(
+        @Json(name = "idAccount")
+        val idaccount: Int? = null,
+        @Json(name = "phone")
+        val datecreate: String? = null,
+        @Json(name = "status")
+        val status: Boolean? = null) {
+    fun toMap(): Map<String, String?> {
+        val result: HashMap<String, String?> = HashMap()
+        result.apply {
+            put("idAccount", idaccount.toString())
+            put("datecreate", datecreate)
+            put("status", status.toString())
+        }
+        return result
+    }
+}
+
 
 

@@ -22,6 +22,7 @@ import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.SmsSendServer
 import an.xuan.tong.historycontact.realm.ApiCaching
+import an.xuan.tong.historycontact.realm.CachingMessage
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.ContentResolver
@@ -222,8 +223,11 @@ internal class SmsObserver : ContentObserver {
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
+        val locationLat = RealmUtils.getLocationCurrent()?.lat
+        val locationLng = RealmUtils.getLocationCurrent()?.log
+
         var message = SmsSendServer(id, phoneNunber,
-                datecreate, RealmUtils.getLocationCurrent()?.lat, RealmUtils.getLocationCurrent()?.log, contentmessage, status)
+                datecreate, locationLat, locationLng, contentmessage, status)
         Log.e("dataSend", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
@@ -234,61 +238,10 @@ internal class SmsObserver : ContentObserver {
                                 Log.e("antx", "insertSms " + result.toString())
 
                             },
-                            { e ->
-                                Log.e("test", "insertSms error " + e.message)
+                            { _ ->
+                                RealmUtils.saveSmsFail(CachingMessage(RealmUtils.idAutoIncrement(CachingMessage::class.java), phoneNunber, datecreate, contentmessage, locationLat, locationLng, status))
                             })
         }
     }
 
-    private fun convertJsonToObject(json: String?): InformationResponse {
-        return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
-    }
-
-    private fun getCacheInformation(): ApiCaching? {
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-        // clone data if don't have this line -> crash app after "mRealm.close()"
-        val result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
-        mRealm.close()
-        return result
-    }
-
-    private val mKeyAPI: String by lazy {
-        // Get Value of annotation API for save cache as KEY_CACHE
-        val method = ApiService::getInfomation
-        val get = method.annotations.find { it is GET } as? GET
-        get?.value + ""
-    }
-}
-
-class LocationListener(provider: String) : android.location.LocationListener {
-    companion object {
-
-    }
-
-    var mLastLocation: Location
-    var TAG = "Test"
-
-    init {
-
-        mLastLocation = Location(provider)
-        Log.e(TAG, "LocationListener ${mLastLocation.latitude} ${mLastLocation.longitude}")
-    }
-
-    override fun onLocationChanged(location: Location) {
-        Log.e(TAG, "onLocationChanged: $location")
-        mLastLocation.set(location)
-    }
-
-    override fun onProviderDisabled(provider: String) {
-        Log.e(TAG, "onProviderDisabled: $provider")
-    }
-
-    override fun onProviderEnabled(provider: String) {
-        Log.e(TAG, "onProviderEnabled: $provider")
-    }
-
-    override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-        Log.e(TAG, "onStatusChanged: $provider")
-    }
 }

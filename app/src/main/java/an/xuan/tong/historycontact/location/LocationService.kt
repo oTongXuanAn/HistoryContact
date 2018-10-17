@@ -1,5 +1,14 @@
 package an.xuan.tong.historycontact.location
 
+import an.xuan.tong.historycontact.Constant
+import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.api.model.InformationResponse
+import an.xuan.tong.historycontact.api.model.LocationServer
+import an.xuan.tong.historycontact.realm.ApiCaching
+import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import android.app.AlarmManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -8,14 +17,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.IBinder
 import android.util.Log
-
-import an.xuan.tong.historycontact.Constant
-import an.xuan.tong.historycontact.api.ApiService
-import an.xuan.tong.historycontact.api.Repository
-import an.xuan.tong.historycontact.api.model.InformationResponse
-import an.xuan.tong.historycontact.api.model.LocationServer
-import an.xuan.tong.historycontact.realm.ApiCaching
-import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,6 +27,8 @@ import java.util.concurrent.TimeUnit
 
 class LocationService : Service() {
     var mLocationManager: LocationManager? = null
+    private var alarmManager: AlarmManager? = null
+
     private var mLocationListeners = arrayOf(LocationListener(LocationManager.GPS_PROVIDER), LocationListener(LocationManager.NETWORK_PROVIDER))
 
     inner class LocationListener(provider: String) : android.location.LocationListener {
@@ -85,20 +88,15 @@ class LocationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.e(TAG, "onStartCommand")
         super.onStartCommand(intent, flags, startId)
-        return Service.START_STICKY
-    }
-
-    override fun onCreate() {
-        Log.e(TAG, "onCreate")
         initializeLocationManager()
         try {
             mLocationManager!!.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE,
                     mLocationListeners[1])
         } catch (ex: java.lang.SecurityException) {
-            Log.i(TAG, "fail to request location update, ignore", ex)
+            Log.e(TAG, "fail to request location update, ignore", ex)
         } catch (ex: IllegalArgumentException) {
-            Log.d(TAG, "network provider does not exist, " + ex.message)
+            Log.e(TAG, "network provider does not exist, " + ex.message)
         }
 
         try {
@@ -106,10 +104,16 @@ class LocationService : Service() {
                     LocationManager.GPS_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE,
                     mLocationListeners[0])
         } catch (ex: java.lang.SecurityException) {
-            Log.i(TAG, "fail to request location update, ignore", ex)
+            Log.e(TAG, "fail to request location update, ignore", ex)
         } catch (ex: IllegalArgumentException) {
-            Log.d(TAG, "gps provider does not exist " + ex.message)
+            Log.e(TAG, "gps provider does not exist " + ex.message)
         }
+        return Service.START_STICKY
+    }
+
+    override fun onCreate() {
+        Log.e(TAG, "onCreate")
+
 
     }
 
@@ -120,11 +124,23 @@ class LocationService : Service() {
             try {
                 mLocationManager!!.removeUpdates(mLocationListeners[i])
             } catch (ex: Exception) {
-                Log.i(TAG, "fail to remove location listners, ignore", ex)
+                Log.e(TAG, "fail to remove location listners, ignore", ex)
             }
-
-
         }
+    }
+
+    override fun onTaskRemoved(rootIntent: Intent) {
+        val intent = Intent(this, LocationService::class.java)
+        val pendingIntent = PendingIntent.getService(this, 0, intent, 0)
+        val now = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        getAlarmManager().set(AlarmManager.RTC_WAKEUP, now + 1000, pendingIntent)
+        super.onTaskRemoved(rootIntent)
+
+        Log.e("antx", "onTaskRemoved")
+    }
+
+    private fun getAlarmManager(): AlarmManager {
+        return if (alarmManager != null) alarmManager!! else getSystemService(Context.ALARM_SERVICE) as AlarmManager
     }
 
     private fun initializeLocationManager() {
@@ -135,7 +151,7 @@ class LocationService : Service() {
     companion object {
         private val TAG = "BOOMBOOMTESTGPS"
         private val LOCATION_INTERVAL = 1000
-        private val LOCATION_DISTANCE = 10f
+        private val LOCATION_DISTANCE = 100f
     }
 
     private fun getCacheInformation(): ApiCaching? {
@@ -148,14 +164,10 @@ class LocationService : Service() {
 
     private fun saveLocation(lat: Double, lng: Double) {
         val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        mRealm.beginTransaction()
-        var locationCurrent = LocationCurrent(Constant.KEY_LOCATION_CURRENT, lat.toString(), lng.toString())
-        mRealm.insertOrUpdate(locationCurrent)
-        var size = mRealm.where(LocationCurrent::class.java).findAll().size
-        mRealm.commitTransaction()
-        mRealm.close()
-        Log.e("saveLocation: ", "size: " + size + " " + lng.toString())
-
+        mRealm.executeTransaction {
+            var locationCurrent = LocationCurrent(Constant.KEY_LOCATION_CURRENT, lat.toString(), lng.toString())
+            mRealm.insertOrUpdate(locationCurrent)
+        }
     }
 
     private val mKeyAPI: String by lazy {
