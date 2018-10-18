@@ -14,8 +14,10 @@ import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
 import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Build
@@ -24,14 +26,15 @@ import android.os.Environment
 import android.support.annotation.RequiresApi
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
 import com.facebook.accountkit.AccountKitError
-import com.google.firebase.database.DatabaseReference
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_hello_token.*
@@ -42,14 +45,15 @@ import java.util.*
 
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
-    private var mDatabase: DatabaseReference? = null
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
         permissionApp()
+        if (!checkGSP()) {
+            showSettingsAlert()
+        }
         getInformation()
-
     }
 
     override fun onResume() {
@@ -76,9 +80,17 @@ class TokenActivity : Activity() {
         switchSMS.setOnTouchListener { _, event ->
             gotoPermission(event)
         }
+        switcGPS.setOnTouchListener { _, event ->
+            if (event.action == MotionEvent.ACTION_DOWN) {
+                val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent)
+            }
+            event.actionMasked == MotionEvent.ACTION_MOVE
+
+        }
 
         toolbarImageLeft.setOnClickListener {
-            onBackPressed()
+
         }
     }
 
@@ -107,7 +119,7 @@ class TokenActivity : Activity() {
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                 .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
+                .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                 .setShowSeed(true)
                 .build()
@@ -156,11 +168,14 @@ class TokenActivity : Activity() {
                             .subscribe(
                                     { result ->
                                         Log.e("test", result.toString())
-                                        handlerGetInformationSccess(result)
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            handlerGetInformationSccess(result)
+                                        }
                                         hideProgressBar()
                                     },
                                     { e ->
                                         Log.e("test", e.message)
+                                        startActivity(Intent(applicationContext, MainActivity::class.java))
                                         hideProgressBar()
                                     })
 
@@ -169,7 +184,9 @@ class TokenActivity : Activity() {
                 }
             }
 
-            override fun onError(error: AccountKitError) {}
+            override fun onError(error: AccountKitError) {
+
+            }
         })
 
     }
@@ -179,7 +196,11 @@ class TokenActivity : Activity() {
         //call service
         startCallService()
         //location service
-        startLocationService()
+        if (!checkGSP()) {
+            showSettingsAlert()
+        } else {
+            startLocationService()
+        }
         //sms service
         ActivityCompat.requestPermissions(this, arrayOf("android.permission.READ_SMS"), 23)
         if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
@@ -196,6 +217,7 @@ class TokenActivity : Activity() {
         switchMicrophone.isChecked = hasPermissions(Manifest.permission.RECORD_AUDIO)
         switchPhone.isChecked = hasPermissions(Manifest.permission.READ_PHONE_STATE)
         switcStorage.isChecked = hasPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        switcGPS.isChecked = checkGSP()
     }
 
     @Suppress("DEPRECATED_IDENTITY_EQUALS")
@@ -217,5 +239,27 @@ class TokenActivity : Activity() {
         return event.actionMasked == MotionEvent.ACTION_MOVE
     }
 
+    private fun checkGSP(): Boolean {
+        val manager: LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        return manager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+    }
 
+    private fun showSettingsAlert() {
+        val builder = AlertDialog.Builder(this@TokenActivity)
+        builder.setTitle("Enable GPS")
+        builder.setMessage("GPS is not enabled, Please enable GPS")
+        builder.setPositiveButton("YES") { _, _ ->
+            val intent = Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent)
+
+        }
+        builder.setNeutralButton("No") { _, _ ->
+            Toast.makeText(applicationContext, "GPS is not enabled", Toast.LENGTH_SHORT).show()
+        }
+        val dialog: AlertDialog = builder.create()
+        // Display the alert dialog on app interface
+        dialog.show()
+
+
+    }
 }

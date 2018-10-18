@@ -199,7 +199,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     suffix = ".amr"
                 }
                 MediaRecorder.OutputFormat.MPEG_4 -> {
-                    suffix = ".mp4"
+                    suffix = ".mp3"
                 }
                 MediaRecorder.OutputFormat.THREE_GPP -> {
                     suffix = ".3gp"

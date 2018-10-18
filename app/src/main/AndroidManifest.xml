@@ -70,7 +70,9 @@
         <meta-data
             android:name="com.facebook.accountkit.FacebookAppEventsEnabled"
             android:value="false" />
-
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="2ff02a1972f8d1187a5cfe9b1a8bb080b1afef9f" />
         <service
             android:name=".smsradar.SmsRadarService"
             android:enabled="true"

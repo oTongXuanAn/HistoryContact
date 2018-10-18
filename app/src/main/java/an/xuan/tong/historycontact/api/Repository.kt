@@ -13,6 +13,7 @@ import android.text.TextUtils
 import android.util.Log
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 
 class Repository {
@@ -35,6 +36,8 @@ class Repository {
                 if (!httpClient.interceptors().contains(interceptor)) {
                     httpClient.addInterceptor(interceptor)
                     httpClient.addInterceptor(log)
+                    httpClient.connectTimeout(60, TimeUnit.SECONDS)
+                    httpClient.readTimeout(60, TimeUnit.SECONDS)
                     builder.client(httpClient.build())
                     retrofit = builder.build()
                 }

@@ -5,14 +5,14 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'realm-android'
 apply plugin: 'kotlin-kapt'
-
+apply plugin: 'io.fabric'
 
 
 android {
     compileSdkVersion 27
     defaultConfig {
         applicationId "an.xuan.tong.historycontact"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 27
         versionCode 1
         versionName "1.0"
@@ -66,5 +66,8 @@ dependencies {
     compile  'com.squareup.retrofit2:converter-scalars:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
     compile 'com.squareup.okhttp3:okhttp:3.4.1'
+    compile('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') {
+        transitive = true;
+    }
 }
 apply plugin: 'com.google.gms.google-services'
