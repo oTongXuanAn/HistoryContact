@@ -53,7 +53,6 @@ public class CallRecordService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flas, int startId) {
         Log.e(TAG + "antx", "onStartCommand()");
-
         String file_name = PrefsHelper.readPrefString(this, CallRecord.PREF_FILE_NAME);
         String dir_path = PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_PATH);
         String dir_name = PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_NAME);

@@ -34,42 +34,6 @@ import java.util.*
 
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        if (isOnline(context)) {
-            //handler call
-            val listCallLogFail = RealmUtils.getAllCallLog()
-            listCallLogFail?.forEachIndexed { index, it ->
-                var a = RealmUtils.getAllCallLog()
-                Log.e("a: ", "" + a)
-                Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
-                sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type)
-            }
-
-            //handler sms
-            val listCachingMessage = RealmUtils.getAllMessCaching()
-            listCachingMessage?.forEachIndexed { index, it ->
-                insertCachingSms(it.id, it.phoneNumber, it.datecreate, it.contentmessage, it.lat, it.lng, it.type)
-            }
-
-            //Handler Internet on/ off
-            RealmUtils.saveInternetOnOff(true)
-            val listInternetCaching = RealmUtils.getAllInternetCaching()
-            listInternetCaching?.let {
-                it.forEachIndexed { _, internetCaching ->
-                    sendInternetCaching(internetCaching.id, internetCaching.datecreate, internetCaching.isInternet)
-                }
-            }
-            //Handler Power
-            val listPowCaching = RealmUtils.getAllPowerCaching()
-            listPowCaching?.let {
-                it.forEachIndexed { _, powCaching ->
-                    sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
-                }
-
-            }
-        } else {
-            RealmUtils.saveInternetOnOff(false)
-        }
-
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
             RealmUtils.savePowerOnOff(true)
@@ -86,22 +50,24 @@ class SMSreceiver : BroadcastReceiver() {
                     .setRecordDirName("Historycontact")
                     .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                     .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                    .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
                     .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                     .setShowSeed(true)
                     .build()
 
             callRecord.startCallRecordService()
 
+            val intent = Intent()
+            intent.setClass(context, LocationService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+
         }
         //Location
-        val intent = Intent()
-        intent.setClass(context, LocationService::class.java)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else {
-            context.startService(intent)
-        }
+
         if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
             RealmUtils.savePowerOnOff(false)
@@ -127,12 +93,12 @@ class SMSreceiver : BroadcastReceiver() {
     }
 
     //file audio local
-    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String?, duration: String?, fileAAudio: String?, lat: String?, lng: String?, type: Boolean?, filePath: String? = "") {
+    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String?, duration: String?, fileAAudio: String?, lat: String?, lng: String?, type: String?, filePath: String? = "") {
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = CallLogServer(id, phoneNumber,
-                dateCreate, duration, lat, lng, fileAAudio, type)
+                dateCreate, duration, lat, lng, fileAAudio, type.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -157,7 +123,7 @@ class SMSreceiver : BroadcastReceiver() {
     }
 
     //file audio server
-    private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: Boolean?) {
+    private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: String? = "null") {
         try {
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
@@ -171,7 +137,7 @@ class SMSreceiver : BroadcastReceiver() {
                     .subscribe(
                             { result ->
                                 if (result.isNotEmpty()) {
-                                    sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall, filePath)
+                                    sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall.toString(), filePath)
                                 }
                             },
                             { e ->

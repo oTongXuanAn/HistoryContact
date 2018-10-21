@@ -17,6 +17,7 @@ package an.xuan.tong.historycontact.smsradar
 
 
 import an.xuan.tong.historycontact.Constant
+import an.xuan.tong.historycontact.Utils.CurrentTime.Companion.timeOffset
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
@@ -126,7 +127,7 @@ internal class SmsObserver : ContentObserver {
                     // mConno.add(position,phoneNumber);
                 }
                 phones.close()
-                sms?.let { insertSms(sms.address, (it.date.toLong() / 1000).toString(), it.msg, it.type.toString()); }
+                sms?.let { insertSms(sms.address, (it.date.toLong() / 1000 + timeOffset()).toString(), it.msg, it.type.toString()); }
             }
 
 

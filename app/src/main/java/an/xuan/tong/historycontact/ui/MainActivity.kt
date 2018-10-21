@@ -90,11 +90,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        Toast.makeText(
-                this,
-                toastMessage,
-                Toast.LENGTH_LONG)
-                .show()
     }
 
     private fun onLogin(loginType: LoginType) {

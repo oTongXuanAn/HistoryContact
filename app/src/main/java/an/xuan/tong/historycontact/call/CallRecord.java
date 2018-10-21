@@ -13,10 +13,6 @@ import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
 import an.xuan.tong.historycontact.call.helper.PrefsHelper;
 import an.xuan.tong.historycontact.call.service.CallRecordService;
 
-/**
- * Created by aykutasil on 20.10.2016.
- */
-
 public class CallRecord {
 
     private static final String TAG = CallRecord.class.getSimpleName();

@@ -61,6 +61,8 @@ class TokenService : JobService() {
         return false
     }
 
+
+
     companion object {
         private val JOB_ID = 1
         val ONE_DAY_INTERVAL = 24 * 60 * 60 * 1000L // 1 Day

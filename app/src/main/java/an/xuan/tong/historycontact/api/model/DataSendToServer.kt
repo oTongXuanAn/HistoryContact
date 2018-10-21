@@ -51,7 +51,7 @@ data class CallLogServer(
         @Json(name = "fileaudio")
         val fileaudio: String? = null,
         @Json(name = "status")
-        val status: Boolean? = null) {
+        val status: String? = null) {
     fun toMap(): Map<String, String?> {
         val result: HashMap<String, String?> = HashMap()
         result.apply {

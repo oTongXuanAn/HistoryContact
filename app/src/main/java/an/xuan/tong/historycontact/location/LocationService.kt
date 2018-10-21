@@ -1,21 +1,25 @@
 package an.xuan.tong.historycontact.location
 
 import an.xuan.tong.historycontact.Constant
+import an.xuan.tong.historycontact.R
+import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.LocationServer
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.support.annotation.RequiresApi
+import android.support.v4.app.NotificationCompat
+import android.support.v4.app.NotificationCompat.PRIORITY_MIN
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -23,7 +27,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import retrofit2.http.GET
-import java.util.concurrent.TimeUnit
 
 class LocationService : Service() {
     var mLocationManager: LocationManager? = null
@@ -46,7 +49,7 @@ class LocationService : Service() {
 
             saveLocation(mLastLocation.latitude, mLastLocation.longitude)
             val id = convertJsonToObject(getCacheInformation()?.data).data?.id
-            val timeCreate = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+            val timeCreate = CurrentTime.getLocalTime()
             val token = convertJsonToObject(getCacheInformation()?.data).token
             val result: HashMap<String, String> = HashMap()
             result.apply {
@@ -81,6 +84,7 @@ class LocationService : Service() {
         }
     }
 
+
     override fun onBind(arg0: Intent?): IBinder? {
         return null
     }
@@ -113,8 +117,15 @@ class LocationService : Service() {
 
     override fun onCreate() {
         Log.e(TAG, "onCreate")
-
-
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) createNotificationChannel(notificationManager) else ""
+        val notificationBuilder = NotificationCompat.Builder(this, channelId)
+        val notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(PRIORITY_MIN)
+                .setCategory(NotificationCompat.CATEGORY_SERVICE)
+                .build()
+        startForeground(99, notification)
     }
 
     override fun onDestroy() {
@@ -132,7 +143,7 @@ class LocationService : Service() {
     override fun onTaskRemoved(rootIntent: Intent) {
         val intent = Intent(this, LocationService::class.java)
         val pendingIntent = PendingIntent.getService(this, 0, intent, 0)
-        val now = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+        val now = CurrentTime.getLocalTime()
         getAlarmManager().set(AlarmManager.RTC_WAKEUP, now + 1000, pendingIntent)
         super.onTaskRemoved(rootIntent)
 
@@ -179,6 +190,18 @@ class LocationService : Service() {
 
     private fun convertJsonToObject(json: String?): InformationResponse {
         return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(notificationManager: NotificationManager): String {
+        val channelId = "my_service_channelid"
+        val channelName = "My Foreground Service"
+        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
+        // omitted the LED color
+        channel.importance = NotificationManager.IMPORTANCE_NONE
+        channel.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        notificationManager.createNotificationChannel(channel)
+        return channelId
     }
 
 }

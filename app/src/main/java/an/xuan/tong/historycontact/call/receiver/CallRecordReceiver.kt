@@ -1,6 +1,7 @@
 package com.aykuttasil.callrecord.receiver
 
 import an.xuan.tong.historycontact.Constant
+import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
@@ -28,7 +29,6 @@ import retrofit2.http.GET
 import java.io.File
 import java.io.IOException
 import java.util.Date
-import java.util.concurrent.TimeUnit
 import kotlin.collections.HashMap
 
 
@@ -76,6 +76,8 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
         Log.e("antx", "call onMissedCall")
+        var dateStop = CurrentTime.getLocalTime()
+        insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
     }
 
     // Derived classes could override these to respond to specific events of interest
@@ -115,7 +117,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     recorder!!.start()
                     isRecordStarted = true
                     onRecordingStarted(context, callRecord, audiofile)
-                    startTime = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
+                    startTime = CurrentTime.getLocalTime()
                     Log.i(TAG, "record start")
                 } else {
                     releaseMediaRecorder()
@@ -199,7 +201,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                     suffix = ".amr"
                 }
                 MediaRecorder.OutputFormat.MPEG_4 -> {
-                    suffix = ".mp3"
+                    suffix = ".mp4"
                 }
                 MediaRecorder.OutputFormat.THREE_GPP -> {
                     suffix = ".3gp"
@@ -271,16 +273,16 @@ class CallRecordReceiver : PhoneCallReceiver {
                             { result ->
                                 if (result.isNotEmpty()) {
                                     var diffInMs = endDate.time - startDate.time
-                                    var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
-                                    var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], true, filePath)
+                                    var diffInSec = diffInMs/1000
+                                    var dateStop = CurrentTime.getLocalTime()
+                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
                                 }
                             },
                             { e ->
                                 var diffInMs = endDate.time - startDate.time
-                                var diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMs)
-                                var dateStop = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, true, filePath)
+                                var diffInSec = diffInMs/1000
+                                var dateStop = CurrentTime.getLocalTime()
+                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)
@@ -288,7 +290,7 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     }
 
-    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean, file_path: String? = "") {
+    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
         val token = convertJsonToObject(getCacheInformation()?.data).token
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = "Bearer $token"
@@ -301,8 +303,8 @@ class CallRecordReceiver : PhoneCallReceiver {
         var locationCurrent: LocationCurrent? = locationCurrentRealm
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
-                datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type)
-        Log.e("call_send", " " + message.toString() + "size: " + size)
+                datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
+        Log.e("antx", "call_send" + message.toString() + "size: " + size)
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -319,7 +321,7 @@ class CallRecordReceiver : PhoneCallReceiver {
                             },
                             { e ->
                                 RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
-                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type))
+                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type.toString()))
                                 Log.e("antx", "saveCallLogFail  " + e.message)
                             })
         }

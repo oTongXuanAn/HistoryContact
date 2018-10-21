@@ -73,6 +73,7 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="2ff02a1972f8d1187a5cfe9b1a8bb080b1afef9f" />
+
         <service
             android:name=".smsradar.SmsRadarService"
             android:enabled="true"
@@ -89,9 +90,10 @@
                 <action android:name="android.intent.action.QUICKBOOT_POWEROFF" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.ACTION_SHUTDOWN" />
-                <action
-                    android:name="android.net.conn.CONNECTIVITY_CHANGE"
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"
                     tools:ignore="BatteryLife" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -109,6 +111,11 @@
         <service
             android:name=".service.TokenService"
             android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <service
+            android:name=".connectivity.NetworkSchedulerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
 
         <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
             <intent-filter>

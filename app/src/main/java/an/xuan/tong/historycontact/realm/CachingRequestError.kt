@@ -13,7 +13,7 @@ open class CachingCallLog(
         var lat: String? = "",
         var lng: String? = "",
         var fileaudio: String? = "",//file_path
-        var type: Boolean? = false
+        var type: String? = "null"
 ) : RealmObject()
 
 open class CachingMessage(
