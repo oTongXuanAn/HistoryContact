@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
 
@@ -30,6 +31,7 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         //We listen to two intents.  The new outgoing call only tells us of an outgoing call.  We use it to get the number.
         if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
+            Log.e("antx", "PhoneCallReceiver BOOT_COMPLETED ");
             Intent pushIntent = new Intent(context, PhoneCallReceiver.class);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(pushIntent);

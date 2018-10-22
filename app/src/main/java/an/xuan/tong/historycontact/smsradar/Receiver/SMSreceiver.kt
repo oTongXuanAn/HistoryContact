@@ -37,6 +37,14 @@ class SMSreceiver : BroadcastReceiver() {
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
             RealmUtils.savePowerOnOff(true)
+            //Handler Power
+            val listPowCaching = RealmUtils.getAllPowerCaching()
+            listPowCaching?.let {
+                it.forEachIndexed { _, powCaching ->
+                    sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
+                }
+
+            }
             updateInformation()
             val intentSms = Intent(context, SmsRadarService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -69,7 +77,7 @@ class SMSreceiver : BroadcastReceiver() {
         //Location
 
         if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
-            Log.e("antx", "onReceive sms BOOT_COMPLETED")
+            Log.e("antx", "onReceive sms QUICKBOOT_POWEROFF")
             RealmUtils.savePowerOnOff(false)
         }
         if ("android.intent.action.ACTION_SHUTDOWN" == intent.action) {

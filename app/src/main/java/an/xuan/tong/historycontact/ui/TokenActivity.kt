@@ -282,7 +282,7 @@ class TokenActivity : Activity() {
                 .setOverrideDeadline(2000)
                 .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
                 .setPersisted(true)
-                .build();
+                .build()
 
         var jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.schedule(myJob);

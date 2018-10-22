@@ -22,20 +22,21 @@ import okhttp3.RequestBody
 import java.io.File
 import java.util.HashMap
 
-class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityReceiverListener {
+class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityReceiverListener, BootCompleted.BootCompletedListener {
+    override fun onBootCompleted() {
+        Log.e("antx", "onBootCompleted")
+    }
 
     private var mConnectivityReceiver: ConnectivityReceiver? = null
+    private var mBootCompleted: BootCompleted? = null
 
     override fun onCreate() {
         super.onCreate()
         Log.i(TAG, "Service created")
         mConnectivityReceiver = ConnectivityReceiver(this)
+        mBootCompleted = BootCompleted(this)
     }
 
-    /**
-     * When the app's NetworkConnectionActivity is created, it starts this service. This is so that the
-     * activity and this service can communicate back and forth. See "setUiCallback()"
-     */
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.i(TAG, "onStartCommand")
         return Service.START_NOT_STICKY
@@ -45,12 +46,14 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
     override fun onStartJob(params: JobParameters): Boolean {
         Log.i(TAG, "onStartJob" + mConnectivityReceiver!!)
         registerReceiver(mConnectivityReceiver, IntentFilter("android.net.conn.CONNECTIVITY_CHANGE"))
+        //     registerReceiver(mBootCompleted, IntentFilter("android.intent.action.BOOT_COMPLETED"))
         return true
     }
 
     override fun onStopJob(params: JobParameters): Boolean {
         Log.i(TAG, "onStopJob")
         unregisterReceiver(mConnectivityReceiver)
+        // unregisterReceiver(mBootCompleted)
         return true
     }
 
@@ -100,9 +103,6 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
             RealmUtils.saveInternetOnOff(false)
         }
 
-        val message = if (isConnected) "Good! Connected to Internet" else "Sorry! Not connected to internet"
-        Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
-
     }
 
     private fun insertCachingSms(cachingId: Int?, phoneNunber: String?, datecreate: String?, contentmessage: String?, lat: String?, lng: String?, type: Boolean?) {
@@ -139,6 +139,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             {
+                                Log.e("antx", "sendInternetCaching success")
                                 RealmUtils.deleteItemInternet(cachingId)
                             },
                             { e ->
