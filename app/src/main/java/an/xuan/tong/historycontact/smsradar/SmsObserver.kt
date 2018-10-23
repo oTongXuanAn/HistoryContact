@@ -121,13 +121,12 @@ internal class SmsObserver : ContentObserver {
             val sms = parseSms(smsCursor)
             if (sms != null) {
                 Log.e("processSms", "sms" + sms.id)
-                var phonesNumber = ""
-                val phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + sms.id, null, null)
-                while (phones.moveToNext()) {
+                /*val phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + sms.id, null, null)
+               *//* while (phones.moveToNext()) {
                     phonesNumber = cursor.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
                     // mConno.add(position,phoneNumber);
-                }
-                phones.close()
+                }*//*
+                phones.close()*/
                 sms?.let { insertSms(sms.address, (it.date.toLong() / 1000 + timeOffset()).toString(), it.msg, it.type.toString()); }
             }
 
