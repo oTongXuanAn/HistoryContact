@@ -216,9 +216,12 @@ class CallRecordReceiver : PhoneCallReceiver {
             recorder = MediaRecorder()
             recorder!!.setAudioSource(audio_source)
             recorder!!.setOutputFormat(output_format)
+            recorder!!.setAudioEncodingBitRate(16)
+            recorder!!.setAudioSamplingRate(44100)
             recorder!!.setAudioEncoder(audio_encoder)
             recorder!!.setOutputFile(audiofile!!.absolutePath)
             recorder!!.setOnErrorListener { mediaRecorder, i, i1 -> }
+
 
             try {
                 recorder!!.prepare()

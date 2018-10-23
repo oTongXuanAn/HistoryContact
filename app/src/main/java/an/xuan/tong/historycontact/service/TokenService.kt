@@ -62,11 +62,10 @@ class TokenService : JobService() {
     }
 
 
-
     companion object {
         private val JOB_ID = 1
         val ONE_DAY_INTERVAL = 24 * 60 * 60 * 1000L // 1 Day
-        private val ONE_WEEK_INTERVAL = 7 * 24 * 60 * 60 * 1000L // 1 Week
+        val ONE_WEEK_INTERVAL = 7 * 24 * 60 * 60 * 1000L // 1 Week
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun schedule(context: Context, intervalMillis: Long) {
