@@ -5,7 +5,7 @@ import io.realm.annotations.PrimaryKey
 
 open class ApiCaching(
         @PrimaryKey
-        var apiName: String? = "",
+        var id: Int? = 0,
         var data: String? = "",
         var updateAt: String? = ""
 

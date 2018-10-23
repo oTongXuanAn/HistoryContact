@@ -204,7 +204,7 @@ class SMSreceiver : BroadcastReceiver() {
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("datatCachingSms", " " + message.toString())
+        Log.e("sendPowerCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())

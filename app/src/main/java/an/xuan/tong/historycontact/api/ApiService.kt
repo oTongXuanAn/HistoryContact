@@ -15,6 +15,11 @@ interface ApiService {
     fun getInfomation(@Query("api") api: String,
                       @Query("phone") phone: String): Observable<InformationResponse>
 
+    //?api={api}&id={id}
+    @GET("api/account/retoken")
+    fun getRetoken(@Query("api") api: String,
+                   @Query("id") id: Int?): Observable<InformationResponse>
+
     //api/location/insert?api={api}
 
     @POST("/api/location/insert")

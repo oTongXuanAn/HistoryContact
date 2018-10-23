@@ -35,6 +35,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.provider.ContactsContract
 import android.util.Log
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -236,6 +237,7 @@ internal class SmsObserver : ContentObserver {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
+
                                 Log.e("antx", "insertSms " + result.toString())
 
                             },

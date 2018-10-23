@@ -112,6 +112,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         var message = SmsSendServer(id, phoneNunber,
                 datecreate, lat, lng, contentmessage, type)
         Log.e("datatCachingSms", " " + message.toString())
+        Toast.makeText(applicationContext, "Send SMS Caching", Toast.LENGTH_LONG).show()
         id?.let {
             Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -132,7 +133,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("datatCachingSms", " " + message.toString())
+        Log.e("sendInternetCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertInternet(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -153,7 +154,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("datatCachingSms", " " + message.toString())
+        Log.e("sendPowerCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())

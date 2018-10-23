@@ -33,8 +33,8 @@ class RealmUtils {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
             var result: ApiCaching? = null
             mRealm.executeTransaction {
-                val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-                result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
+                val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).equalTo("id", mKeyAPI).findFirst()
+                result = ApiCaching(mangaSearchObj?.id, mangaSearchObj?.data, mangaSearchObj?.updateAt)
             }
             return result
         }
@@ -135,11 +135,8 @@ class RealmUtils {
             Log.e("locationCurrentRealm", "" + size)
         }
 
-        private val mKeyAPI: String by lazy {
-            // Get Value of annotation API for save cache as KEY_CACHE
-            val method = ApiService::getInfomation
-            val get = method.annotations.find { it is GET } as? GET
-            get?.value + ""
+        private val mKeyAPI: Int by lazy {
+            1
         }
 
         private fun convertJsonToObject(json: String?): InformationResponse {

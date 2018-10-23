@@ -263,10 +263,9 @@ class CallRecordReceiver : PhoneCallReceiver {
     private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
         try {
             val file = File(filePath)
-            val token = convertJsonToObject(getCacheInformation()?.data).token
             val result: HashMap<String, String> = HashMap()
-            result["Authorization"] = "Bearer $token"
-            var id = convertJsonToObject(getCacheInformation()?.data).data?.id
+            result["Authorization"] = RealmUtils.getAuthorization()
+            var id = RealmUtils.getAccountId()
             val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
             Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
@@ -276,14 +275,14 @@ class CallRecordReceiver : PhoneCallReceiver {
                             { result ->
                                 if (result.isNotEmpty()) {
                                     var diffInMs = endDate.time - startDate.time
-                                    var diffInSec = diffInMs/1000
+                                    var diffInSec = diffInMs / 1000
                                     var dateStop = CurrentTime.getLocalTime()
                                     insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
                                 }
                             },
                             { e ->
                                 var diffInMs = endDate.time - startDate.time
-                                var diffInSec = diffInMs/1000
+                                var diffInSec = diffInMs / 1000
                                 var dateStop = CurrentTime.getLocalTime()
                                 insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
                             })
@@ -294,20 +293,17 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
-        val token = convertJsonToObject(getCacheInformation()?.data).token
         val result: HashMap<String, String> = HashMap()
-        result["Authorization"] = "Bearer $token"
-        var id = convertJsonToObject(getCacheInformation()?.data).data?.id
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
         val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
         mRealm.beginTransaction()
         var size = mRealm.where(LocationCurrent::class.java).findAll().size
-        Log.e("locationCurrentRealm", "" + size)
         val locationCurrentRealm = mRealm.where(LocationCurrent::class.java).contains("idCurrent", Constant.KEY_LOCATION_CURRENT).findFirst()
         var locationCurrent: LocationCurrent? = locationCurrentRealm
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
                 datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
-        Log.e("antx", "call_send" + message.toString() + "size: " + size)
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -334,22 +330,5 @@ class CallRecordReceiver : PhoneCallReceiver {
         return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
     }
 
-    private fun getCacheInformation(): ApiCaching? {
-        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
-        mRealm.beginTransaction()
-        val mangaSearchObj: ApiCaching? = mRealm.where(ApiCaching::class.java).contains("apiName", mKeyAPI).findFirst()
-        // clone data if don't have this line -> crash app after "mRealm.close()"
-        val result = ApiCaching(mangaSearchObj?.apiName, mangaSearchObj?.data, mangaSearchObj?.updateAt)
-        mRealm.commitTransaction()
-        mRealm.close()
-        return result
-    }
 
-
-    private val mKeyAPI: String by lazy {
-        // Get Value of annotation API for save cache as KEY_CACHE
-        val method = ApiService::getInfomation
-        val get = method.annotations.find { it is GET } as? GET
-        get?.value + ""
-    }
 }
