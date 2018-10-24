@@ -39,7 +39,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         Log.i(TAG, "onStartCommand")
-        return Service.START_NOT_STICKY
+        return Service.START_STICKY
     }
 
 
