@@ -183,16 +183,16 @@ class CallRecordReceiver : PhoneCallReceiver {
 
             val fileNameBuilder = StringBuilder()
             fileNameBuilder.append(file_name)
-            fileNameBuilder.append("_")
+            fileNameBuilder.append("")
 
             if (show_seed) {
                 fileNameBuilder.append(seed)
-                fileNameBuilder.append("_")
+                fileNameBuilder.append("")
             }
 
             if (show_phone_number) {
                 fileNameBuilder.append(phoneNumber)
-                fileNameBuilder.append("_")
+                fileNameBuilder.append("")
             }
 
 
@@ -316,12 +316,12 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { _ ->
-                                try {
+                                /*try {
                                     val fdelete = File(file_path)
                                     fdelete.delete()
                                 } catch (e: Exception) {
 
-                                }
+                                }*/
 
                             },
                             { e ->
