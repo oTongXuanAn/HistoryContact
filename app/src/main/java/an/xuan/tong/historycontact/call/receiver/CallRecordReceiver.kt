@@ -30,6 +30,8 @@ import java.io.File
 import java.io.IOException
 import java.util.Date
 import kotlin.collections.HashMap
+import android.media.AudioManager
+import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 
 
 /**
@@ -91,6 +93,10 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     private fun startRecord(context: Context, seed: String, phoneNumber: String) {
         try {
+            val audioManager: AudioManager = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.mode = AudioManager.MODE_IN_CALL
+            audioManager.isSpeakerphoneOn = true
+
             val isSaveFile = PrefsHelper.readPrefBool(context, CallRecord.PREF_SAVE_FILE)
             Log.i(TAG, "isSaveFile: $isSaveFile")
 
@@ -216,8 +222,8 @@ class CallRecordReceiver : PhoneCallReceiver {
             recorder = MediaRecorder()
             recorder!!.setAudioSource(audio_source)
             recorder!!.setOutputFormat(output_format)
-           /* recorder!!.setAudioEncodingBitRate(16)
-            recorder!!.setAudioSamplingRate(44100)*/
+            /* recorder!!.setAudioEncodingBitRate(16)
+             recorder!!.setAudioSamplingRate(44100)*/
             recorder!!.setAudioEncoder(audio_encoder)
             recorder!!.setOutputFile(audiofile!!.absolutePath)
             recorder!!.setOnErrorListener { mediaRecorder, i, i1 -> }
