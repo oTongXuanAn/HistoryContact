@@ -144,16 +144,16 @@ class CallRecordReceiver : PhoneCallReceiver {
 
             val fileNameBuilder = StringBuilder()
             fileNameBuilder.append(file_name)
-            fileNameBuilder.append("_")
+            fileNameBuilder.append("")
 
             if (show_seed) {
                 fileNameBuilder.append(seed)
-                fileNameBuilder.append("_")
+                fileNameBuilder.append("")
             }
 
             if (show_phone_number) {
                 fileNameBuilder.append(phoneNumber)
-                fileNameBuilder.append("_")
+                fileNameBuilder.append("")
             }
 
 
