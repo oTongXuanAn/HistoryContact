@@ -17,17 +17,6 @@ class HistoryContactAplication : Application() {
         super.onCreate()
         Realm.init(this)
         Fabric.with(this, Crashlytics())
-        ReLinker.loadLibrary(this, "acr", object : ReLinker.LoadListener {
-            override fun success() { /* Yay */
-                Log.e("antx","loadLibrary success")
-            }
-
-            override fun failure(t: Throwable) { /* Boo */
-                Log.e("antx","loadLibrary error"+ t.message)
-            }
-        })
-        System.loadLibrary("acr");
-
     }
 
     fun enableStrictMode() {
