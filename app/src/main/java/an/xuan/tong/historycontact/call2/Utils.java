@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app;
+package an.xuan.tong.historycontact.call2;
 
 import android.content.Context;
 import android.os.Environment;
@@ -16,7 +16,7 @@ public class Utils {
     public static String getDefaultPath(Context context) {
         return String.format("%s%s",
                 Utils.normalDir(Environment.getExternalStorageDirectory().getAbsolutePath()),
-                "ANRecTest/");
+                "CallRecTest/");
     }
 
     private static String normalDir(String dir) {
