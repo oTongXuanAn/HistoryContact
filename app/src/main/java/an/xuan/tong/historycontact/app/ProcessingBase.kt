@@ -1,5 +1,11 @@
 package net.callrec.app
 
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.media.AudioFormat
+import android.os.Build
+import android.os.Handler
 import net.callrec.library.fix.RecorderHelper
 
 /**
@@ -114,7 +120,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         }
     }
 
-    protected open fun startRecord(delayMS: Int) {
+     open fun startRecord(delayMS: Int) {
         recHandler.removeCallbacks(recorderRun)
 
         onPreStartRecord()
@@ -176,7 +182,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         val OUT = 2
     }
 
-    enum class TypeRecorder { WAV }
+    enum class TypeRecorder { WAV, WAV_NATIVE }
 
     inner class RecorderRunnable : Runnable {
         override fun run() {

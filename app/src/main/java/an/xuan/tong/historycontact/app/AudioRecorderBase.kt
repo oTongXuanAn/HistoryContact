@@ -1,5 +1,8 @@
 package net.callrec.app
 
+import android.media.AudioFormat
+import android.media.AudioRecord
+
 /**
  * Created by Viktor Degtyarev on 16.10.17
  * E-mail: viktor@degtyarev.biz

@@ -6,6 +6,7 @@ import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.CallLogServer
+import an.xuan.tong.historycontact.app.Utils
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
 import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
@@ -15,6 +16,7 @@ import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.Context
+import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.util.Log
 import com.google.gson.Gson
@@ -31,13 +33,38 @@ import java.io.IOException
 import java.util.Date
 import kotlin.collections.HashMap
 import android.media.AudioManager
+import android.os.Build
+import android.os.Handler
 import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
+import net.callrec.app.AudioRecorder
+import net.callrec.app.ProcessingBase
+import net.callrec.app.RecorderBase
+import net.callrec.app.RecorderFactory
+import net.callrec.library.fix.RecorderHelper
 
 
 /**
  * Created by aykutasil on 19.10.2016.
  */
 class CallRecordReceiver : PhoneCallReceiver {
+
+    protected var recorder2: AudioRecorder? = null
+    lateinit var recHandler: Handler
+    protected var recordingStartedFlag: Boolean = false
+
+    protected var phoneNumber: String = ""
+    protected var typeCall: Int = -1
+
+    protected var formatFile: String = ""
+    protected var typeRecorder: ProcessingBase.TypeRecorder? = null
+    protected var audioSource = -1
+    protected var outputFormat: Int = 0
+    protected var encoder: Int = 0
+    protected var stereoChannel: Boolean = false
+    protected var samplingRate: Int = 0
+    protected var audioEncodingBitRate: Int = 0
+    protected var filePathNoFormat: String = ""
+
 
     protected lateinit var callRecord: CallRecord
     private var audiofile: File? = null
@@ -56,23 +83,29 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
-        startRecord(context, "incoming", number)
+        // startRecord(context, "incoming", number)
+        startRecorder(context)
+        var ProcessingBase: ProcessingBase
+
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
-        stopRecord(context, number, start, end, false)
+//        stopRecord(context, number, start, end, false)
+        stopRecorder()
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
-        startRecord(context, "outgoing", number)
+        //startRecord(context, "outgoing", number)
+        startRecorder(context)
         Log.e("antx", "call onOutgoingCallStarted")
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
-        stopRecord(context, number, start, end, true)
+        // stopRecord(context, number, start, end, true)
+        stopRecorder()
 
     }
 
@@ -335,6 +368,72 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     private fun convertJsonToObject(json: String?): InformationResponse {
         return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+    }
+
+
+    //new call
+
+
+    private fun startRecorder(context: Context) {
+        val recorderHelper = RecorderHelper.getInstance()
+        var startFixWavFormat = false
+
+        makeOutputFile(context)
+        prepareAudioPreferences()
+
+        when (typeRecorder) {
+            ProcessingBase.TypeRecorder.WAV -> {
+                val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
+                recorder2 = RecorderFactory.createWavRecorder(audioSource, samplingRate, channelConfig,
+                        AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    recorderHelper.startFixCallRecorder(context, recorder2!!.audioSessionId)
+                    startFixWavFormat = true
+                }
+            }
+        }
+
+        recorder2!!.start()
+
+        recordingStartedFlag = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && startFixWavFormat) {
+            recorderHelper.stopFixCallRecorder()
+        }
+    }
+
+    fun makeOutputFile(context: Context): String {
+        val dirStorage = Utils.getDefaultPath(context)
+
+        val file = File(dirStorage)
+
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                throw Exception()
+            }
+        }
+
+        filePathNoFormat = dirStorage + Utils.makeFileName()
+        return filePathNoFormat
+    }
+
+    fun prepareAudioPreferences() {
+        formatFile = "wav"
+        audioSource = MediaRecorder.AudioSource.MIC
+        outputFormat = 0
+        encoder = 0
+        stereoChannel = false
+        samplingRate = 8000
+        audioEncodingBitRate = 0
+        typeRecorder = ProcessingBase.TypeRecorder.WAV
+    }
+
+    private fun stopRecorder() {
+        if (recorder2 == null) return
+
+        if (recorder2!!.isRecorded()) {
+            recorder2!!.stop()
+        }
     }
 
 

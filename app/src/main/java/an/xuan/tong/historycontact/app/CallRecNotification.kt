@@ -1,5 +1,10 @@
 package net.callrec.app
 
+import an.xuan.tong.historycontact.R
+import an.xuan.tong.historycontact.ui.MainActivity
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Intent
 import android.support.v4.app.NotificationCompat
 
 /**

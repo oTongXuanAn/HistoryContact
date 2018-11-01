@@ -1,0 +1,89 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+	package
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:2:5-40
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+	android:versionName
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+	android:versionCode
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:1-31:12
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:1:11-69
+uses-permission#android.permission.WRITE_EXTERNAL_STORAGE
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:5:5-81
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:5:22-78
+uses-permission#android.permission.RECORD_AUDIO
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:6:5-71
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:6:22-68
+uses-permission#android.permission.PROCESS_OUTGOING_CALLS
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:7:5-81
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:7:22-78
+uses-permission#android.permission.READ_PHONE_STATE
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:8:5-75
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:8:22-72
+uses-permission#android.permission.RECEIVE_BOOT_COMPLETED
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:9:5-80
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:9:22-78
+application
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:11:5-29:19
+	android:supportsRtl
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:14:9-35
+	android:label
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:13:9-41
+	android:allowBackup
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:12:9-35
+service#com.aykuttasil.callrecord.service.CallRecordService
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:17:9-19:39
+	android:exported
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:19:13-36
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:18:13-54
+receiver#com.aykuttasil.callrecord.receiver.CallRecordReceiver
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:21:9-27:20
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:21:19-62
+intent-filter#action:name:android.intent.action.BOOT_COMPLETED+action:name:android.intent.action.NEW_OUTGOING_CALL+action:name:android.intent.action.PHONE_STATE
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:22:13-26:29
+action#android.intent.action.PHONE_STATE
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:23:17-76
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:23:25-73
+action#android.intent.action.NEW_OUTGOING_CALL
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:24:17-82
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:24:25-79
+action#android.intent.action.BOOT_COMPLETED
+ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:25:17-79
+	android:name
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml:25:25-76
+uses-sdk
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		ADDED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml
+		INJECTED from /home/tong.xuan.an/Desktop/antx/HistoryContact/HistoryContact/callrecord/src/main/AndroidManifest.xml

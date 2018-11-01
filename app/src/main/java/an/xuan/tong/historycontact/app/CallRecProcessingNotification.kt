@@ -1,5 +1,11 @@
 package net.callrec.app
 
+import an.xuan.tong.historycontact.app.Utils
+import android.app.Service
+import android.content.Intent
+import android.media.MediaRecorder
+import java.io.File
+
 
 /**
  * Created by Viktor Degtyarev on 16.10.17
@@ -65,7 +71,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         stereoChannel = false
         samplingRate = 8000
         audioEncodingBitRate = 0
-        typeRecorder = TypeRecorder.WAV
+        typeRecorder = TypeRecorder.WAV_NATIVE
     }
 
     override fun stopThisService() {
@@ -74,6 +80,6 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
 
     override fun onRecorderError(e: Exception) {
         super.onRecorderError(e)
-        service.toast(e.toString())
+       // service.toast(e.toString())
     }
 }

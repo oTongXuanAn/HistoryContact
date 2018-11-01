@@ -1,5 +1,8 @@
 package net.callrec.app
 
+import android.app.Service
+import android.content.Intent
+
 /**
  * Created by Viktor Degtyarev on 16.10.17
  * E-mail: viktor@degtyarev.biz
@@ -21,7 +24,7 @@ abstract class ProcessingBaseNotification(val service: Service) : ProcessingBase
         if (getPauseBeforeRecord() > 0 || !getCheckRulesRecord()) {
             val notification = getNotificationWait()
             if (notification != null) {
-                service.notificationManager.notify(notifyDefId, notification.build())
+          //      service.notificationManager.notify(notifyDefId, notification.build())
                 notifyWaitDestroy = true
             }
         }
@@ -34,28 +37,28 @@ abstract class ProcessingBaseNotification(val service: Service) : ProcessingBase
 
     override fun onDestroy() {
         super.onDestroy()
-        if (notifyWaitDestroy) service.notificationManager.cancel(notifyDefId)
+       // if (notifyWaitDestroy) service.notificationManager.cancel(notifyDefId)
     }
 
     override fun onRecorderError(e: Exception) {
         super.onRecorderError(e)
         service.stopForeground(true)
-        service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
+      //  service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
     }
 
     override fun onRecorderError(e: RecorderBase.RecorderException) {
         super.onRecorderError(e)
         service.stopForeground(true)
-        service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
+       // service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
     }
 
     override fun onRecorderError(e: ProcessingException) {
         super.onRecorderError(e)
         service.stopForeground(true)
-        service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
+     //   service.notificationManager.notify(notifyErrId, getNotificationErr(e).build())
     }
 
     fun updateNotification() {
-        service.notificationManager.notify(notifyDefId, getNotificationUpdate().build())
+       // service.notificationManager.notify(notifyDefId, getNotificationUpdate().build())
     }
 }
