@@ -84,7 +84,7 @@ class CallRecordReceiver : PhoneCallReceiver {
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
         // startRecord(context, "incoming", number)
-      //  startRecord(0)
+       startRecord(0)
 
 
     }
@@ -93,14 +93,14 @@ class CallRecordReceiver : PhoneCallReceiver {
         Log.e("antx", "call onIncomingCallEnded")
 //        stopRecord(context, number, start, end, false)
         this.context = context
-      //  stopRecord()
+        stopRecord()
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
         //startRecord(context, "outgoing", number)
         this.context = context
-       // startRecord(0)
+       startRecord(0)
 
         Log.e("antx", "call onOutgoingCallStarted")
     }
@@ -108,7 +108,7 @@ class CallRecordReceiver : PhoneCallReceiver {
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
         // stopRecord(context, number, start, end, true)
-      //  stopRecord()
+        stopRecord()
 
     }
 

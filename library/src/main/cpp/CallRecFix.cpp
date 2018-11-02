@@ -59,7 +59,7 @@ int setParam(jint i, jint i2, const char *kvp) {
         log_info("create str8 success");
     }
     //todo set your app name
-    string16(&str16, "net.callrec.app");
+    string16(&str16, "an.xuan.tong.historycontact");
     if (!str16) {
         log_info("Filed to create str16");
     } else {

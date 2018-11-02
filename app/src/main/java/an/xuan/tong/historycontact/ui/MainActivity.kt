@@ -3,7 +3,6 @@ package an.xuan.tong.historycontact.ui
 import an.xuan.tong.historycontact.R
 import android.Manifest
 import android.annotation.TargetApi
-import android.app.Notification
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,7 +14,6 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.view.View
-import android.widget.Toast
 import com.facebook.accountkit.AccountKit
 import com.facebook.accountkit.ui.AccountKitActivity
 import com.facebook.accountkit.ui.AccountKitConfiguration
@@ -36,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_main_token)
         checkAndRequestLocationPermissionApp(0)
 
         if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {

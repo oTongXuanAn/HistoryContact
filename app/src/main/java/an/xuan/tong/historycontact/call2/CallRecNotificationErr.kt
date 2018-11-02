@@ -1,5 +1,6 @@
 package an.xuan.tong.historycontact.call2
 
+import an.xuan.tong.historycontact.R
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
@@ -17,7 +18,7 @@ class CallRecNotificationErr(val processing: ProcessingBase) : INotification<Pro
         builder.setOngoing(true)
         builder.setAutoCancel(true)
 
-        /*val notifyIntent = Intent(processing.context, MainActivity::class.java)
+        val notifyIntent = Intent(processing.context, MainActivity::class.java)
         notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val pendingIntent = PendingIntent.getActivity(processing.context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -25,7 +26,7 @@ class CallRecNotificationErr(val processing: ProcessingBase) : INotification<Pro
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(processing.context.getString(R.string.app_name))
                 .setContentText("Recording error")
-                .setContentIntent(pendingIntent)*/
+                .setContentIntent(pendingIntent)
 
         return builder.build()
     }

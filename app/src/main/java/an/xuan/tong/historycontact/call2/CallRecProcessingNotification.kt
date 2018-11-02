@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.media.MediaRecorder
 import net.callrec.library.recorder.base.RecorderBase
+import org.jetbrains.anko.toast
 import java.io.File
 
 
@@ -80,6 +81,6 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
 
     override fun onRecorderError(e: Exception) {
         super.onRecorderError(e)
-        //service.toast(e.toString())
+        service.toast(e.toString())
     }
 }

@@ -50,7 +50,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     abstract fun makeOutputFile(): String
 
     @Throws(Exception::class)
-    private fun startRecorder() {
+    public fun startRecorder() {
         val recorderHelper = RecorderHelper.getInstance()
         var startFixWavFormat = false
 

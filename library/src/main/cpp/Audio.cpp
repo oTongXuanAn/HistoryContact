@@ -152,7 +152,7 @@ bool getFunctionsLibUtils(void *p_library) {
         LOGI("Successfully created string8");
     }
     //todo set your app name
-    string16(&str16, "net.callrec.app");
+    string16(&str16, "an.xuan.tong.historycontact");
 //    string16(&str16, "com.CallRecord");
     if (!str16) {
         LOGI("Failed to create string16");

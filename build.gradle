@@ -34,7 +34,6 @@ task clean(type: Delete) {
 ext {
     sdk = 27
     minSdk = 17
-    libraryVersion = "1.2.8"
     libraryVersionCode = 18
     supportVersion = "27.1.0"
     lib_versions = [
@@ -47,4 +46,5 @@ ext {
     targetSdkVersion = 23
     buildToolsVersion = "26.0.0"
     supportLibVersion = "26.0.0"
+    ankoVersion = "0.9.1"
 }
