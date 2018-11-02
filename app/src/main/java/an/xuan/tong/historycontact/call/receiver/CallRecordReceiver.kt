@@ -55,7 +55,7 @@ class CallRecordReceiver : PhoneCallReceiver {
     protected var typeCall: Int = -1
 
     protected var formatFile: String = ""
-    protected var typeRecorder: ProcessingBase.TypeRecorder? = null
+    protected var typeRecorder: TypeRecorder? = null
     protected var audioSource = -1
     protected var outputFormat: Int = 0
     protected var encoder: Int = 0
@@ -63,14 +63,17 @@ class CallRecordReceiver : PhoneCallReceiver {
     protected var samplingRate: Int = 0
     protected var audioEncodingBitRate: Int = 0
     protected var filePathNoFormat: String = ""
-    lateinit var context: Context
+    lateinit var mContext: Context
 
     protected lateinit var callRecord: CallRecord
     private var audiofile: File? = null
     private var isRecordStarted = false
     var startTime = 0L
 
-    constructor()
+    constructor(){
+        recHandler = Handler()
+    }
+    //I/CallRecLib: Error: dlopen failed: library "libutils.so" not found
 
     constructor(callRecord: CallRecord) {
         this.callRecord = callRecord
@@ -78,37 +81,37 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onIncomingCallReceived(context: Context, number: String, start: Date) {
-        this.context = context
+        this.mContext = context
     }
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
-        // startRecord(context, "incoming", number)
-      //  startRecord(0)
+        // startRecord(mContext, "incoming", number)
+        this.mContext = context
+        startRecord(10)
 
 
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
-//        stopRecord(context, number, start, end, false)
-        this.context = context
-      //  stopRecord()
+//        stopRecord(mContext, number, start, end, false)
+        stopRecord()
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
-        //startRecord(context, "outgoing", number)
-        this.context = context
-       // startRecord(0)
+        //startRecord(mContext, "outgoing", number)
+        this.mContext = context
+        startRecord(10)
 
         Log.e("antx", "call onOutgoingCallStarted")
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
-        // stopRecord(context, number, start, end, true)
-      //  stopRecord()
+        // stopRecord(mContext, number, start, end, true)
+        stopRecord()
 
     }
 
@@ -381,35 +384,22 @@ class CallRecordReceiver : PhoneCallReceiver {
                 startRecorder()
             } catch (e: RecorderBase.RecorderException) {
                 e.printStackTrace()
+                Log.e("antx", " RecorderException error: " + e.message)
             } catch (e: ProcessingBase.ProcessingException) {
                 e.printStackTrace()
+                Log.e("antx", " RecorderEProcessingExceptionxception error: " + e.message)
             }
         }
     }
 
     protected open fun startRecord(delayMS: Int) {
         recHandler.removeCallbacks(recorderRun)
-
-        onPreStartRecord()
-
         if (delayMS == 0) {
             recHandler.post(recorderRun)
         } else {
             recHandler.postDelayed(recorderRun, delayMS.toLong())
-            onWaitStartRecord()
         }
     }
-
-    open protected fun onCheckRulesRecord(check: Boolean) {}
-    open protected fun onWaitStartRecord() {}
-    open protected fun onStartRecord() {}
-    open protected fun onStopRecord() {}
-    open protected fun onRecorderError(e: Exception) {}
-    open protected fun onRecorderError(e: RecorderBase.RecorderException) {}
-
-    open protected fun onRecorderError(e: ProcessingBase.ProcessingException) {}
-
-    open protected fun onPreStartRecord() {}
 
     protected open fun stopRecord() {
         recHandler.removeCallbacks(recorderRun)
@@ -420,32 +410,39 @@ class CallRecordReceiver : PhoneCallReceiver {
         val recorderHelper = RecorderHelper.getInstance()
         var startFixWavFormat = false
 
-        makeOutputFile(context)
-        prepareAudioPreferences()
+        makeOutputFile(mContext)
+        formatFile = "wav"
+        audioSource = MediaRecorder.AudioSource.MIC
+        outputFormat = 0
+        encoder = 0
+        stereoChannel = false
+        samplingRate = 8000
+        audioEncodingBitRate = 0
+        typeRecorder = TypeRecorder.WAV_NATIVE
 
-        when (typeRecorder) {
-            ProcessingBase.TypeRecorder.WAV -> {
-                val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
-                recorder2 = RecorderFactory.createWavRecorder(audioSource, samplingRate, channelConfig,
-                        AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
+        /* when (typeRecorder) {
+             TypeRecorder.WAV -> {
+                 val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
+                 recorder2 = RecorderFactory.createWavRecorder(audioSource, samplingRate, channelConfig,
+                         AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    recorderHelper.startFixCallRecorder(context, recorder2!!.audioSessionId)
-                    startFixWavFormat = true
-                }
-            }
+                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                     recorderHelper.startFixCallRecorder(mContext, recorder2!!.audioSessionId)
+                     startFixWavFormat = true
+                 }
+             }*/
 
-            ProcessingBase.TypeRecorder.WAV_NATIVE -> {
-                val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
-                recorder2 = RecorderFactory.createNativeWavRecorder(audioSource, samplingRate, channelConfig,
-                        AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    recorderHelper.startFixCallRecorder7(context)
-                    startFixWavFormat = true
-                }
-            }
+        val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
+        recorder2 = RecorderFactory.createNativeWavRecorder(audioSource, samplingRate, channelConfig,
+                AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            recorderHelper.startFixCallRecorder7(mContext)
+            startFixWavFormat = true
         }
+        //}
+        //}
 
         recorder2!!.start()
 
@@ -478,7 +475,7 @@ class CallRecordReceiver : PhoneCallReceiver {
         stereoChannel = false
         samplingRate = 8000
         audioEncodingBitRate = 0
-        typeRecorder = ProcessingBase.TypeRecorder.WAV
+        typeRecorder = TypeRecorder.WAV_NATIVE
     }
 
     private fun stopRecorder() {
@@ -488,5 +485,6 @@ class CallRecordReceiver : PhoneCallReceiver {
         }
     }
 
+    enum class TypeRecorder { WAV, WAV_NATIVE }
 
 }

@@ -61,6 +61,7 @@
         <activity android:name=".ui.ErrorActivity" />
         <activity
             android:name=".ui.TokenActivity"
+            android:hardwareAccelerated="false"
             android:screenOrientation="portrait" />
 
         <meta-data

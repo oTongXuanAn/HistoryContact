@@ -17,13 +17,13 @@ class CallRecNotificationErr(val processing: ProcessingBase) : INotification<Pro
         builder.setOngoing(true)
         builder.setAutoCancel(true)
 
-        /*val notifyIntent = Intent(processing.context, MainActivity::class.java)
+        /*val notifyIntent = Intent(processing.mContext, MainActivity::class.java)
         notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
-        val pendingIntent = PendingIntent.getActivity(processing.context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent = PendingIntent.getActivity(processing.mContext, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
 
         builder.setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle(processing.context.getString(R.string.app_name))
+                .setContentTitle(processing.mContext.getString(R.string.app_name))
                 .setContentText("Recording error")
                 .setContentIntent(pendingIntent)*/
 
