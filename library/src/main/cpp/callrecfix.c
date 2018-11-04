@@ -17,6 +17,7 @@ limitations under the License.*/
 #include <stdio.h>
 #include <pthread.h>
 #include <malloc.h>
+#include <string.h>
 
 typedef jint (*lspr)(JNIEnv *env, jobject thiz);
 

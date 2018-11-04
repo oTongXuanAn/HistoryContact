@@ -1,5 +1,8 @@
 package net.callrec.app
 
+import an.xuan.tong.historycontact.app.AudioRecorder
+import an.xuan.tong.historycontact.app.WavRecorder
+
 
 /**
  * Created by Viktor Degtyarev on 16.10.17

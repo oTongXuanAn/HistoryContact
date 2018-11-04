@@ -1,5 +1,13 @@
-package net.callrec.app
+package an.xuan.tong.historycontact.app
 
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.media.AudioFormat
+import android.os.Build
+import android.os.Handler
+import android.util.Log
+import net.callrec.app.RecorderFactory
 import net.callrec.library.fix.RecorderHelper
 
 /**
@@ -43,6 +51,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     @Throws(Exception::class)
     private fun startRecorder() {
+        Log.e("antx", "startRecorder")
         val recorderHelper = RecorderHelper.getInstance()
         var startFixWavFormat = false
 
@@ -74,6 +83,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     }
 
     private fun stopRecorder() {
+        Log.e("antx", "stopRecorder")
         if (recorder == null) return
 
         if (recorder!!.isRecorded()) {
@@ -88,6 +98,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     }
 
     protected open fun handleFirstStart(intent: Intent): Int {
+        Log.e("antx", "handleFirstStart")
         prepareService(intent)
 
         if (forcedStart) {
@@ -116,7 +127,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     protected open fun startRecord(delayMS: Int) {
         recHandler.removeCallbacks(recorderRun)
-
+        Log.e("antx", "startRecord")
         onPreStartRecord()
 
         if (delayMS == 0) {
@@ -151,14 +162,14 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if (!isServiceOn()) {
             stopThisService()
-            return Service.START_NOT_STICKY
+            return Service.START_REDELIVER_INTENT
         }
 
         forcedStart = intent.getBooleanExtra(IntentKey.FORCED_START, false)
 
         if (isFirstStart(startId)) return handleFirstStart(intent)
         handleNoFirstStart(intent)
-        return Service.START_NOT_STICKY
+        return Service.START_REDELIVER_INTENT
     }
 
     override fun onDestroy() {

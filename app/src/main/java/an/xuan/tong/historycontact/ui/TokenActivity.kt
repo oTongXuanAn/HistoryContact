@@ -184,7 +184,7 @@ class TokenActivity : Activity() {
                                     },
                                     { e ->
                                         Log.e("test", e.message)
-                                        startActivity(Intent(applicationContext, MainActivity::class.java))
+                                        startActivity(Intent(applicationContext, MainActivittMain::class.java))
                                         hideProgressBar()
                                     })
 

@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app;
+package an.xuan.tong.historycontact.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import an.xuan.tong.historycontact.R;
+import an.xuan.tong.historycontact.app.CallRecService;
+import an.xuan.tong.historycontact.app.ProcessingBase;
+
 public class MainActivity extends AppCompatActivity {
     private Boolean onService = false;
 
@@ -17,9 +21,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -32,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
@@ -44,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
 
         return super.onOptionsItemSelected(item);
     }

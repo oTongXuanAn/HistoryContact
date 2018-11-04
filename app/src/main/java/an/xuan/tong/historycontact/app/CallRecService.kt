@@ -1,4 +1,8 @@
-package net.callrec.app
+package an.xuan.tong.historycontact.app
+
+import android.app.Service
+import android.content.Intent
+import android.os.IBinder
 
 /**
  * Created by Viktor Degtyarev on 16.10.17
@@ -13,6 +17,7 @@ class CallRecService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
         processing = CallRecProcessingNotification(this)
         processing.onCreate()
     }

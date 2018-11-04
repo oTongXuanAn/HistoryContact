@@ -1,4 +1,11 @@
-package net.callrec.app
+package an.xuan.tong.historycontact.app
+
+import android.app.Service
+import android.content.Intent
+import android.media.MediaRecorder
+import net.callrec.app.ProcessingBaseNotification
+import org.jetbrains.anko.toast
+import java.io.File
 
 
 /**
@@ -18,7 +25,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getNotificationErr(e: ProcessingException): INotification<*> {
+    override fun getNotificationErr(e: ProcessingBase.ProcessingException): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

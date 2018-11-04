@@ -8,9 +8,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.util.Log;
 
-import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
 
 import an.xuan.tong.historycontact.call.helper.PrefsHelper;
+import an.xuan.tong.historycontact.call.receiver.CallRecordReceiver;
 import an.xuan.tong.historycontact.call.service.CallRecordService;
 
 public class CallRecord {

@@ -1,37 +1,36 @@
-package com.aykuttasil.callrecord.receiver
+package an.xuan.tong.historycontact.call.receiver
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
-import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.CallLogServer
+import an.xuan.tong.historycontact.app.AudioRecorder
+import an.xuan.tong.historycontact.app.CallRecService
+import an.xuan.tong.historycontact.app.ProcessingBase
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
-import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
 import an.xuan.tong.historycontact.location.LocationCurrent
-import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.Context
+import android.content.Intent
+import android.media.AudioManager
 import android.media.MediaRecorder
+import android.os.Handler
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
+import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.GET
 import java.io.File
 import java.io.IOException
 import java.util.Date
 import kotlin.collections.HashMap
-import android.media.AudioManager
-import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 
 
 /**
@@ -44,10 +43,32 @@ class CallRecordReceiver : PhoneCallReceiver {
     private var isRecordStarted = false
     var startTime = 0L
 
+    /*new call*/
+    protected var recorder2: AudioRecorder? = null
+   // protected val recorderRun = RecorderRunnable()
+    lateinit var recHandler: Handler
+    protected var recordingStartedFlag: Boolean = false
+
+    protected var phoneNumber: String = ""
+    protected var typeCall: Int = -1
+
+    protected var formatFile: String = ""
+ //   protected var typeRecorder: TypeRecorder? = null
+    protected var audioSource = -1
+    protected var outputFormat: Int = 0
+    protected var encoder: Int = 0
+    protected var stereoChannel: Boolean = false
+    protected var samplingRate: Int = 0
+    protected var audioEncodingBitRate: Int = 0
+    protected var filePathNoFormat: String = ""
+    lateinit var mContext: Context
+
+
     constructor()
 
     constructor(callRecord: CallRecord) {
         this.callRecord = callRecord
+        recHandler = Handler()
     }
 
     override fun onIncomingCallReceived(context: Context, number: String, start: Date) {
@@ -56,23 +77,29 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
-        startRecord(context, "incoming", number)
+        //startRecord(context, "incoming", number)
+        mContext = context
+        onService()
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
-        stopRecord(context, number, start, end, false)
-
+       // stopRecord(context, number, start, end, false)
+        mContext = context
+       offService()
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
-        startRecord(context, "outgoing", number)
+        // startRecord(context, "outgoing", number)
         Log.e("antx", "call onOutgoingCallStarted")
+        mContext = context
+        onService()
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
-        stopRecord(context, number, start, end, true)
+        //stopRecord(context, number, start, end, true)
+        offService()
 
     }
 
@@ -333,9 +360,138 @@ class CallRecordReceiver : PhoneCallReceiver {
         }
     }
 
-    private fun convertJsonToObject(json: String?): InformationResponse {
-        return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+    /*new method call*/
+
+
+/*    @Throws(Exception::class)
+    private fun startRecorder() {
+        val recorderHelper = RecorderHelper.getInstance()
+        var startFixWavFormat = false
+
+        makeOutputFile()
+        prepareAudioPreferences()
+
+        when (typeRecorder) {
+            TypeRecorder.WAV -> {
+                val channelConfig = if (stereoChannel) AudioFormat.CHANNEL_IN_STEREO else AudioFormat.CHANNEL_IN_MONO
+                recorder2 = RecorderFactory.createWavRecorder(audioSource, samplingRate, channelConfig,
+                        AudioFormat.ENCODING_PCM_16BIT, filePathNoFormat)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    recorderHelper.startFixCallRecorder(mContext, recorder2!!.audioSessionId)
+                    startFixWavFormat = true
+                }
+            }
+        }
+
+        recorder2!!.start()
+
+        recordingStartedFlag = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN && startFixWavFormat) {
+            recorderHelper.stopFixCallRecorder()
+        }
+    }
+
+    enum class TypeRecorder { WAV }
+
+    fun makeOutputFile(): String {
+        val dirStorage = Utils.getDefaultPath(mContext)
+
+        val file = File(dirStorage)
+
+        if (!file.exists()) {
+            if (!file.mkdirs()) {
+                throw Exception()
+            }
+        }
+
+        filePathNoFormat = dirStorage + Utils.makeFileName()
+        return filePathNoFormat
+    }
+
+    private fun stopRecorder() {
+        if (recorder2 == null) return
+
+        if (recorder2!!.isRecorded()) {
+            recorder2!!.stop()
+        }
+    }
+
+    fun prepareAudioPreferences() {
+        formatFile = "wav"
+        audioSource = MediaRecorder.AudioSource.MIC
+        outputFormat = 0
+        encoder = 0
+        stereoChannel = false
+        samplingRate = 8000
+        audioEncodingBitRate = 0
+        typeRecorder = TypeRecorder.WAV
+    }
+
+    protected open fun startRecord(delayMS: Int) {
+        recHandler.removeCallbacks(recorderRun)
+
+        onPreStartRecord()
+
+        if (delayMS == 0) {
+            recHandler.post(recorderRun)
+        } else {
+            recHandler.postDelayed(recorderRun, delayMS.toLong())
+            onWaitStartRecord()
+        }
+    }
+
+    protected open fun stopRecord() {
+        recHandler.removeCallbacks(recorderRun)
+        stopRecorder()
+    }
+
+    open protected fun onCheckRulesRecord(check: Boolean) {}
+    open protected fun onWaitStartRecord() {}
+    open protected fun onStartRecord() {}
+    open protected fun onStopRecord() {}
+    open protected fun onRecorderError(e: Exception) {}
+    open protected fun onRecorderError(e: RecorderBase.RecorderException) {}
+
+    open protected fun onRecorderError(e: ProcessingBase.ProcessingException) {}
+
+    open protected fun onPreStartRecord() {
+    }
+
+    public object IntentKey {
+        val PHONE_NUMBER = "PHONE_NUMBER"
+        val TYPE_CALL = "TYPE_CALL"
+        val FORCED_START = "FORCED_START"
+    }
+
+    public object TypeCall {
+        val INC = 1
+        val OUT = 2
     }
 
 
+    inner class RecorderRunnable : Runnable {
+        override fun run() {
+            try {
+                startRecorder()
+            } catch (e: RecorderBase.RecorderException) {
+                e.printStackTrace()
+                onRecorderError(e)
+            } catch (e: ProcessingBase.ProcessingException) {
+                e.printStackTrace()
+                onRecorderError(e)
+            }
+        }
+    }*/
+
+    private fun onService() {
+        val phoneCall = Intent(getApplicationContext(), CallRecService::class.java)
+        phoneCall.putExtra(ProcessingBase.IntentKey.PHONE_NUMBER, "+79202162032")
+        phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, ProcessingBase.TypeCall.INC)
+        mContext.startService(phoneCall)
+    }
+
+    private fun offService() {
+        mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java))
+    }
 }

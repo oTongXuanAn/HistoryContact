@@ -1,11 +1,18 @@
 package net.callrec.app
 
+import an.xuan.tong.historycontact.app.INotification
+import an.xuan.tong.historycontact.app.ProcessingBase
+import an.xuan.tong.historycontact.app.RecorderBase
+import android.app.Service
+import android.content.Intent
+import org.jetbrains.anko.notificationManager
+
 /**
  * Created by Viktor Degtyarev on 16.10.17
  * E-mail: viktor@degtyarev.biz
  */
 abstract class ProcessingBaseNotification(val service: Service) : ProcessingBase(service.applicationContext) {
-    open val notifyDefId: Int = 1
+    open val notifyDefId: Int = 99
     open val notifyErrId: Int = 2
     private var notifyWaitDestroy = false
 

@@ -23,6 +23,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.WRITE_CALL_LOG" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="com.android.vending.CHECK_LICENSE" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
 
     <application
         android:name=".HistoryContactAplication"
@@ -33,20 +37,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MainActivity">
+        <activity android:name=".ui.MainActivittMain">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <service
+            android:name=".app.CallRecService"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="false"
+            ></service>
 
         <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
 
         <activity android:name="com.facebook.accountkit.ui.AccountKitEmailRedirectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -76,10 +85,10 @@
             android:name="io.fabric.ApiKey"
             android:value="2ff02a1972f8d1187a5cfe9b1a8bb080b1afef9f" />
 
-        <service
+        <!--<service
             android:name=".smsradar.SmsRadarService"
             android:enabled="true"
-            android:stopWithTask="false" />
+            android:stopWithTask="false" />-->
 
         <receiver
             android:name="an.xuan.tong.historycontact.smsradar.Receiver.SMSreceiver"
@@ -120,7 +129,7 @@
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
+        <receiver android:name=".call.receiver.CallRecordReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />

@@ -1,5 +1,4 @@
-package net.callrec.app
-
+package an.xuan.tong.historycontact.app
 
 /**
  * Created by Viktor Degtyarev on 16.10.17

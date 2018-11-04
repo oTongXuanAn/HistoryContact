@@ -1,5 +1,12 @@
-package net.callrec.app
+package an.xuan.tong.historycontact.app
 
+import an.xuan.tong.historycontact.R
+import an.xuan.tong.historycontact.ui.MainActivittMain
+import an.xuan.tong.historycontact.ui.MainActivity
+import an.xuan.tong.historycontact.ui.TokenActivity
+import android.app.Notification
+import android.app.PendingIntent
+import android.content.Intent
 import android.support.v4.app.NotificationCompat
 
 /**
@@ -13,7 +20,7 @@ class CallRecNotification(val processing: ProcessingBase) : INotification<Proces
         builder.setOngoing(true)
         builder.setAutoCancel(true)
 
-        val notifyIntent = Intent(processing.context, MainActivity::class.java)
+        val notifyIntent = Intent(processing.context, TokenActivity::class.java)
         notifyIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val pendingIntent = PendingIntent.getActivity(processing.context, 0, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT)
