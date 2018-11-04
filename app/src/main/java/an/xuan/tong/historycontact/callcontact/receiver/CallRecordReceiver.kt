@@ -1,15 +1,11 @@
-package an.xuan.tong.historycontact.call.receiver
+package an.xuan.tong.historycontact.callcontact.receiver
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
-import an.xuan.tong.historycontact.callcontact.AudioRecorder
-import an.xuan.tong.historycontact.callcontact.CallRecService
-import an.xuan.tong.historycontact.callcontact.ProcessingBase
-import an.xuan.tong.historycontact.call.CallRecord
-import an.xuan.tong.historycontact.call.helper.PrefsHelper
+import an.xuan.tong.historycontact.callcontact.helper.PrefsHelper
 import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
@@ -485,13 +481,13 @@ class CallRecordReceiver : PhoneCallReceiver {
     }*/
 
     private fun onService() {
-        val phoneCall = Intent(getApplicationContext(), CallRecService::class.java)
+        val phoneCall = Intent(getApplicationContext(), CallRecordReceiver::class.java)
         phoneCall.putExtra(ProcessingBase.IntentKey.PHONE_NUMBER, "+79202162032")
         phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, ProcessingBase.TypeCall.INC)
         mContext.startService(phoneCall)
     }
 
     private fun offService() {
-        mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java))
+        mContext.stopService(Intent(getApplicationContext(), CallRecordReceiver::class.java))
     }
 }

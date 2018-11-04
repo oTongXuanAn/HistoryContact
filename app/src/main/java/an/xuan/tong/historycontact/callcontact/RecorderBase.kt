@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact
 
 /**
  * Created by Viktor Degtyarev on 16.10.17

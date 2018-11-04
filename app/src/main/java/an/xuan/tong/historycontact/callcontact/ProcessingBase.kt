@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact
 
 import android.app.Service
 import android.content.Context
@@ -102,6 +102,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         prepareService(intent)
 
         if (forcedStart) {
+            Log.e("antx", "forcedStart")
             startRecord(0)
         } else {
             getPauseBeforeRecord()
@@ -110,7 +111,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                 onCheckRulesRecord(false)
                 return Service.START_NOT_STICKY
             }
-
+            Log.e("antx", "not forcedStart ")
             startRecord(getPauseBeforeRecord() * 1000)
         }
 

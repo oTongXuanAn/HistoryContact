@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact.receiver
 
 import android.app.Notification
 

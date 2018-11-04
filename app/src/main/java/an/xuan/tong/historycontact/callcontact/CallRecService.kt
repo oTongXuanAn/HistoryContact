@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact
 
 import android.app.Service
 import android.content.Intent

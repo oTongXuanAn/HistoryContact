@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact.receiver
 
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -33,7 +33,7 @@ class WavRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, aud
         var read = 0
 
         if (null != os) {
-            while (state === RecorderBase.State.RECORD) {
+            while (state === State.RECORD) {
                 read = audioRecord!!.read(data, 0, bufferSizeInBytes)
                 if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     try {

@@ -45,7 +45,7 @@
         </activity>
 
         <service
-            android:name=".app.CallRecService"
+            android:name=".callcontact.CallRecService"
             android:enabled="true"
             android:exported="true"
             android:stopWithTask="false"

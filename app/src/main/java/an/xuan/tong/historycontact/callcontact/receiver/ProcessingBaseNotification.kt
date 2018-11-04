@@ -1,8 +1,5 @@
-package net.callrec.app
+package an.xuan.tong.historycontact.callcontact.receiver
 
-import an.xuan.tong.historycontact.app.INotification
-import an.xuan.tong.historycontact.app.ProcessingBase
-import an.xuan.tong.historycontact.app.RecorderBase
 import android.app.Service
 import android.content.Intent
 import org.jetbrains.anko.notificationManager

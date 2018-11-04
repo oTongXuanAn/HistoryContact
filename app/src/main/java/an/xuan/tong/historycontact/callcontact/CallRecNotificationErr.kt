@@ -1,19 +1,18 @@
-package an.xuan.tong.historycontact.app
+package an.xuan.tong.historycontact.callcontact
 
 import an.xuan.tong.historycontact.R
-import an.xuan.tong.historycontact.ui.MainActivittMain
-import an.xuan.tong.historycontact.ui.MainActivity
 import an.xuan.tong.historycontact.ui.TokenActivity
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Intent
 import android.support.v4.app.NotificationCompat
 
+
 /**
  * Created by Viktor Degtyarev on 16.10.17
  * E-mail: viktor@degtyarev.biz
  */
-class CallRecNotification(val processing: ProcessingBase) : INotification<ProcessingBase> {
+class CallRecNotificationErr(val processing: ProcessingBase) : INotification<ProcessingBase> {
     override fun build(): Notification {
         val builder = NotificationCompat.Builder(processing.context)
 
@@ -27,7 +26,7 @@ class CallRecNotification(val processing: ProcessingBase) : INotification<Proces
 
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(processing.context.getString(R.string.app_name))
-                .setContentText("Conversation is recorded")
+                .setContentText("Recording error")
                 .setContentIntent(pendingIntent)
 
         return builder.build()
