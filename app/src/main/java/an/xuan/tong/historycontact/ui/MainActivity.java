@@ -10,8 +10,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import an.xuan.tong.historycontact.R;
-import an.xuan.tong.historycontact.callcontact.CallRecService;
-import an.xuan.tong.historycontact.callcontact.ProcessingBase;
+import an.xuan.tong.historycontact.call.receiver.CallRecService;
+import an.xuan.tong.historycontact.call.receiver.ProcessingBase;
 
 public class MainActivity extends AppCompatActivity {
     private Boolean onService = false;

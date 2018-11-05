@@ -5,7 +5,7 @@ import an.xuan.tong.historycontact.R
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
-import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.call.receiver.CallRecord
 import an.xuan.tong.historycontact.connectivity.NetworkSchedulerService
 import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.RealmUtils

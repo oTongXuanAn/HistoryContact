@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.callcontact
+package an.xuan.tong.historycontact.call.receiver
 
 import an.xuan.tong.historycontact.R
 import an.xuan.tong.historycontact.ui.TokenActivity

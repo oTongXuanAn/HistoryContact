@@ -1,11 +1,9 @@
-package an.xuan.tong.historycontact.callcontact
+package an.xuan.tong.historycontact.call.receiver
 
-import an.xuan.tong.historycontact.callcontact.receiver.IProcessing
+
 import android.app.Service
 import android.content.Intent
 import android.media.MediaRecorder
-import net.callrec.app.ProcessingBaseNotification
-import org.jetbrains.anko.toast
 import java.io.File
 
 
@@ -13,7 +11,7 @@ import java.io.File
  * Created by Viktor Degtyarev on 16.10.17
  * E-mail: viktor@degtyarev.biz
  */
-class CallRecProcessingNotification(service: Service) : ProcessingBaseNotification(service), IProcessing {
+class CallRecProcessingNotification(service: Service) : ProcessingBaseNotification(service) {
     override fun getNotificationUpdate(): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -26,7 +24,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun getNotificationErr(e: ProcessingBase.ProcessingException): INotification<*> {
+    override fun getNotificationErr(e: ProcessingException): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
@@ -67,7 +65,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
 
     override fun prepareAudioPreferences() {
         formatFile = "wav"
-        audioSource = MediaRecorder.AudioSource.MIC
+        audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
         outputFormat = 0
         encoder = 0
         stereoChannel = false
@@ -80,8 +78,5 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         service.stopService(Intent(context, service.javaClass))
     }
 
-    override fun onRecorderError(e: Exception) {
-        super.onRecorderError(e)
-        service.toast(e.toString())
-    }
+
 }

@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.callcontact.receiver
+package an.xuan.tong.historycontact.call.receiver
 
 import android.media.AudioFormat
 import android.media.AudioRecord

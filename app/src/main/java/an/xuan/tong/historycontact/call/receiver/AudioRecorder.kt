@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.callcontact.receiver
+package an.xuan.tong.historycontact.call.receiver
 
 /**
  * Created by Viktor Degtyarev on 16.10.17

@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.callcontact
+package an.xuan.tong.historycontact.call.receiver
 
 import android.app.Service
 import android.content.Context
@@ -6,8 +6,8 @@ import android.content.Intent
 import android.media.AudioFormat
 import android.os.Build
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import net.callrec.app.RecorderFactory
 import net.callrec.library.fix.RecorderHelper
 
 /**
@@ -102,7 +102,6 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         prepareService(intent)
 
         if (forcedStart) {
-            Log.e("antx", "forcedStart")
             startRecord(0)
         } else {
             getPauseBeforeRecord()
@@ -111,7 +110,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                 onCheckRulesRecord(false)
                 return Service.START_NOT_STICKY
             }
-            Log.e("antx", "not forcedStart ")
+
             startRecord(getPauseBeforeRecord() * 1000)
         }
 
@@ -157,7 +156,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     }
 
     override fun onCreate() {
-        recHandler = Handler()
+        recHandler = Handler(Looper.getMainLooper())
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
@@ -193,6 +192,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     inner class RecorderRunnable : Runnable {
         override fun run() {
             try {
+                Log.e("antx","RecorderRunnable")
                 startRecorder()
             } catch (e: RecorderBase.RecorderException) {
                 e.printStackTrace()

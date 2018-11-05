@@ -6,7 +6,7 @@ import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
 import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.api.model.SmsSendServer
-import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.call.receiver.CallRecord
 import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.SmsRadarService

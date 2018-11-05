@@ -5,11 +5,8 @@ import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
-import an.xuan.tong.historycontact.callcontact.AudioRecorder
-import an.xuan.tong.historycontact.callcontact.CallRecService
-import an.xuan.tong.historycontact.callcontact.ProcessingBase
-import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
+import an.xuan.tong.historycontact.call.service.CallRecordService
 import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
@@ -99,6 +96,7 @@ class CallRecordReceiver : PhoneCallReceiver {
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
         //stopRecord(context, number, start, end, true)
+        mContext = context
         offService()
 
     }

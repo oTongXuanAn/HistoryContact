@@ -15,8 +15,8 @@ import android.util.Log;
 
 
 import an.xuan.tong.historycontact.R;
-import an.xuan.tong.historycontact.call.CallRecord;
 import an.xuan.tong.historycontact.call.helper.PrefsHelper;
+import an.xuan.tong.historycontact.call.receiver.CallRecord;
 
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 

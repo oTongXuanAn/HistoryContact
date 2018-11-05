@@ -1,4 +1,4 @@
-package an.xuan.tong.historycontact.callcontact.receiver;
+package an.xuan.tong.historycontact.call.receiver;
 
 import android.content.Context;
 import android.content.Intent;
@@ -9,8 +9,8 @@ import android.os.Environment;
 import android.util.Log;
 
 
-import an.xuan.tong.historycontact.callcontact.helper.PrefsHelper;
-import an.xuan.tong.historycontact.callcontact.service.CallRecordService;
+import an.xuan.tong.historycontact.call.helper.PrefsHelper;
+import an.xuan.tong.historycontact.call.service.CallRecordService;
 
 public class CallRecord {
 

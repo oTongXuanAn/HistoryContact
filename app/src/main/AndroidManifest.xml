@@ -44,18 +44,12 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".callcontact.CallRecService"
-            android:enabled="true"
-            android:exported="true"
-            android:stopWithTask="false"
-            ></service>
-
         <activity android:name="com.facebook.accountkit.ui.AccountKitActivity" />
 
         <activity android:name="com.facebook.accountkit.ui.AccountKitEmailRedirectActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
+
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
@@ -112,7 +106,7 @@
         </receiver>
 
         <service
-            android:name=".call.service.CallRecordService"
+            android:name=".call.receiver.CallRecService"
             android:enabled="true"
             android:stopWithTask="false" />
         <service
