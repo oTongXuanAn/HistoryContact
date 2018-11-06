@@ -143,7 +143,7 @@ class RealmUtils {
             return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
         }
 
-        private fun getToken(): String? {
+        fun getToken(): String? {
             return convertJsonToObject(getCacheInformation()?.data).token
         }
 

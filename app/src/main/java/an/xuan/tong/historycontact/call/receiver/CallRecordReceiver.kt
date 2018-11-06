@@ -93,6 +93,8 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     private fun startRecord(context: Context, seed: String, phoneNumber: String) {
         try {
+            var isToken = RealmUtils.getToken().isNullOrEmpty()
+            Log.e("antx", "checkToken: " + isToken)
             val audioManager: AudioManager = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.mode = AudioManager.MODE_IN_CALL
             audioManager.isSpeakerphoneOn = true
