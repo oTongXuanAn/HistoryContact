@@ -6,7 +6,6 @@ import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
-import an.xuan.tong.historycontact.call.service.CallRecordService
 import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
