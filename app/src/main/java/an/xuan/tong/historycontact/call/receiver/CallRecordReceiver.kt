@@ -56,30 +56,35 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
-        startRecord(context, "incoming", number)
+        if (RealmUtils.isActive())
+            startRecord(context, "incoming", number)
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
-        stopRecord(context, number, start, end, false)
+        if (RealmUtils.isActive())
+            stopRecord(context, number, start, end, false)
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
-        startRecord(context, "outgoing", number)
+        if (RealmUtils.isActive())
+            startRecord(context, "outgoing", number)
         Log.e("antx", "call onOutgoingCallStarted")
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
-        stopRecord(context, number, start, end, true)
+        if (RealmUtils.isActive())
+            stopRecord(context, number, start, end, true)
 
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
         Log.e("antx", "call onMissedCall")
         var dateStop = CurrentTime.getLocalTime()
-        insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
+        if (RealmUtils.isActive())
+            insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
     }
 
     // Derived classes could override these to respond to specific events of interest

@@ -147,6 +147,10 @@ class RealmUtils {
             return convertJsonToObject(getCacheInformation()?.data).token
         }
 
+        fun isActive():Boolean{
+            return convertJsonToObject(getCacheInformation()?.data).status.equals("success")
+        }
+
         //=============handler call====================
 
         fun saveCallLogFail(callLog: CachingCallLog) {

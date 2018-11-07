@@ -176,14 +176,17 @@ class TokenActivity : Activity() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { result ->
-                                        Log.e("test", result.toString())
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            handlerGetInformationSccess(result)
+                                            if (result.status.equals(Constant.KEY_SUCCESS)) {
+                                                handlerGetInformationSccess(result)
+                                            } else {
+                                                startActivity(Intent(applicationContext, MainActivity::class.java))
+                                            }
+
                                         }
                                         hideProgressBar()
                                     },
                                     { e ->
-                                        Log.e("test", e.message)
                                         startActivity(Intent(applicationContext, MainActivity::class.java))
                                         hideProgressBar()
                                     })

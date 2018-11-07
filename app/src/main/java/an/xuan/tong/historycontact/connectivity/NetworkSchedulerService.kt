@@ -58,7 +58,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
     }
 
     override fun onNetworkConnectionChanged(isConnected: Boolean) {
-
+        Log.e("antx", "isActive: " + RealmUtils.isActive())
         if (isConnected) {
             try {
                 Log.e("antx", "isOnline")
