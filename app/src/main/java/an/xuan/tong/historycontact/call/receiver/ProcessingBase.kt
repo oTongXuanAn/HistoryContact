@@ -1,5 +1,14 @@
 package an.xuan.tong.historycontact.call.receiver
 
+import an.xuan.tong.historycontact.Constant
+import an.xuan.tong.historycontact.Utils.CurrentTime
+import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.api.model.CallLogServer
+import an.xuan.tong.historycontact.location.LocationCurrent
+import an.xuan.tong.historycontact.realm.CachingCallLog
+import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.RealmUtils
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -8,7 +17,15 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import io.realm.Realm
 import net.callrec.library.fix.RecorderHelper
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
+import java.util.*
 
 /**
  * Created by Viktor Degtyarev on 16.10.17
@@ -25,7 +42,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     protected var recordingStartedFlag: Boolean = false
 
     protected var phoneNumber: String = ""
-    protected var typeCall: Int = -1
+    protected var mTypeCall: Int = -1
 
     protected var formatFile: String = ""
     protected var typeRecorder: TypeRecorder? = null
@@ -45,17 +62,20 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     abstract fun prepareAudioPreferences()
     abstract fun stopThisService()
     private fun isFirstStart(startId: Int) = startId <= 1
-
+    lateinit var mCallStartTime: Date
+    lateinit var mCallFinishTime: Date
     @Throws(ProcessingException::class)
-    abstract fun makeOutputFile(): String
+    abstract fun makeOutputFile(phone: String, typeCall: Int): String
 
     @Throws(Exception::class)
     private fun startRecorder() {
-        Log.e("antx", "startRecorder")
+
+        mCallStartTime = Date()
+        Log.e("antx", "startRecorder: time: " + mCallStartTime.time)
         val recorderHelper = RecorderHelper.getInstance()
         var startFixWavFormat = false
 
-        makeOutputFile()
+        makeOutputFile(phoneNumber, mTypeCall)
         prepareAudioPreferences()
 
         when (typeRecorder) {
@@ -84,6 +104,8 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     private fun stopRecorder() {
         Log.e("antx", "stopRecorder")
+        mCallFinishTime = Date()
+        Log.e("antx", "startRecorder: time: " + mCallFinishTime.time)
         if (recorder == null) return
 
         if (recorder!!.isRecorded()) {
@@ -94,11 +116,12 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     protected open fun prepareService(intent: Intent) {
         phoneNumber = intent.getStringExtra(IntentKey.PHONE_NUMBER)
-        typeCall = intent.getIntExtra(IntentKey.TYPE_CALL, -1)
+        mTypeCall = intent.getIntExtra(IntentKey.TYPE_CALL, -1)
+        Log.e("antx", "prepareService: " + phoneNumber + " " + mTypeCall)
     }
 
     protected open fun handleFirstStart(intent: Intent): Int {
-        Log.e("antx", "handleFirstStart")
+        Log.e("antx", "handleFirstStart" + intent.getStringExtra(Constant.PHONE_NUMBER))
         prepareService(intent)
 
         if (forcedStart) {
@@ -141,6 +164,10 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     protected open fun stopRecord() {
         recHandler.removeCallbacks(recorderRun)
         stopRecorder()
+        var typeCall: Boolean
+        typeCall = mTypeCall != 1
+        Log.e("antx", "stopRecord: " + filePathNoFormat)
+        sendRecoderToServer(filePathNoFormat, phoneNumber, mCallStartTime, mCallFinishTime, typeCall)
     }
 
     open protected fun onCheckRulesRecord(check: Boolean) {}
@@ -167,6 +194,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
         forcedStart = intent.getBooleanExtra(IntentKey.FORCED_START, false)
 
+
         if (isFirstStart(startId)) return handleFirstStart(intent)
         handleNoFirstStart(intent)
         return Service.START_REDELIVER_INTENT
@@ -192,7 +220,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     inner class RecorderRunnable : Runnable {
         override fun run() {
             try {
-                Log.e("antx","RecorderRunnable")
+                Log.e("antx", "RecorderRunnable")
                 startRecorder()
             } catch (e: RecorderBase.RecorderException) {
                 e.printStackTrace()
@@ -224,4 +252,72 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         val ERROR_FILE_IS_EXIST = 6
         val ERROR_CREATE_FILE = 7
     }
+
+    private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
+        try {
+            val file = File(filePath)
+            val result: HashMap<String, String> = HashMap()
+            result["Authorization"] = RealmUtils.getAuthorization()
+            var id = RealmUtils.getAccountId()
+            val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+            var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
+            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { result ->
+                                if (result.isNotEmpty()) {
+                                    var diffInMs = endDate.time - startDate.time
+                                    var diffInSec = diffInMs / 1000
+                                    var dateStop = CurrentTime.getLocalTime()
+                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
+                                }
+                            },
+                            { e ->
+                                var diffInMs = endDate.time - startDate.time
+                                var diffInSec = diffInMs / 1000
+                                var dateStop = CurrentTime.getLocalTime()
+                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
+                            })
+        } catch (e: Exception) {
+            Log.e("antx Exception", "sendRcoderToServer " + e.message)
+        }
+
+    }
+
+    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
+        val result: HashMap<String, String> = HashMap()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
+        val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
+        mRealm.beginTransaction()
+        var size = mRealm.where(LocationCurrent::class.java).findAll().size
+        val locationCurrentRealm = mRealm.where(LocationCurrent::class.java).contains("idCurrent", Constant.KEY_LOCATION_CURRENT).findFirst()
+        var locationCurrent: LocationCurrent? = locationCurrentRealm
+        mRealm.commitTransaction()
+        var message = CallLogServer(id, phoneNunber,
+                datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { _ ->
+
+                                /*try {
+                                    val fdelete = File(file_path)
+                                    fdelete.delete()
+                                } catch (e: Exception) {
+
+                                }*/
+
+                            },
+                            { e ->
+                                RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
+                                        datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type.toString()))
+                                Log.e("antx", "saveCallLogFail  " + e.message)
+                            })
+        }
+    }
+
 }

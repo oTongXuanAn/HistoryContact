@@ -1,6 +1,7 @@
 package an.xuan.tong.historycontact.call.receiver;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -31,12 +32,18 @@ public class Utils {
         return dir;
     }
 
-    public static String makeFileName() {
-        Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("[dd-MM-yyyy]_[HH-mm-ss]");
+    public static String makeFileName(String phone, Integer typeCall) {
 
-        String nameSubscr = "Name subscriber";
-        String phoneSubscr = "Subscriber number";
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss");
+        String sTypeCall = "";
+        if (typeCall == 0) {
+            sTypeCall = "incoming";
+        } else {
+            sTypeCall = "outgoing";
+        }
+        String nameSubscr = sTypeCall;
+        String phoneSubscr = phone;
         Date date = calendar.getTime();
 
         return String.format("[%s]_[%s]_%s", nameSubscr, phoneSubscr, df.format(date));

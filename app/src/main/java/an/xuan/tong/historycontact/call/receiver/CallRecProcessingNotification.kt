@@ -28,7 +28,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun makeOutputFile(): String {
+    override fun makeOutputFile(phone:String,typeCall:Int): String {
         val dirStorage = Utils.getDefaultPath(context)
 
         val file = File(dirStorage)
@@ -39,7 +39,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
             }
         }
 
-        filePathNoFormat = dirStorage + Utils.makeFileName()
+        filePathNoFormat = dirStorage + Utils.makeFileName(phone,typeCall)
         return filePathNoFormat
     }
 
