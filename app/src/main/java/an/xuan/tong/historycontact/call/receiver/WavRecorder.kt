@@ -6,10 +6,7 @@ import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.RandomAccessFile
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 class WavRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioEncoding: Int, filePathNoFormat: String) :
         AudioRecorderBase(audioSource, sampleRateInHz, channelConfig, audioEncoding, filePathNoFormat.plus(".wav")) {
 

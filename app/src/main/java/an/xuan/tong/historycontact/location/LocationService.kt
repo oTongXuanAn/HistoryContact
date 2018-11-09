@@ -38,14 +38,14 @@ class LocationService : Service() {
         internal var mLastLocation: Location
 
         init {
-            Log.e(TAG, "LocationListener $provider")
+            Log.d(TAG, "LocationListener $provider")
             mLastLocation = Location(provider)
         }
 
         override fun onLocationChanged(location: Location) {
-            Log.e(TAG, "onLocationChanged: $location")
+            Log.d(TAG, "onLocationChanged: $location")
             mLastLocation.set(location)
-            Log.e("LastLocation", mLastLocation.latitude.toString() + "  " + mLastLocation.longitude.toString())
+            Log.d("LastLocation", mLastLocation.latitude.toString() + "  " + mLastLocation.longitude.toString())
 
             saveLocation(mLastLocation.latitude, mLastLocation.longitude)
             val id = convertJsonToObject(getCacheInformation()?.data).data?.id
@@ -57,30 +57,30 @@ class LocationService : Service() {
             }
 
             val sendLocation = LocationServer(id, timeCreate.toString(), mLastLocation.latitude.toString(), mLastLocation.longitude.toString())
-            Log.e("sendLocation", " " + sendLocation.toString())
+            Log.d("sendLocation", " " + sendLocation.toString())
             Repository.createService(ApiService::class.java, result).insertLocation(Constant.KEY_API, sendLocation.toMap())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
-                                Log.e("antx", "insertLocation  " + result.toString())
+                                Log.d("antx", "insertLocation  " + result.toString())
 
                             },
                             { e ->
-                                Log.e("test", "insertLocation error " + e.message)
+                                Log.d("test", "insertLocation error " + e.message)
                             })
         }
 
         override fun onProviderDisabled(provider: String) {
-            Log.e(TAG, "onProviderDisabled: $provider")
+            Log.d(TAG, "onProviderDisabled: $provider")
         }
 
         override fun onProviderEnabled(provider: String) {
-            Log.e(TAG, "onProviderEnabled: $provider")
+            Log.d(TAG, "onProviderEnabled: $provider")
         }
 
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {
-            Log.e(TAG, "onStatusChanged: $provider")
+            Log.d(TAG, "onStatusChanged: $provider")
         }
     }
 
@@ -90,7 +90,7 @@ class LocationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.e(TAG, "onStartCommand")
+        Log.d(TAG, "onStartCommand")
         super.onStartCommand(intent, flags, startId)
         initializeLocationManager()
         try {
@@ -98,7 +98,7 @@ class LocationService : Service() {
                     LocationManager.NETWORK_PROVIDER, LOCATION_INTERVAL.toLong(), LOCATION_DISTANCE,
                     mLocationListeners[1])
         } catch (ex: java.lang.SecurityException) {
-            Log.e(TAG, "fail to request location update, ignore", ex)
+            Log.d(TAG, "fail to request location update, ignore", ex)
         } catch (ex: IllegalArgumentException) {
             Log.e(TAG, "network provider does not exist, " + ex.message)
         }

@@ -42,7 +42,7 @@ class TokenService : JobService() {
                                     },
                                     { e ->
                                         jobFinished(params, false)
-                                        Log.e("test", e.message)
+                                        Log.d("test", e.message)
 
                                     })
 

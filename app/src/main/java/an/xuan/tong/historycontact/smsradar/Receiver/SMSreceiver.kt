@@ -88,7 +88,7 @@ class SMSreceiver : BroadcastReceiver() {
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("sendPowerCaching", " " + message.toString())
+        Log.d("sendPowerCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -99,7 +99,7 @@ class SMSreceiver : BroadcastReceiver() {
                                 RealmUtils.deleteItemPower(cachingId)
                             },
                             { e ->
-                                Log.e("antx", "sendPowerCaching eror " + e.message)
+                                Log.d("antx", "sendPowerCaching eror " + e.message)
                             })
         }
     }
@@ -114,12 +114,12 @@ class SMSreceiver : BroadcastReceiver() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { result ->
-                                        Log.e("test", result.toString())
+                                        Log.d("test", result.toString())
                                         RealmUtils.saveCacheInformation(result)
 
                                     },
                                     { e ->
-                                        Log.e("test", e.message)
+                                        Log.d("test", e.message)
 
                                     })
 

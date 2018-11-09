@@ -14,10 +14,7 @@ limitations under the License.*/
 
 package net.callrec.library.fix;
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 public class CallRecorderFixHelper {
     static final class Singleton {
         static final CallRecorderFixHelper INSTANCE = new CallRecorderFixHelper();

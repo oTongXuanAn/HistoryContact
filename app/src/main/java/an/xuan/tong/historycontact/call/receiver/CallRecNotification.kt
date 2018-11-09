@@ -7,10 +7,7 @@ import android.app.PendingIntent
 import android.content.Intent
 import android.support.v4.app.NotificationCompat
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 class CallRecNotification(val processing: ProcessingBase) : INotification<ProcessingBase> {
     override fun build(): Notification {
         val builder = NotificationCompat.Builder(processing.context)

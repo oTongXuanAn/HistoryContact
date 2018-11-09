@@ -7,10 +7,7 @@ import android.media.MediaRecorder
 import java.io.File
 
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 class CallRecProcessingNotification(service: Service) : ProcessingBaseNotification(service) {
     override fun getNotificationUpdate(): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.

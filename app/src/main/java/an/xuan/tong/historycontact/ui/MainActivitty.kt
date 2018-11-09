@@ -23,7 +23,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import java.util.*
 
 
-class MainActivittMain : AppCompatActivity() {
+class MainActivitty : AppCompatActivity() {
     private val FRAMEWORK_REQUEST_CODE = 1
     private var nextPermissionsRequestCode = 4000
     private val permissionsListeners: HashMap<Int, OnCompleteListener>? = null

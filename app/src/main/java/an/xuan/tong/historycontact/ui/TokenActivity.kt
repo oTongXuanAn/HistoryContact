@@ -176,15 +176,15 @@ class TokenActivity : Activity() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { result ->
-                                        Log.e("test", result.toString())
+                                        Log.d("test", result.toString())
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                             handlerGetInformationSccess(result)
                                         }
                                         hideProgressBar()
                                     },
                                     { e ->
-                                        Log.e("test", e.message)
-                                        startActivity(Intent(applicationContext, MainActivittMain::class.java))
+                                        Log.d("test", e.message)
+                                        startActivity(Intent(applicationContext, MainActivitty::class.java))
                                         hideProgressBar()
                                     })
 
@@ -275,7 +275,7 @@ class TokenActivity : Activity() {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private fun scheduleJob() {
-        Log.e("antx", "scheduleJob()")
+        Log.d("antx", "scheduleJob()")
         var myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
                 .setRequiresCharging(true)
                 .setMinimumLatency(1000)

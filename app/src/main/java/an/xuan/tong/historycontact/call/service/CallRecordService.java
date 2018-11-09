@@ -37,7 +37,7 @@ public class CallRecordService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e(TAG + "antx", "onCreate()");
+        Log.d(TAG + "antx", "onCreate()");
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         String channelId = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? createNotificationChannel(notificationManager) : "";
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this, channelId);
@@ -52,7 +52,7 @@ public class CallRecordService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flas, int startId) {
-        Log.e(TAG + "antx", "onStartCommand()");
+        Log.d(TAG + "antx", "onStartCommand()");
         String file_name = PrefsHelper.readPrefString(this, CallRecord.PREF_FILE_NAME);
         String dir_path = PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_PATH);
         String dir_name = PrefsHelper.readPrefString(this, CallRecord.PREF_DIR_NAME);
@@ -93,6 +93,6 @@ public class CallRecordService extends Service {
         super.onDestroy();
         mCallRecord.stopCallReceiver();
         stopForeground(true);
-        Log.e(TAG + "antx", "onDestroy()");
+        Log.d(TAG + "antx", "onDestroy()");
     }
 }

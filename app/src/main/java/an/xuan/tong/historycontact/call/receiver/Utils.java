@@ -9,15 +9,11 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
 public class Utils {
     public static String getDefaultPath(Context context) {
         return String.format("%s%s",
                 Utils.normalDir(Environment.getExternalStorageDirectory().getAbsolutePath()),
-                "CallRecTest/");
+                "HistoryContact/");
     }
 
     private static String normalDir(String dir) {

@@ -81,7 +81,7 @@ internal class SmsObserver : ContentObserver {
             } catch (e: Exception) {
                 return null
             } finally {
-                Log.e("antx ", "getSmsContentObserverCursor null")
+                Log.d("antx ", "getSmsContentObserverCursor null")
             }
         }
 
@@ -116,11 +116,11 @@ internal class SmsObserver : ContentObserver {
         var smsCursor: Cursor? = null
         try {
             val protocol = cursor.getString(cursor.getColumnIndex(PROTOCOL_COLUM_NAME))
-            Log.e("processSms", "sms$protocol")
+            Log.d("processSms", "sms$protocol")
             smsCursor = getSmsCursor(protocol)
             val sms = parseSms(smsCursor)
             if (sms != null) {
-                Log.e("processSms", "sms" + sms.id)
+                Log.d("processSms", "sms" + sms.id)
                 /*val phones = contentResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + sms.id, null, null)
                *//* while (phones.moveToNext()) {
                     phonesNumber = cursor.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
@@ -140,10 +140,10 @@ internal class SmsObserver : ContentObserver {
     private fun notifySmsListener(sms: Sms?) {
         if (sms != null && SmsRadar.smsListener != null) {
             if (SmsType.SENT == sms.type) {
-                Log.e("SmsType.SENT ", "sms" + sms.toString())
+                Log.d("SmsType.SENT ", "sms" + sms.toString())
                 SmsRadar.smsListener.onSmsSent(sms)
             } else {
-                Log.e("msType.Received", "sms" + sms.toString())
+                Log.d("msType.Received", "sms" + sms.toString())
                 SmsRadar.smsListener.onSmsReceived(sms)
             }
         }
@@ -229,7 +229,7 @@ internal class SmsObserver : ContentObserver {
 
         var message = SmsSendServer(id, phoneNunber,
                 datecreate, locationLat, locationLng, contentmessage, status)
-        Log.e("dataSend", " " + message.toString())
+        Log.d("dataSend", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -237,7 +237,7 @@ internal class SmsObserver : ContentObserver {
                     .subscribe(
                             { result ->
 
-                                Log.e("antx", "insertSms " + result.toString())
+                                Log.d("antx", "insertSms " + result.toString())
 
                             },
                             { _ ->

@@ -27,10 +27,7 @@ import okhttp3.RequestBody
 import java.io.File
 import java.util.*
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 abstract class ProcessingBase(val context: Context) : IProcessing {
     object Constants {
         var ACTION_RECEIVER_UPDATE_NOTIFICATION: String = "ACTION_RECEIVER_UPDATE_NOTIFICATION"
@@ -71,7 +68,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     private fun startRecorder() {
 
         mCallStartTime = Date()
-        Log.e("antx", "startRecorder: time: " + mCallStartTime.time)
+        Log.d("antx", "startRecorder: time: " + mCallStartTime.time)
         val recorderHelper = RecorderHelper.getInstance()
         var startFixWavFormat = false
 
@@ -103,9 +100,9 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     }
 
     private fun stopRecorder() {
-        Log.e("antx", "stopRecorder")
+        Log.d("antx", "stopRecorder")
         mCallFinishTime = Date()
-        Log.e("antx", "startRecorder: time: " + mCallFinishTime.time)
+        Log.d("antx", "startRecorder: time: " + mCallFinishTime.time)
         if (recorder == null) return
 
         if (recorder!!.isRecorded()) {
@@ -117,11 +114,11 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     protected open fun prepareService(intent: Intent) {
         phoneNumber = intent.getStringExtra(IntentKey.PHONE_NUMBER)
         mTypeCall = intent.getIntExtra(IntentKey.TYPE_CALL, -1)
-        Log.e("antx", "prepareService: " + phoneNumber + " " + mTypeCall)
+        Log.d("antx", "prepareService: " + phoneNumber + " " + mTypeCall)
     }
 
     protected open fun handleFirstStart(intent: Intent): Int {
-        Log.e("antx", "handleFirstStart" + intent.getStringExtra(Constant.PHONE_NUMBER))
+        Log.d("antx", "handleFirstStart" + intent.getStringExtra(Constant.PHONE_NUMBER))
         prepareService(intent)
 
         if (forcedStart) {
@@ -150,7 +147,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     protected open fun startRecord(delayMS: Int) {
         recHandler.removeCallbacks(recorderRun)
-        Log.e("antx", "startRecord")
+        Log.d("antx", "startRecord")
         onPreStartRecord()
 
         if (delayMS == 0) {
@@ -166,7 +163,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         stopRecorder()
         var typeCall: Boolean
         typeCall = mTypeCall != 1
-        Log.e("antx", "stopRecord: " + filePathNoFormat + "typeCall" + typeCall)
+        Log.d("antx", "stopRecord: " + filePathNoFormat + "typeCall" + typeCall)
         sendRecoderToServer(filePathNoFormat, phoneNumber, mCallStartTime, mCallFinishTime, typeCall)
     }
 
@@ -220,7 +217,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     inner class RecorderRunnable : Runnable {
         override fun run() {
             try {
-                Log.e("antx", "RecorderRunnable")
+                Log.d("antx", "RecorderRunnable")
                 startRecorder()
             } catch (e: RecorderBase.RecorderException) {
                 e.printStackTrace()
@@ -254,7 +251,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
             var id = RealmUtils.getAccountId()
             val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
-            Log.e("antx", "insertCall: " + file.name)
+            Log.d("antx", "insertCall: " + file.name)
             Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -274,7 +271,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                                 insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
                             })
         } catch (e: Exception) {
-            Log.e("antx Exception", "sendRcoderToServer " + e.message)
+            Log.d("antx Exception", "sendRcoderToServer " + e.message)
         }
 
     }
@@ -291,7 +288,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
                 datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
-        Log.e("antx", "insertCall: " + message.toString())
+        Log.d("antx", "insertCall: " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -310,7 +307,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                             { e ->
                                 RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
                                         datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type.toString()))
-                                Log.e("antx", "saveCallLogFail  " + e.message)
+                                Log.d("antx", "saveCallLogFail  " + e.message)
                             })
         }
     }

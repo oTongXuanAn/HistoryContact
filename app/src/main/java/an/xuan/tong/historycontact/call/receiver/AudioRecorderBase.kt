@@ -3,10 +3,7 @@ package an.xuan.tong.historycontact.call.receiver
 import android.media.AudioFormat
 import android.media.AudioRecord
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 abstract class AudioRecorderBase(val audioSource: Int, val sampleRateInHz: Int, val channelConfig: Int, val audioEncoding: Int, val outputFile: String) : RecorderBase() {
     var audioRecord: AudioRecord? = null
     var audioRecordingThread: Thread? = null

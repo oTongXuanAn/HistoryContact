@@ -4,10 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 
-/**
- * Created by Viktor Degtyarev on 16.10.17
- * E-mail: viktor@degtyarev.biz
- */
+
 class CallRecService : Service() {
     lateinit var processing: IProcessing
 

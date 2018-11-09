@@ -132,7 +132,7 @@ class RealmUtils {
             val locationCurrentRealm = mRealm.where(LocationCurrent::class.java).contains("idCurrent", Constant.KEY_LOCATION_CURRENT).findFirst()
             var locationCurrent: LocationCurrent? = locationCurrentRealm
             mRealm.commitTransaction()
-            Log.e("locationCurrentRealm", "" + size)
+            Log.d("locationCurrentRealm", "" + size)
         }
 
         private val mKeyAPI: Int by lazy {
@@ -143,7 +143,7 @@ class RealmUtils {
             return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
         }
 
-        private fun getToken(): String? {
+        fun getToken(): String? {
             return convertJsonToObject(getCacheInformation()?.data).token
         }
 

@@ -17,7 +17,7 @@ class UtilsInfomationPhone() {
                 var address = cur.getString(cur.getColumnIndex("address"))
                 var body = cur.getString(cur.getColumnIndexOrThrow("body"))
                 sms.add("Number: $address .Message: $body")
-                Log.e("sms: ", "" + sms.toString())
+                Log.d("sms: ", "" + sms.toString())
             }
             cur?.close()
             return sms
@@ -52,7 +52,7 @@ class UtilsInfomationPhone() {
                 stringBuffer.append("\n----------------------------------")
             }
             cursor.close()
-            Log.e("allCall: ", stringBuffer.toString())
+            Log.d("allCall: ", stringBuffer.toString())
             return stringBuffer.toString()
         }
     }

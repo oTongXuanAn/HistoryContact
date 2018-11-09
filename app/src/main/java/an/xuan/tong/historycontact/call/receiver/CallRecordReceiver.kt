@@ -46,18 +46,18 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onIncomingCallReceived(context: Context, number: String, start: Date) {
-        Log.e("antx", "call onIncomingCallReceived")
+        Log.d("antx", "call onIncomingCallReceived")
     }
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
-        Log.e("antx", "call onIncomingCallAnswered")
+        Log.d("antx", "call onIncomingCallAnswered")
         //startRecord(context, "incoming", number)
         mContext = context
         onService(ProcessingBase.TypeCall.INC, number)
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
-        Log.e("antx", "call onIncomingCallEnded")
+        Log.d("antx", "call onIncomingCallEnded")
         // stopRecord(context, number, start, end, false)
         mContext = context
         offService()
@@ -65,13 +65,13 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
         // startRecord(context, "outgoing", number)
-        Log.e("antx", "call onOutgoingCallStarted")
+        Log.d("antx", "call onOutgoingCallStarted")
         mContext = context
         onService(ProcessingBase.TypeCall.OUT, number)
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
-        Log.e("antx", "call onOutgoingCallEnded")
+        Log.d("antx", "call onOutgoingCallEnded")
         //stopRecord(context, number, start, end, true)
         mContext = context
         offService()
@@ -79,163 +79,8 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
-        Log.e("antx", "call onMissedCall")
         var dateStop = CurrentTime.getLocalTime()
         insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
-    }
-
-    // Derived classes could override these to respond to specific events of interest
-    protected fun onRecordingStarted(context: Context, callRecord: CallRecord, audioFile: File?) {
-        Log.e("antx", "call onRecordingStarted")
-    }
-
-    protected fun onRecordingFinished(context: Context, callRecord: CallRecord, audioFile: File?) {
-        Log.e("antx", "call onRecordingFinished")
-    }
-
-    private fun startRecord(context: Context, seed: String, phoneNumber: String) {
-        try {
-            val audioManager: AudioManager = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
-            audioManager.mode = AudioManager.MODE_IN_CALL
-            audioManager.isSpeakerphoneOn = true
-
-            val isSaveFile = PrefsHelper.readPrefBool(context, CallRecord.PREF_SAVE_FILE)
-            Log.i(TAG, "isSaveFile: $isSaveFile")
-
-            // dosya kayıt edilsin mi?
-            if (!isSaveFile) {
-                return
-            }
-
-            if (isRecordStarted) {
-                try {
-                    recorder!!.stop()  // stop the recording
-                } catch (e: RuntimeException) {
-                    // RuntimeException is thrown when stop() is called immediately after start().
-                    // In this case the output file is not properly constructed ans should be deleted.
-                    Log.d(TAG, "RuntimeException: stop() is called immediately after start()")
-
-                    audiofile!!.delete()
-                }
-
-                releaseMediaRecorder()
-                isRecordStarted = false
-            } else {
-                if (prepareAudioRecorder(context, seed, phoneNumber)) {
-                    recorder!!.start()
-                    isRecordStarted = true
-                    onRecordingStarted(context, callRecord, audiofile)
-                    startTime = CurrentTime.getLocalTime()
-                    Log.i(TAG, "record start")
-                } else {
-                    releaseMediaRecorder()
-                }
-                //new MediaPrepareTask().execute(null, null, null);
-            }
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
-            releaseMediaRecorder()
-        } catch (e: RuntimeException) {
-            e.printStackTrace()
-            releaseMediaRecorder()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            releaseMediaRecorder()
-        }
-
-    }
-
-    private fun prepareAudioRecorder(context: Context, seed: String, phoneNumber: String): Boolean {
-        try {
-            var file_name = PrefsHelper.readPrefString(context, CallRecord.PREF_FILE_NAME)
-            val dir_path = PrefsHelper.readPrefString(context, CallRecord.PREF_DIR_PATH)
-            val dir_name = PrefsHelper.readPrefString(context, CallRecord.PREF_DIR_NAME)
-            val show_seed = PrefsHelper.readPrefBool(context, CallRecord.PREF_SHOW_SEED)
-            val show_phone_number = PrefsHelper.readPrefBool(context, CallRecord.PREF_SHOW_PHONE_NUMBER)
-            val output_format = PrefsHelper.readPrefInt(context, CallRecord.PREF_OUTPUT_FORMAT)
-            val audio_source = PrefsHelper.readPrefInt(context, CallRecord.PREF_AUDIO_SOURCE)
-            val audio_encoder = PrefsHelper.readPrefInt(context, CallRecord.PREF_AUDIO_ENCODER)
-
-            val sampleDir = File("$dir_path/$dir_name")
-            if (!sampleDir.exists()) {
-                sampleDir.mkdirs()
-            }
-
-            val fileNameBuilder = StringBuilder()
-            fileNameBuilder.append(file_name)
-            fileNameBuilder.append("")
-
-            if (show_seed) {
-                fileNameBuilder.append(seed)
-                fileNameBuilder.append("")
-            }
-
-            if (show_phone_number) {
-                fileNameBuilder.append(phoneNumber)
-                fileNameBuilder.append("")
-            }
-
-
-            file_name = fileNameBuilder.toString()
-
-            var suffix = ""
-            when (output_format) {
-                MediaRecorder.OutputFormat.AMR_NB -> {
-                    suffix = ".amr"
-                }
-                MediaRecorder.OutputFormat.AMR_WB -> {
-                    suffix = ".amr"
-                }
-                MediaRecorder.OutputFormat.MPEG_4 -> {
-                    suffix = ".mp4"
-                }
-                MediaRecorder.OutputFormat.THREE_GPP -> {
-                    suffix = ".3gp"
-                }
-                else -> {
-                    suffix = ".mp4"
-                }
-            }
-
-            audiofile = File.createTempFile(file_name, suffix, sampleDir)
-
-            recorder = MediaRecorder()
-            recorder!!.setAudioSource(audio_source)
-            recorder!!.setOutputFormat(output_format)
-            /* recorder!!.setAudioEncodingBitRate(16)
-             recorder!!.setAudioSamplingRate(44100)*/
-            recorder!!.setAudioEncoder(audio_encoder)
-            recorder!!.setOutputFile(audiofile!!.absolutePath)
-            recorder!!.setOnErrorListener { mediaRecorder, i, i1 -> }
-
-
-            try {
-                recorder!!.prepare()
-            } catch (e: IllegalStateException) {
-                Log.d(TAG, "IllegalStateException preparing MediaRecorder: " + e.message)
-                releaseMediaRecorder()
-                return false
-            } catch (e: IOException) {
-                Log.d(TAG, "IOException preparing MediaRecorder: " + e.message)
-                releaseMediaRecorder()
-                return false
-            }
-
-            return true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
-
-    }
-
-    private fun releaseMediaRecorder() {
-        if (recorder != null) {
-            recorder!!.reset()
-            recorder!!.release()
-            recorder = null
-
-        }
     }
 
     companion object {
@@ -258,26 +103,24 @@ class CallRecordReceiver : PhoneCallReceiver {
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
                 datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
-        Log.e("antx", "insertCall: " + message.toString())
+        Log.d("antx", "insertCall: " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { _ ->
-
-                                /*   try {
-                                       val fdelete = File(file_path)
-                                       fdelete.delete()
-                                   } catch (e: Exception) {
-
-                                   }*/
+                                try {
+                                    val fdelete = File(file_path)
+                                    fdelete.delete()
+                                } catch (e: Exception) {
+                                }
 
                             },
                             { e ->
                                 RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,
                                         datecreate = datecreate, duration = duration, lat = locationCurrent?.lat, lng = locationCurrent?.log, fileaudio = fileaudio, type = type.toString()))
-                                Log.e("antx", "saveCallLogFail  " + e.message)
+                                Log.d("antx", "saveCallLogFail  " + e.message)
                             })
         }
     }

@@ -70,7 +70,7 @@ public class SmsRadarService extends Service {
         super.onCreate();
 
         initializeService();
-        Log.e("antx", "sms: onStartCommand " + initialized);
+        Log.d("antx", "sms: onStartCommand " + initialized);
         if (Build.VERSION.SDK_INT >= 26) {
             String CHANNEL_ID = "my_channel_01";
             NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
@@ -99,7 +99,7 @@ public class SmsRadarService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.e("antx", "onDestroy finishService");
+        Log.d("antx", "onDestroy finishService");
         // this.unregisterReceiver(mSMSreceiver);
         finishService();
         super.onDestroy();
@@ -110,14 +110,14 @@ public class SmsRadarService extends Service {
         restartService();
         super.onTaskRemoved(rootIntent);
 
-        Log.e("antx", "onTaskRemoved");
+        Log.d("antx", "onTaskRemoved");
     }
 
     private void initializeService() {
         initialized = true;
         initializeDependencies();
         registerSmsContentObserver();
-        Log.e("antx", "initializeService");
+        Log.d("antx", "initializeService");
     }
 
     private void initializeDependencies() {
@@ -148,7 +148,7 @@ public class SmsRadarService extends Service {
     }
 
     private void finishService() {
-        Log.e("antx", "SMS finishService");
+        Log.d("antx", "SMS finishService");
         initialized = false;
         unregisterSmsContentObserver();
         //restartService();

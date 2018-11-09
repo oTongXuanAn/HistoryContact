@@ -24,7 +24,7 @@ import java.util.HashMap
 
 class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityReceiverListener, BootCompleted.BootCompletedListener {
     override fun onBootCompleted() {
-        Log.e("antx", "onBootCompleted")
+        Log.d("antx", "onBootCompleted")
     }
 
     private var mConnectivityReceiver: ConnectivityReceiver? = null
@@ -61,13 +61,13 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
 
         if (isConnected) {
             try {
-                Log.e("antx", "isOnline")
+                Log.d("antx", "isOnline")
                 //handler call
                 val listCallLogFail = RealmUtils.getAllCallLog()
                 listCallLogFail?.forEachIndexed { index, it ->
                     var a = RealmUtils.getAllCallLog()
-                    Log.e("a: ", "" + a)
-                    Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
+                    Log.d("a: ", "" + a)
+                    Log.d("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
                     if (it.fileaudio == "") {
                         sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
 
@@ -96,10 +96,10 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
 
                 }
             } catch (e: Exception) {
-                Log.e("error", "" + e.message)
+                Log.d("error", "" + e.message)
             }
         } else {
-            Log.e("antx", "offline")
+            Log.d("antx", "offline")
             RealmUtils.saveInternetOnOff(false)
         }
 
@@ -111,7 +111,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         var id = RealmUtils.getAccountId()
         var message = SmsSendServer(id, phoneNunber,
                 datecreate, lat, lng, contentmessage, type)
-        Log.e("datatCachingSms", " " + message.toString())
+        Log.d("datatCachingSms", " " + message.toString())
         Toast.makeText(applicationContext, "Send SMS Caching", Toast.LENGTH_LONG).show()
         id?.let {
             Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
@@ -123,7 +123,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                                 RealmUtils.deleteItemCachingMess(cachingId)
                             },
                             { e ->
-                                Log.e("antx", "insertCachingSms eror " + e.message)
+                                Log.d("antx", "insertCachingSms eror " + e.message)
                             })
         }
     }
@@ -133,18 +133,18 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("sendInternetCaching", " " + message.toString())
+        Log.d("sendInternetCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertInternet(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             {
-                                Log.e("antx", "sendInternetCaching success")
+                                Log.d("antx", "sendInternetCaching success")
                                 RealmUtils.deleteItemInternet(cachingId)
                             },
                             { e ->
-                                Log.e("antx", "sendInternetCaching eror " + e.message)
+                                Log.d("antx", "sendInternetCaching eror " + e.message)
                             })
         }
     }
@@ -154,7 +154,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("sendPowerCaching", " " + message.toString())
+        Log.d("sendPowerCaching", " " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -165,7 +165,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                                 RealmUtils.deleteItemPower(cachingId)
                             },
                             { e ->
-                                Log.e("antx", "sendPowerCaching eror " + e.message)
+                                Log.d("antx", "sendPowerCaching eror " + e.message)
                             })
         }
     }
@@ -190,11 +190,11 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                                 } catch (e: Exception) {
 
                                 }
-                                Log.e("antx", "sendCallFail sucess")
+                                Log.d("antx", "sendCallFail sucess")
 
                             },
                             { e ->
-                                Log.e("antx", "sendCallFail error" + e.message)
+                                Log.d("antx", "sendCallFail error" + e.message)
                             })
 
         }
@@ -214,16 +214,16 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
-                                Log.e("antx", "" + result.toString())
+                                Log.d("antx", "" + result.toString())
                                 if (result.isNotEmpty()) {
                                     sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall.toString(), filePath)
                                 }
                             },
                             { e ->
-                                Log.e("test", "sendRcoderToServer  error " + e.message)
+                                Log.d("test", "sendRcoderToServer  error " + e.message)
                             })
         } catch (e: Exception) {
-            Log.e("antx Exception", "sendRcoderToServer " + e.message)
+            Log.d("antx Exception", "sendRcoderToServer " + e.message)
         }
 
     }
