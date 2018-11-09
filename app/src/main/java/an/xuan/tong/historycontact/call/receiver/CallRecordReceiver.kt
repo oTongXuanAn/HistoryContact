@@ -38,65 +38,43 @@ class CallRecordReceiver : PhoneCallReceiver {
     private var audiofile: File? = null
     private var isRecordStarted = false
     var startTime = 0L
-
-    /*new call*/
-    protected var recorder2: AudioRecorder? = null
-    // protected val recorderRun = RecorderRunnable()
-    lateinit var recHandler: Handler
-    protected var recordingStartedFlag: Boolean = false
-
-    protected var phoneNumber: String = ""
-    protected var typeCall: Int = -1
-
-    protected var formatFile: String = ""
-    //   protected var typeRecorder: TypeRecorder? = null
-    protected var audioSource = -1
-    protected var outputFormat: Int = 0
-    protected var encoder: Int = 0
-    protected var stereoChannel: Boolean = false
-    protected var samplingRate: Int = 0
-    protected var audioEncodingBitRate: Int = 0
-    protected var filePathNoFormat: String = ""
     lateinit var mContext: Context
 
-
     constructor()
-
     constructor(callRecord: CallRecord) {
         this.callRecord = callRecord
-        recHandler = Handler()
     }
 
     override fun onIncomingCallReceived(context: Context, number: String, start: Date) {
-
+        Log.e("antx", "call onIncomingCallReceived")
     }
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
         //startRecord(context, "incoming", number)
         mContext = context
-        onService(context, "incoming", number)
+        onService(ProcessingBase.TypeCall.INC, number)
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onIncomingCallEnded")
         // stopRecord(context, number, start, end, false)
         mContext = context
-        offService(context, number, start, end, true)
+        offService()
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
         // startRecord(context, "outgoing", number)
         Log.e("antx", "call onOutgoingCallStarted")
         mContext = context
-        onService(context, "outgoing", number)
+        onService(ProcessingBase.TypeCall.OUT, number)
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
         //stopRecord(context, number, start, end, true)
         mContext = context
-        offService(context, number, start, end, true)
+        offService()
 
     }
 
@@ -163,28 +141,6 @@ class CallRecordReceiver : PhoneCallReceiver {
         } catch (e: Exception) {
             e.printStackTrace()
             releaseMediaRecorder()
-        }
-
-    }
-
-    private fun stopRecord(context: Context, number: String, start: Date, end: Date, isOutGoingCall: Boolean) {
-        try {
-
-            if (recorder != null && isRecordStarted) {
-                releaseMediaRecorder()
-                isRecordStarted = false
-                onRecordingFinished(context, callRecord, audiofile)
-                audiofile?.path?.let {
-                    val file = File(it)
-                    Log.e("antx", "path " + it + " name: " + file.name + " start" + start + "end: " + end)
-                    sendRecoderToServer(it, number, start, end, isOutGoingCall)
-                }
-
-                Log.i(TAG, "record stop")
-            }
-        } catch (e: Exception) {
-            releaseMediaRecorder()
-            e.printStackTrace()
         }
 
     }
@@ -290,40 +246,8 @@ class CallRecordReceiver : PhoneCallReceiver {
         private var recorder: MediaRecorder? = null
     }
 
-    private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
-        try {
-            val file = File(filePath)
-            val result: HashMap<String, String> = HashMap()
-            result["Authorization"] = RealmUtils.getAuthorization()
-            var id = RealmUtils.getAccountId()
-            val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
-            var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
-            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { result ->
-                                if (result.isNotEmpty()) {
-                                    var diffInMs = endDate.time - startDate.time
-                                    var diffInSec = diffInMs / 1000
-                                    var dateStop = CurrentTime.getLocalTime()
-                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
-                                }
-                            },
-                            { e ->
-                                var diffInMs = endDate.time - startDate.time
-                                var diffInSec = diffInMs / 1000
-                                var dateStop = CurrentTime.getLocalTime()
-                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
-                            })
-        } catch (e: Exception) {
-            Log.e("antx Exception", "sendRcoderToServer " + e.message)
-        }
-
-    }
-
     private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
-        val result: HashMap<String, String> = HashMap()
+        val result: java.util.HashMap<String, String> = java.util.HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
@@ -334,6 +258,7 @@ class CallRecordReceiver : PhoneCallReceiver {
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
                 datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
+        Log.e("antx", "insertCall: " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())
@@ -341,12 +266,12 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .subscribe(
                             { _ ->
 
-                                /*try {
-                                    val fdelete = File(file_path)
-                                    fdelete.delete()
-                                } catch (e: Exception) {
+                                /*   try {
+                                       val fdelete = File(file_path)
+                                       fdelete.delete()
+                                   } catch (e: Exception) {
 
-                                }*/
+                                   }*/
 
                             },
                             { e ->
@@ -357,20 +282,14 @@ class CallRecordReceiver : PhoneCallReceiver {
         }
     }
 
-    private fun onService(context: Context, seed: String, phoneNumber: String) {
+    private fun onService(typeCall: Int, phoneNumber: String) {
         val phoneCall = Intent(getApplicationContext(), CallRecService::class.java)
         phoneCall.putExtra(ProcessingBase.IntentKey.PHONE_NUMBER, phoneNumber)
-        phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, ProcessingBase.TypeCall.INC)
+        phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, typeCall)
         mContext.startService(phoneCall)
     }
 
-    private fun offService(context: Context, number: String, start: Date, end: Date, isOutGoingCall: Boolean) {
-        Log.e("antx", "filename: " + recorder2?.filePath)
-        mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java).apply {
-            putExtra(Constant.PHONE_NUMBER, phoneNumber)
-            putExtra(Constant.TIME_START, startTime)
-            putExtra(Constant.TIME_END, end)
-            putExtra(Constant.IS_OUT_GOING_CALL, isOutGoingCall)
-        })
+    private fun offService() {
+        mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java))
     }
 }

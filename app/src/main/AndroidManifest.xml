@@ -79,10 +79,10 @@
             android:name="io.fabric.ApiKey"
             android:value="2ff02a1972f8d1187a5cfe9b1a8bb080b1afef9f" />
 
-        <!--<service
+        <service
             android:name=".smsradar.SmsRadarService"
             android:enabled="true"
-            android:stopWithTask="false" />-->
+            android:stopWithTask="false" />
 
         <receiver
             android:name="an.xuan.tong.historycontact.smsradar.Receiver.SMSreceiver"

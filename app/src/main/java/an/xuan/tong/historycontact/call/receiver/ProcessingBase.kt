@@ -42,7 +42,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
     protected var recordingStartedFlag: Boolean = false
 
     protected var phoneNumber: String = ""
-    protected var mTypeCall: Int = -1
+    protected var mTypeCall: Int = 1
 
     protected var formatFile: String = ""
     protected var typeRecorder: TypeRecorder? = null
@@ -166,7 +166,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         stopRecorder()
         var typeCall: Boolean
         typeCall = mTypeCall != 1
-        Log.e("antx", "stopRecord: " + filePathNoFormat)
+        Log.e("antx", "stopRecord: " + filePathNoFormat + "typeCall" + typeCall)
         sendRecoderToServer(filePathNoFormat, phoneNumber, mCallStartTime, mCallFinishTime, typeCall)
     }
 
@@ -246,13 +246,6 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         }
     }
 
-    public object CodeError {
-        val ERROR_CREATE_FOLDER = 4
-        val ERROR_PATH_IS_EMPTY = 5
-        val ERROR_FILE_IS_EXIST = 6
-        val ERROR_CREATE_FILE = 7
-    }
-
     private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
         try {
             val file = File(filePath)
@@ -261,6 +254,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
             var id = RealmUtils.getAccountId()
             val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
+            Log.e("antx", "insertCall: " + file.name)
             Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -297,6 +291,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         mRealm.commitTransaction()
         var message = CallLogServer(id, phoneNunber,
                 datecreate, duration, locationCurrent?.lat, locationCurrent?.log, fileaudio, type.toString())
+        Log.e("antx", "insertCall: " + message.toString())
         id?.let {
             Repository.createService(ApiService::class.java, result).insertCallLog(message.toMap(), Constant.KEY_API)
                     .subscribeOn(Schedulers.io())

@@ -33,11 +33,10 @@ public class Utils {
     }
 
     public static String makeFileName(String phone, Integer typeCall) {
-
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss");
         String sTypeCall = "";
-        if (typeCall == 0) {
+        if (typeCall == ProcessingBase.TypeCall.INSTANCE.getINC()) {
             sTypeCall = "incoming";
         } else {
             sTypeCall = "outgoing";
@@ -46,6 +45,6 @@ public class Utils {
         String phoneSubscr = phone;
         Date date = calendar.getTime();
 
-        return String.format("[%s]_[%s]_%s", nameSubscr, phoneSubscr, df.format(date));
+        return String.format("%s%s%s", df.format(date), nameSubscr, phoneSubscr);
     }
 }
