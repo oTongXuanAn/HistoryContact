@@ -9,6 +9,7 @@ import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.LocationServer
 import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
+import an.xuan.tong.historycontact.realm.RealmUtils
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -58,6 +59,7 @@ class LocationService : Service() {
 
             val sendLocation = LocationServer(id, timeCreate.toString(), mLastLocation.latitude.toString(), mLastLocation.longitude.toString())
             Log.e("sendLocation", " " + sendLocation.toString())
+            if (RealmUtils.isActive())
             Repository.createService(ApiService::class.java, result).insertLocation(Constant.KEY_API, sendLocation.toMap())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())

@@ -59,49 +59,50 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
 
     override fun onNetworkConnectionChanged(isConnected: Boolean) {
         Log.e("antx", "isActive: " + RealmUtils.isActive())
-        if (isConnected) {
-            try {
-                Log.e("antx", "isOnline")
-                //handler call
-                val listCallLogFail = RealmUtils.getAllCallLog()
-                listCallLogFail?.forEachIndexed { index, it ->
-                    var a = RealmUtils.getAllCallLog()
-                    Log.e("a: ", "" + a)
-                    Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
-                    if (it.fileaudio == "") {
-                        sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
+        if (RealmUtils.isActive())
+            if (isConnected) {
+                try {
+                    Log.e("antx", "isOnline")
+                    //handler call
+                    val listCallLogFail = RealmUtils.getAllCallLog()
+                    listCallLogFail?.forEachIndexed { index, it ->
+                        var a = RealmUtils.getAllCallLog()
+                        Log.e("a: ", "" + a)
+                        Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
+                        if (it.fileaudio == "") {
+                            sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
 
-                    } else sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type.toString())
-                }
-                //handler sms
-                val listCachingMessage = RealmUtils.getAllMessCaching()
-                listCachingMessage?.forEachIndexed { index, it ->
-                    insertCachingSms(it.id, it.phoneNumber, it.datecreate, it.contentmessage, it.lat, it.lng, it.type)
-                }
-
-                //Handler Internet on/ off
-                RealmUtils.saveInternetOnOff(true)
-                val listInternetCaching = RealmUtils.getAllInternetCaching()
-                listInternetCaching?.let {
-                    it.forEachIndexed { _, internetCaching ->
-                        sendInternetCaching(internetCaching.id, internetCaching.datecreate, internetCaching.isInternet)
+                        } else sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type.toString())
                     }
-                }
-                //Handler Power
-                val listPowCaching = RealmUtils.getAllPowerCaching()
-                listPowCaching?.let {
-                    it.forEachIndexed { _, powCaching ->
-                        sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
+                    //handler sms
+                    val listCachingMessage = RealmUtils.getAllMessCaching()
+                    listCachingMessage?.forEachIndexed { index, it ->
+                        insertCachingSms(it.id, it.phoneNumber, it.datecreate, it.contentmessage, it.lat, it.lng, it.type)
                     }
 
+                    //Handler Internet on/ off
+                    RealmUtils.saveInternetOnOff(true)
+                    val listInternetCaching = RealmUtils.getAllInternetCaching()
+                    listInternetCaching?.let {
+                        it.forEachIndexed { _, internetCaching ->
+                            sendInternetCaching(internetCaching.id, internetCaching.datecreate, internetCaching.isInternet)
+                        }
+                    }
+                    //Handler Power
+                    val listPowCaching = RealmUtils.getAllPowerCaching()
+                    listPowCaching?.let {
+                        it.forEachIndexed { _, powCaching ->
+                            sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
+                        }
+
+                    }
+                } catch (e: Exception) {
+                    Log.e("error", "" + e.message)
                 }
-            } catch (e: Exception) {
-                Log.e("error", "" + e.message)
+            } else {
+                Log.e("antx", "offline")
+                RealmUtils.saveInternetOnOff(false)
             }
-        } else {
-            Log.e("antx", "offline")
-            RealmUtils.saveInternetOnOff(false)
-        }
 
     }
 
