@@ -2,7 +2,9 @@ package an.xuan.tong.historycontact.call.receiver
 
 import android.app.Service
 import android.content.Intent
+import android.os.Build
 import android.os.IBinder
+import android.support.annotation.RequiresApi
 
 
 class CallRecService : Service() {
@@ -14,7 +16,6 @@ class CallRecService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-
         processing = CallRecProcessingNotification(this)
         processing.onCreate()
     }

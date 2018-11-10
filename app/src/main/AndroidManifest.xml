@@ -37,7 +37,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".ui.MainActivitty">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -116,12 +116,16 @@
 
         <service
             android:name=".service.TokenService"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:stopWithTask="false"
+            />
 
         <service
             android:name=".connectivity.NetworkSchedulerService"
             android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:stopWithTask="false"
+            />
 
         <receiver android:name=".call.receiver.CallRecordReceiver">
             <intent-filter>

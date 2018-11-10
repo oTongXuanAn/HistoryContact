@@ -23,7 +23,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import java.util.*
 
 
-class MainActivitty : AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private val FRAMEWORK_REQUEST_CODE = 1
     private var nextPermissionsRequestCode = 4000
     private val permissionsListeners: HashMap<Int, OnCompleteListener>? = null
@@ -45,8 +45,6 @@ class MainActivitty : AppCompatActivity() {
             // finish()
         }
     }
-
-
     fun onLoginEmail(view: View) {
         onLogin(LoginType.EMAIL)
     }
@@ -65,26 +63,19 @@ class MainActivitty : AppCompatActivity() {
             return
         }
 
-        val toastMessage: String
         val loginResult = AccountKit.loginResultWithIntent(data)
         if (loginResult == null || loginResult.wasCancelled()) {
-            toastMessage = "Login Cancelled"
         } else if (loginResult.error != null) {
-            toastMessage = loginResult.error!!.errorType.message
             val intent = Intent(this, ErrorActivity::class.java)
             intent.putExtra(ErrorActivity.HELLO_TOKEN_ACTIVITY_ERROR_EXTRA, loginResult.error)
-
             startActivity(intent)
         } else {
             val accessToken = loginResult.accessToken
-            val tokenRefreshIntervalInSeconds = loginResult.tokenRefreshIntervalInSeconds
             if (accessToken != null) {
-                toastMessage = ("Success:" + accessToken.accountId
-                        + tokenRefreshIntervalInSeconds)
                 startActivity(Intent(this, TokenActivity::class.java))
                 finish()
             } else {
-                toastMessage = "Unknown response type"
+
             }
         }
 

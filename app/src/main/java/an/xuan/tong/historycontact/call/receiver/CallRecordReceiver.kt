@@ -53,34 +53,39 @@ class CallRecordReceiver : PhoneCallReceiver {
         Log.d("antx", "call onIncomingCallAnswered")
         //startRecord(context, "incoming", number)
         mContext = context
-        onService(ProcessingBase.TypeCall.INC, number)
+        if (RealmUtils.isActive())
+            onService(ProcessingBase.TypeCall.INC, number)
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.d("antx", "call onIncomingCallEnded")
         // stopRecord(context, number, start, end, false)
         mContext = context
-        offService()
+        if (RealmUtils.isActive())
+            offService()
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
         // startRecord(context, "outgoing", number)
         Log.d("antx", "call onOutgoingCallStarted")
         mContext = context
-        onService(ProcessingBase.TypeCall.OUT, number)
+        if (RealmUtils.isActive())
+            onService(ProcessingBase.TypeCall.OUT, number)
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.d("antx", "call onOutgoingCallEnded")
         //stopRecord(context, number, start, end, true)
         mContext = context
-        offService()
+        if (RealmUtils.isActive())
+            offService()
 
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
         var dateStop = CurrentTime.getLocalTime()
-        insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
+        if (RealmUtils.isActive())
+            insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
     }
 
     companion object {

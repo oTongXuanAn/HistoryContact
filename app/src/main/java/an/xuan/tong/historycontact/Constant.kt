@@ -6,6 +6,7 @@ class Constant {
         const val KEY_API = "2b11k2h3foes9f0809zdn398f0fasdmkj30"
         const val ACOUNT_ACTIVE = "/account/active"
         const val KEY_LOCATION_CURRENT = "current"
+        const val KEY_SUCCESS = "success"
         const val PHONE_NUMBER = "phonenumber"
         const val TIME_START = "timestart"
         const val TIME_END = "timeend"

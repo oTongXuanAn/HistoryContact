@@ -7,7 +7,6 @@ import android.media.MediaRecorder
 import java.io.File
 
 
-
 class CallRecProcessingNotification(service: Service) : ProcessingBaseNotification(service) {
     override fun getNotificationUpdate(): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -25,7 +24,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun makeOutputFile(phone:String,typeCall:Int): String {
+    override fun makeOutputFile(phone: String, typeCall: Int): String {
         val dirStorage = Utils.getDefaultPath(context)
 
         val file = File(dirStorage)
@@ -36,7 +35,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
             }
         }
 
-        filePathNoFormat = dirStorage + Utils.makeFileName(phone,typeCall)
+        filePathNoFormat = dirStorage + Utils.makeFileName(phone, typeCall)
         return filePathNoFormat
     }
 

@@ -23,7 +23,7 @@ class CallRecNotificationErr(val processing: ProcessingBase) : INotification<Pro
 
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(processing.context.getString(R.string.app_name))
-                .setContentText("Recording error")
+                .setContentText("")
                 .setContentIntent(pendingIntent)
 
         return builder.build()

@@ -22,7 +22,7 @@ class CallRecNotification(val processing: ProcessingBase) : INotification<Proces
 
         builder.setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(processing.context.getString(R.string.app_name))
-                .setContentText("Conversation is recorded")
+                .setContentText("")
                 .setContentIntent(pendingIntent)
 
         return builder.build()

@@ -176,15 +176,17 @@ class TokenActivity : Activity() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe(
                                     { result ->
-                                        Log.d("test", result.toString())
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                            handlerGetInformationSccess(result)
+                                            if (result.status.equals(Constant.KEY_SUCCESS)) {
+                                                handlerGetInformationSccess(result)
+                                            } else {
+                                                startActivity(Intent(applicationContext, MainActivity::class.java))
+                                            }
                                         }
                                         hideProgressBar()
                                     },
                                     { e ->
-                                        Log.d("test", e.message)
-                                        startActivity(Intent(applicationContext, MainActivitty::class.java))
+                                        startActivity(Intent(applicationContext, MainActivity::class.java))
                                         hideProgressBar()
                                     })
 
@@ -192,13 +194,9 @@ class TokenActivity : Activity() {
                 account.email?.let {
                 }
             }
-
             override fun onError(error: AccountKitError) {
-
             }
         })
-
-
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
