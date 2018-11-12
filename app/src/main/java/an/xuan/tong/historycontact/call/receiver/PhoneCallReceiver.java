@@ -7,7 +7,6 @@ import android.os.Build;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
-import com.aykuttasil.callrecord.receiver.CallRecordReceiver;
 
 import java.util.Date;
 

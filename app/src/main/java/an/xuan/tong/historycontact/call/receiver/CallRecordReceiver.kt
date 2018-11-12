@@ -1,4 +1,4 @@
-package com.aykuttasil.callrecord.receiver
+package an.xuan.tong.historycontact.call.receiver
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.CurrentTime
@@ -37,7 +37,7 @@ import com.facebook.accountkit.internal.AccountKitController.getApplicationConte
 /**
  * Created by aykutasil on 19.10.2016.
  */
-class CallRecordReceiver : PhoneCallReceiver {
+internal class CallRecordReceiver : PhoneCallReceiver {
 
     protected lateinit var callRecord: CallRecord
     private var audiofile: File? = null
