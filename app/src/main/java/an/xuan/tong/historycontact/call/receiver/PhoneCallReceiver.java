@@ -29,14 +29,6 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         //We listen to two intents.  The new outgoing call only tells us of an outgoing call.  We use it to get the number.
-        if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
-            Intent pushIntent = new Intent(context, PhoneCallReceiver.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(pushIntent);
-            } else {
-                context.startService(pushIntent);
-            }
-        }
         if (intent.getAction().equals(CallRecordReceiver.Companion.getACTION_OUT())) {
             savedNumber = intent.getExtras().getString(CallRecordReceiver.Companion.getEXTRA_PHONE_NUMBER());
         } else {

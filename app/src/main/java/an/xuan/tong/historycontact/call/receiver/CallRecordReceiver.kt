@@ -14,19 +14,14 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.media.MediaRecorder
-import android.os.Handler
 import android.util.Log
 import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import java.io.File
 import java.io.IOException
-import java.util.Date
-import kotlin.collections.HashMap
+import java.util.*
 
 
 /**
@@ -246,7 +241,7 @@ class CallRecordReceiver : PhoneCallReceiver {
         private var recorder: MediaRecorder? = null
     }
 
-    private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
+    private fun insertCall(phoneNunber: String?="", datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
         val result: java.util.HashMap<String, String> = java.util.HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()

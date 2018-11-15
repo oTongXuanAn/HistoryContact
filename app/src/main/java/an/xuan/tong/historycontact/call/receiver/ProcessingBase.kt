@@ -20,7 +20,6 @@ import android.util.Log
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import net.callrec.library.fix.RecorderHelper
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -298,13 +297,12 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { _ ->
-
-                                /*try {
+                                try {
                                     val fdelete = File(file_path)
                                     fdelete.delete()
                                 } catch (e: Exception) {
 
-                                }*/
+                                }
 
                             },
                             { e ->
