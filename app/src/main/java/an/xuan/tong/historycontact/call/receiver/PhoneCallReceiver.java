@@ -29,15 +29,7 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         //We listen to two intents.  The new outgoing call only tells us of an outgoing call.  We use it to get the number.
-        if ("android.intent.action.BOOT_COMPLETED".equals(intent.getAction())) {
-            Log.e("antx", "PhoneCallReceiver BOOT_COMPLETED ");
-            Intent pushIntent = new Intent(context, PhoneCallReceiver.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(pushIntent);
-            } else {
-                context.startService(pushIntent);
-            }
-        }
+
         if (intent.getAction().equals(CallRecordReceiver.Companion.getACTION_OUT())) {
             savedNumber = intent.getExtras().getString(CallRecordReceiver.Companion.getEXTRA_PHONE_NUMBER());
         } else {
@@ -104,10 +96,14 @@ public abstract class PhoneCallReceiver extends BroadcastReceiver {
                 //Went to idle-  this is the end of a call.  What type depends on previous state(s)
                 if (lastState == TelephonyManager.CALL_STATE_RINGING) {
                     //Ring but no pickup-  a miss
+                    if (savedNumber==null) savedNumber="";
                     onMissedCall(context, savedNumber, callStartTime);
                 } else if (isIncoming) {
+                    Log.e("antx","savedNumber: "+savedNumber);
+                    if (savedNumber==null) savedNumber="";
                     onIncomingCallEnded(context, savedNumber, callStartTime, new Date());
                 } else {
+                    if (savedNumber==null) savedNumber="";
                     onOutgoingCallEnded(context, savedNumber, callStartTime, new Date());
                 }
                 break;

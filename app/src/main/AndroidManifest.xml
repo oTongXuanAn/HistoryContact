@@ -123,7 +123,7 @@
             android:stopWithTask="false"
             android:permission="android.permission.BIND_JOB_SERVICE" />
 
-        <receiver android:name="com.aykuttasil.callrecord.receiver.CallRecordReceiver">
+        <receiver android:name=".call.receiver.CallRecordReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
                 <action android:name="android.intent.action.NEW_OUTGOING_CALL" />

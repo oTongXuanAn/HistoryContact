@@ -98,8 +98,6 @@ internal class CallRecordReceiver : PhoneCallReceiver {
 
     private fun startRecord(context: Context, seed: String, phoneNumber: String) {
         try {
-            var isToken = RealmUtils.getToken().isNullOrEmpty()
-            Log.e("antx", "checkToken: " + isToken)
             val audioManager: AudioManager = getApplicationContext().getSystemService(Context.AUDIO_SERVICE) as AudioManager
             audioManager.mode = AudioManager.MODE_IN_CALL
             audioManager.isSpeakerphoneOn = true
@@ -323,12 +321,12 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { _ ->
-                                /*try {
+                                try {
                                     val fdelete = File(file_path)
                                     fdelete.delete()
                                 } catch (e: Exception) {
 
-                                }*/
+                                }
 
                             },
                             { e ->
