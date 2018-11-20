@@ -61,7 +61,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
 
     override fun prepareAudioPreferences() {
         formatFile = "wav"
-        audioSource = MediaRecorder.AudioSource.MIC
+        audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
         outputFormat = 0
         encoder = 0
         stereoChannel = false

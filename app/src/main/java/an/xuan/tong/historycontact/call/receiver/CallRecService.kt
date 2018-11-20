@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import android.support.annotation.RequiresApi
+import android.util.Log
 
 
 class CallRecService : Service() {
@@ -22,10 +23,12 @@ class CallRecService : Service() {
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         super.onStartCommand(intent, flags, startId)
-        return processing.onStartCommand(intent, flags, startId)
+        return  processing.onStartCommand(intent, flags, startId)
+
     }
 
     override fun onDestroy() {
+        Log.e("antx","CallRecService onDestroy")
         processing.onDestroy()
         super.onDestroy()
     }
