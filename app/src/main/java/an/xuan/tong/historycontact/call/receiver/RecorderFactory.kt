@@ -1,6 +1,10 @@
 package an.xuan.tong.historycontact.call.receiver
 
 
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 object RecorderFactory {
     fun createWavRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioEncoding: Int,
                           filePathNoFormat: String): AudioRecorder {

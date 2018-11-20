@@ -1,5 +1,9 @@
 package an.xuan.tong.historycontact.call.receiver
 
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 abstract class RecorderBase : AudioRecorder {
     protected enum class State {
         RECORD, PAUSE, STOP

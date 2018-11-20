@@ -1,12 +1,16 @@
 package an.xuan.tong.historycontact.call.receiver
 
-
 import android.app.Service
 import android.content.Intent
 import android.media.MediaRecorder
+import org.jetbrains.anko.toast
 import java.io.File
 
 
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 class CallRecProcessingNotification(service: Service) : ProcessingBaseNotification(service) {
     override fun getNotificationUpdate(): INotification<*> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -24,7 +28,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun makeOutputFile(phone: String, typeCall: Int): String {
+    override fun makeOutputFile(): String {
         val dirStorage = Utils.getDefaultPath(context)
 
         val file = File(dirStorage)
@@ -35,7 +39,7 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
             }
         }
 
-        filePathNoFormat = dirStorage + Utils.makeFileName(phone, typeCall)
+        filePathNoFormat = dirStorage + Utils.makeFileName()
         return filePathNoFormat
     }
 
@@ -74,5 +78,8 @@ class CallRecProcessingNotification(service: Service) : ProcessingBaseNotificati
         service.stopService(Intent(context, service.javaClass))
     }
 
-
+    override fun onRecorderError(e: Exception) {
+        super.onRecorderError(e)
+        service.toast(e.toString())
+    }
 }

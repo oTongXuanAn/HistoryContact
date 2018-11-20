@@ -16,6 +16,7 @@ import android.media.AudioManager
 import android.media.MediaRecorder
 import android.os.Handler
 import android.util.Log
+import com.facebook.accountkit.internal.AccountKitController
 import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -23,6 +24,7 @@ import io.realm.Realm
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.jetbrains.anko.runOnUiThread
 import java.io.File
 import java.io.IOException
 import java.util.Date
@@ -131,13 +133,19 @@ class CallRecordReceiver : PhoneCallReceiver {
     }
 
     private fun onService(typeCall: Int, phoneNumber: String) {
-        val phoneCall = Intent(getApplicationContext(), CallRecService::class.java)
-        phoneCall.putExtra(ProcessingBase.IntentKey.PHONE_NUMBER, phoneNumber)
-        phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, typeCall)
-        mContext.startService(phoneCall)
+        mContext.runOnUiThread {
+            val phoneCall = Intent(AccountKitController.getApplicationContext(), CallRecService::class.java)
+            phoneCall.putExtra(ProcessingBase.IntentKey.PHONE_NUMBER, phoneNumber)
+            phoneCall.putExtra(ProcessingBase.IntentKey.TYPE_CALL, typeCall)
+            mContext.startService(phoneCall)
+        }
+
     }
 
     private fun offService() {
-        mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java))
+        mContext.runOnUiThread {
+            mContext.stopService(Intent(AccountKitController.getApplicationContext(), CallRecService::class.java))
+        }
+
     }
 }

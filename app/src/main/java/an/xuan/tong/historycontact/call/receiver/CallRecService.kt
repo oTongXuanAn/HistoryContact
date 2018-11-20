@@ -2,11 +2,12 @@ package an.xuan.tong.historycontact.call.receiver
 
 import android.app.Service
 import android.content.Intent
-import android.os.Build
 import android.os.IBinder
-import android.support.annotation.RequiresApi
 
-
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 class CallRecService : Service() {
     lateinit var processing: IProcessing
 

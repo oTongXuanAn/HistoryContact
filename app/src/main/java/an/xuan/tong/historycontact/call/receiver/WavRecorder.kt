@@ -2,11 +2,15 @@ package an.xuan.tong.historycontact.call.receiver
 
 import android.media.AudioFormat
 import android.media.AudioRecord
+
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.io.RandomAccessFile
 
-
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 class WavRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, audioEncoding: Int, filePathNoFormat: String) :
         AudioRecorderBase(audioSource, sampleRateInHz, channelConfig, audioEncoding, filePathNoFormat.plus(".wav")) {
 
@@ -30,7 +34,7 @@ class WavRecorder(audioSource: Int, sampleRateInHz: Int, channelConfig: Int, aud
         var read = 0
 
         if (null != os) {
-            while (state === State.RECORD) {
+            while (state === RecorderBase.State.RECORD) {
                 read = audioRecord!!.read(data, 0, bufferSizeInBytes)
                 if (AudioRecord.ERROR_INVALID_OPERATION != read) {
                     try {

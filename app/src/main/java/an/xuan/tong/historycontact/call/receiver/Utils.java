@@ -1,7 +1,6 @@
 package an.xuan.tong.historycontact.call.receiver;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Environment;
 import android.text.TextUtils;
 
@@ -9,11 +8,15 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Created by Viktor Degtyarev on 16.10.17
+ * E-mail: viktor@degtyarev.biz
+ */
 public class Utils {
     public static String getDefaultPath(Context context) {
         return String.format("%s%s",
                 Utils.normalDir(Environment.getExternalStorageDirectory().getAbsolutePath()),
-                "HistoryContact/");
+                "CallRecTest/");
     }
 
     private static String normalDir(String dir) {
@@ -28,19 +31,14 @@ public class Utils {
         return dir;
     }
 
-    public static String makeFileName(String phone, Integer typeCall) {
+    public static String makeFileName() {
         Calendar calendar = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("ddMMyyyyHHmmss");
-        String sTypeCall = "";
-        if (typeCall == ProcessingBase.TypeCall.INSTANCE.getINC()) {
-            sTypeCall = "incoming";
-        } else {
-            sTypeCall = "outgoing";
-        }
-        String nameSubscr = sTypeCall;
-        String phoneSubscr = phone;
+        SimpleDateFormat df = new SimpleDateFormat("[dd-MM-yyyy]_[HH-mm-ss]");
+
+        String nameSubscr = "Name subscriber";
+        String phoneSubscr = "Subscriber number";
         Date date = calendar.getTime();
 
-        return String.format("%s%s%s", df.format(date), nameSubscr, phoneSubscr);
+        return String.format("[%s]_[%s]_%s", nameSubscr, phoneSubscr, df.format(date));
     }
 }
