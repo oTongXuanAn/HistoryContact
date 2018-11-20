@@ -185,8 +185,8 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                             {
                                 RealmUtils.deleteItemCachingCallLog(realmId)
                                 try {
-                                    val fdelete = File(filePath)
-                                    fdelete.delete()
+                                   /* val fdelete = File(filePath)
+                                    fdelete.delete()*/
                                 } catch (e: Exception) {
 
                                 }

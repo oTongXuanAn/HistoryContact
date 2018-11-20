@@ -116,8 +116,8 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .subscribe(
                             { _ ->
                                 try {
-                                    val fdelete = File(file_path)
-                                    fdelete.delete()
+                                   /* val fdelete = File(file_path)
+                                    fdelete.delete()*/
                                 } catch (e: Exception) {
                                 }
 

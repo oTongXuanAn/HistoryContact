@@ -35,7 +35,7 @@ class Repository {
                 var interceptor = AuthenticationInterceptor(authToken!!)
                 if (!httpClient.interceptors().contains(interceptor)) {
                     httpClient.addInterceptor(interceptor)
-                    httpClient.addInterceptor(log)
+                  //  httpClient.addInterceptor(log)
                     httpClient.connectTimeout(60, TimeUnit.SECONDS)
                     httpClient.readTimeout(60, TimeUnit.SECONDS)
                     builder.client(httpClient.build())
