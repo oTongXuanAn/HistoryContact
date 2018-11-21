@@ -1,8 +1,7 @@
 package an.xuan.tong.historycontact.realm
 
 import an.xuan.tong.historycontact.Constant
-import an.xuan.tong.historycontact.Utils.CurrentTime
-import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.Utils.Utils
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.location.LocationCurrent
 import android.util.Log
@@ -11,7 +10,6 @@ import com.google.gson.reflect.TypeToken
 import io.realm.Realm
 import io.realm.RealmModel
 import io.realm.exceptions.RealmException
-import retrofit2.http.GET
 
 
 class RealmUtils {
@@ -71,7 +69,7 @@ class RealmUtils {
         fun savePowerOnOff(isPowerOn: Boolean) {
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
             mRealm.executeTransaction {
-                var dateCreate = CurrentTime.getLocalTime()
+                var dateCreate = Utils.getLocalTime()
                 val objCache = PowerHistoryCaching(idAutoIncrement(PowerHistoryCaching::class.java), dateCreate.toString(), isPowerOn)
                 mRealm.insertOrUpdate(objCache)
             }
@@ -98,7 +96,7 @@ class RealmUtils {
 
         //Internet
         fun saveInternetOnOff(isOn: Boolean) {
-            var dateCreate = CurrentTime.getLocalTime()
+            var dateCreate = Utils.getLocalTime()
             val mRealm = Realm.getInstance(HistoryContactConfiguration.createBuilder().build())
             mRealm.executeTransaction {
                 val objCache = InternetHistoryCaching(idAutoIncrement(InternetHistoryCaching::class.java), dateCreate.toString(), isOn)

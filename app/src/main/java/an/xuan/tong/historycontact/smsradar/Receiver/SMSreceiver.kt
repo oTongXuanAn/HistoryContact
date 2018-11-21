@@ -18,6 +18,8 @@ import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
@@ -37,16 +39,10 @@ class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
             Log.e("antx", "onReceive sms BOOT_COMPLETED")
-            RealmUtils.savePowerOnOff(true)
             //Handler Power
-            val listPowCaching = RealmUtils.getAllPowerCaching()
-            listPowCaching?.let {
-                it.forEachIndexed { _, powCaching ->
-                    sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
-                }
+            RealmUtils.savePowerOnOff(true)
 
-            }
-            updateInformation()
+            //  updateInformation()
             val intentSms = Intent(context, SmsRadarService::class.java)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 context.startForegroundService(intentSms)
@@ -54,13 +50,6 @@ class SMSreceiver : BroadcastReceiver() {
                 context.startService(intentSms)
             }
             //Call
-            val pushIntent = Intent(context, PhoneCallReceiver::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(pushIntent)
-            } else {
-                context.startService(pushIntent)
-            }
-
             var callRecord = CallRecord.Builder(context)
                     .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
                     .setRecordDirName("Historycontact")
@@ -207,26 +196,7 @@ class SMSreceiver : BroadcastReceiver() {
         }
     }
 
-    private fun sendPowerCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
-        val result: HashMap<String, String> = HashMap()
-        result["Authorization"] = RealmUtils.getAuthorization()
-        var id = RealmUtils.getAccountId()
-        var message = PowerAndInternet(id, dateCreate, status)
-        Log.e("sendPowerCaching", " " + message.toString())
-        id?.let {
-            Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
-                    .subscribeOn(Schedulers.io())
-                    .retry(3)
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            {
-                                RealmUtils.deleteItemPower(cachingId)
-                            },
-                            { e ->
-                                Log.e("antx", "sendPowerCaching eror " + e.message)
-                            })
-        }
-    }
+
 
     private fun updateInformation() {
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {

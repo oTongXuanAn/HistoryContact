@@ -2,7 +2,7 @@ package an.xuan.tong.historycontact.location
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.R
-import an.xuan.tong.historycontact.Utils.CurrentTime
+import an.xuan.tong.historycontact.Utils.Utils
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.InformationResponse
@@ -27,7 +27,6 @@ import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
-import retrofit2.http.GET
 
 class LocationService : Service() {
     var mLocationManager: LocationManager? = null
@@ -50,7 +49,7 @@ class LocationService : Service() {
 
             saveLocation(mLastLocation.latitude, mLastLocation.longitude)
             val id = convertJsonToObject(getCacheInformation()?.data).data?.id
-            val timeCreate = CurrentTime.getLocalTime()
+            val timeCreate = Utils.getLocalTime()
             val token = convertJsonToObject(getCacheInformation()?.data).token
             val result: HashMap<String, String> = HashMap()
             result.apply {
@@ -145,7 +144,7 @@ class LocationService : Service() {
     override fun onTaskRemoved(rootIntent: Intent) {
         val intent = Intent(this, LocationService::class.java)
         val pendingIntent = PendingIntent.getService(this, 0, intent, 0)
-        val now = CurrentTime.getLocalTime()
+        val now = Utils.getLocalTime()
         getAlarmManager().set(AlarmManager.RTC_WAKEUP, now + 1000, pendingIntent)
         super.onTaskRemoved(rootIntent)
 

@@ -17,31 +17,20 @@ package an.xuan.tong.historycontact.smsradar
 
 
 import an.xuan.tong.historycontact.Constant
-import an.xuan.tong.historycontact.Utils.CurrentTime.Companion.timeOffset
+import an.xuan.tong.historycontact.Utils.Utils.Companion.timeOffset
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
-import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.SmsSendServer
-import an.xuan.tong.historycontact.realm.ApiCaching
 import an.xuan.tong.historycontact.realm.CachingMessage
-import an.xuan.tong.historycontact.realm.HistoryContactConfiguration
 import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.ContentResolver
 import android.database.ContentObserver
 import android.database.Cursor
-import android.location.Location
 import android.net.Uri
-import android.os.Bundle
 import android.os.Handler
-import android.provider.ContactsContract
 import android.util.Log
-import android.widget.Toast
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
-import io.realm.Realm
-import retrofit2.http.GET
 
 
 /**
