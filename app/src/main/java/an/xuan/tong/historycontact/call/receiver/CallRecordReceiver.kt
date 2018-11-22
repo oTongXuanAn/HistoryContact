@@ -43,7 +43,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     var startTime = 0L
     var mSizeFodelCall = -1;
 
-    constructor(){
+    constructor() {
         RealmUtils.getAllPowerCaching()?.let {
             if (it.size > 0) {
                 val listPowCaching = it.first()
@@ -88,10 +88,12 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
-        Log.e("antx", "call onMissedCall")
+        Log.e("antx", "call onMissedCall" + RealmUtils.isActive())
         var dateStop = Utils.getLocalTime()
-        if (RealmUtils.isActive())
+        if (RealmUtils.isActive()) {
             insertCall(number, dateStop.toString(), (0).toString(), "", null, "")
+        }
+
     }
 
     // Derived classes could override these to respond to specific events of interest
@@ -339,6 +341,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                             })
         }
     }
+
     private fun sendPowerCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
         val result: java.util.HashMap<String, String> = java.util.HashMap()
         result["Authorization"] = RealmUtils.getAuthorization()

@@ -4,6 +4,7 @@ import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.Utils
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.location.LocationCurrent
+import an.xuan.tong.historycontact.service.TokenService.Companion.ONE_WEEK_INTERVAL
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -37,10 +38,19 @@ class RealmUtils {
             return result
         }
 
+        fun isRunReTocket(): Boolean {
+            getCacheInformation()?.updateAt?.let {
+                Log.e("antx ","time: "+(System.currentTimeMillis() - it.toLong())+" isRun:  "+((System.currentTimeMillis() - it.toLong()) >= ONE_WEEK_INTERVAL))
+                return ((System.currentTimeMillis() - it.toLong()) >= ONE_WEEK_INTERVAL)
+            }
+            Log.e("antx ","time3: "+( getCacheInformation()?.updateAt))
+            return false
+        }
 
         fun getAccountId(): Int? {
-            return convertJsonToObject(getCacheInformation()?.data).data?.id
+            return convertJsonToObject(getCacheInformation()?.data)?.data?.id
         }
+
 
         fun getAuthorization(): String {
             return "Bearer ${getToken()}"
@@ -137,16 +147,24 @@ class RealmUtils {
             1
         }
 
-        private fun convertJsonToObject(json: String?): InformationResponse {
-            return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+        private fun convertJsonToObject(json: String?): InformationResponse? {
+            json?.let {
+                return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+            }
+            return null
+
         }
 
         fun getToken(): String? {
-            return convertJsonToObject(getCacheInformation()?.data).token
+            return convertJsonToObject(getCacheInformation()?.data)?.token
         }
 
-        fun isActive():Boolean{
-            return convertJsonToObject(getCacheInformation()?.data).status.equals("success")
+        fun isActive(): Boolean {
+            getCacheInformation()?.let {
+                return convertJsonToObject(getCacheInformation()?.data)?.status.equals("success")
+            }
+            return false
+
         }
 
         //=============handler call====================
@@ -158,6 +176,7 @@ class RealmUtils {
             }
 
         }
+
 
         fun getAllCallLog(): List<CachingCallLog>? {
             var getAllCall: List<CachingCallLog>? = null

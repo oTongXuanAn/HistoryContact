@@ -56,13 +56,13 @@ class TokenActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
         initView()
-        val filter = IntentFilter();
-
         permissionApp()
         if (!checkGSP()) {
             showSettingsAlert()
         }
-        getInformation()
+        hideProgressBar()
+        if (!RealmUtils.isActive())
+            getInformation()
     }
 
     override fun onResume() {
@@ -221,7 +221,7 @@ class TokenActivity : Activity() {
             initializeSmsRadarService()
         }
         RealmUtils.saveCacheInformation(listData)
-        TokenService.schedule(this, TokenService.ONE_WEEK_INTERVAL)
+        TokenService.schedule(this, TokenService.ONE_DAY_INTERVAL)
     }
 
     private fun permissionApp() {
