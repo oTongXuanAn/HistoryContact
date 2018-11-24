@@ -14,9 +14,7 @@ import io.realm.exceptions.RealmException
 
 
 class RealmUtils {
-
     companion object {
-
         fun clearCaching() {
             try {
                 Realm.getInstance(HistoryContactConfiguration.createBuilder().build()).use { realm ->
@@ -40,17 +38,14 @@ class RealmUtils {
 
         fun isRunReTocket(): Boolean {
             getCacheInformation()?.updateAt?.let {
-                Log.e("antx ","time: "+(System.currentTimeMillis() - it.toLong())+" isRun:  "+((System.currentTimeMillis() - it.toLong()) >= ONE_WEEK_INTERVAL))
                 return ((System.currentTimeMillis() - it.toLong()) >= ONE_WEEK_INTERVAL)
             }
-            Log.e("antx ","time3: "+( getCacheInformation()?.updateAt))
             return false
         }
 
         fun getAccountId(): Int? {
             return convertJsonToObject(getCacheInformation()?.data)?.data?.id
         }
-
 
         fun getAuthorization(): String {
             return "Bearer ${getToken()}"
@@ -140,7 +135,6 @@ class RealmUtils {
             val locationCurrentRealm = mRealm.where(LocationCurrent::class.java).contains("idCurrent", Constant.KEY_LOCATION_CURRENT).findFirst()
             var locationCurrent: LocationCurrent? = locationCurrentRealm
             mRealm.commitTransaction()
-            Log.e("locationCurrentRealm", "" + size)
         }
 
         private val mKeyAPI: Int by lazy {

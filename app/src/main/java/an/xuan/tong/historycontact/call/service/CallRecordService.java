@@ -78,8 +78,8 @@ public class CallRecordService extends Service {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private String createNotificationChannel(NotificationManager notificationManager) {
-        String channelId = "my_service_channelid";
-        String channelName = "My Foreground Service";
+        String channelId = "service_channelid";
+        String channelName = "Foreground Service";
         NotificationChannel channel = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
         // omitted the LED color
         channel.setImportance(NotificationManager.IMPORTANCE_NONE);

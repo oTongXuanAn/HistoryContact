@@ -61,8 +61,8 @@ class TokenActivity : Activity() {
             showSettingsAlert()
         }
         hideProgressBar()
-        if (!RealmUtils.isActive())
-            getInformation()
+
+        getInformation()
     }
 
     override fun onResume() {
@@ -178,6 +178,7 @@ class TokenActivity : Activity() {
                                     { result ->
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                             if (result.status.equals(Constant.KEY_SUCCESS)) {
+                                                Log.e("antx", "handlerGetInformationSccess")
                                                 handlerGetInformationSccess(result)
                                             } else {
                                                 startActivity(Intent(applicationContext, MainActivity::class.java))
@@ -221,7 +222,7 @@ class TokenActivity : Activity() {
             initializeSmsRadarService()
         }
         RealmUtils.saveCacheInformation(listData)
-        TokenService.schedule(this, TokenService.ONE_DAY_INTERVAL)
+        TokenService.schedule(this, TokenService.ONE_WEEK_INTERVAL)
     }
 
     private fun permissionApp() {
@@ -278,7 +279,6 @@ class TokenActivity : Activity() {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private fun scheduleJob() {
-        Log.e("antx", "scheduleJob()")
         var myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
                 .setRequiresCharging(true)
                 .setMinimumLatency(1000)

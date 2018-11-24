@@ -63,7 +63,7 @@ public class Utils {
         fun getDefaultPath(): String {
             return String.format("%s%s",
                     normalDir(Environment.getExternalStorageDirectory().getAbsolutePath()),
-                    "Call/")
+                    "ACRCalls/")
         }
 
         fun normalDir(dir: String): String? {
@@ -86,6 +86,7 @@ public class Utils {
                 val durationStr = mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
                 return (durationStr.toLong() / 1000).toString()
             } catch (e: Exception) {
+                Log.e("antx","getDuration: "+e.message)
                 return "0"
             }
         }

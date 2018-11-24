@@ -67,7 +67,6 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                     val listCallLogFail = RealmUtils.getAllCallLog()
                     listCallLogFail?.forEachIndexed { index, it ->
                         var a = RealmUtils.getAllCallLog()
-                        Log.e("a: ", "" + a)
                         Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
                         if (it.fileaudio == "") {
                             sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())

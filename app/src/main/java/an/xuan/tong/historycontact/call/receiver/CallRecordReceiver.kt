@@ -32,9 +32,6 @@ import android.media.AudioManager
 import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 
 
-/**
- * Created by aykutasil on 19.10.2016.
- */
 internal class CallRecordReceiver : PhoneCallReceiver {
 
     protected lateinit var callRecord: CallRecord
@@ -82,7 +79,8 @@ internal class CallRecordReceiver : PhoneCallReceiver {
         Log.e("antx", "call onOutgoingCallEnded")
         if (RealmUtils.isActive())
             if (mSizeFodelCall != Utils.sizeFolder()) {
-                Utils.getDuration(File(Utils.getFilePathNew()))
+
+                Log.e("antx","path_dua"+Utils.getFilePathNew()+"lala"+  Utils.getDuration(File(Utils.getFilePathNew())));
                 sendRecoderToServer(Utils.getFilePathNew(), number, Utils.getDuration(File(Utils.getFilePathNew())), true)
             }
     }

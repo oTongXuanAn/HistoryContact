@@ -27,12 +27,10 @@ class TokenService : JobService() {
     override fun onStartJob(params: JobParameters): Boolean {
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
             override fun onSuccess(account: Account) {
-                Log.e("antx", "getRetoken"+isRunReTocket())
                 if (isRunReTocket())
                     account.phoneNumber?.let {
                         val result: HashMap<String, String> = HashMap()
                         result["Authorization"] = RealmUtils.getAuthorization()
-                        Log.e("antx", "getRetoken")
                         Repository.createService(ApiService::class.java, result).getRetoken(Constant.KEY_API, RealmUtils.getAccountId())
                                 .subscribeOn(Schedulers.io())
                                 .retry(5)
@@ -44,10 +42,8 @@ class TokenService : JobService() {
 
                                         },
                                         { e ->
-                                            jobFinished(params, false)
-                                            Log.e("test", e.message)
-
-                                        })
+                                            jobFinished(params, true)
+                                                                                    })
 
                     }
                 account.email?.let {
@@ -67,17 +63,18 @@ class TokenService : JobService() {
 
 
     companion object {
-        private val JOB_ID = 1
-        val ONE_DAY_INTERVAL = 10000L
-        val ONE_WEEK_INTERVAL = 10000L // 1 Week
+        private val JOB_ID = 19
+        val ONE_DAY_INTERVAL = 24 * 60 * 60 * 1000L // 1 Day
+        val ONE_WEEK_INTERVAL = 7 * 24 * 60 * 60 * 1000L // 1 Week
 
         @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
         fun schedule(context: Context, intervalMillis: Long) {
-            val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+                      val jobScheduler = context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
             val componentName = ComponentName(context, TokenService::class.java)
-            val builder = JobInfo.Builder(JOB_ID, componentName)
-            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-            builder.setPeriodic(intervalMillis)
+            val builder = JobInfo.Builder(JOB_ID, componentName).apply {
+                setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                setPeriodic(intervalMillis)
+            }
             jobScheduler.schedule(builder.build())
         }
 
