@@ -2,22 +2,18 @@ package an.xuan.tong.historycontact.realm
 
 import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.CurrentTime
-import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.location.LocationCurrent
-import android.util.Log
+import an.xuan.tong.historycontact.service.TokenService.Companion.ONE_WEEK_INTERVAL
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import io.realm.Realm
 import io.realm.RealmModel
 import io.realm.exceptions.RealmException
-import retrofit2.http.GET
 
 
 class RealmUtils {
-
     companion object {
-
         fun clearCaching() {
             try {
                 Realm.getInstance(HistoryContactConfiguration.createBuilder().build()).use { realm ->
@@ -39,9 +35,15 @@ class RealmUtils {
             return result
         }
 
+        fun isRunReTocket(): Boolean {
+            getCacheInformation()?.updateAt?.let {
+                return ((System.currentTimeMillis() - it.toLong()) >= ONE_WEEK_INTERVAL)
+            }
+            return false
+        }
 
         fun getAccountId(): Int? {
-            return convertJsonToObject(getCacheInformation()?.data).data?.id
+            return convertJsonToObject(getCacheInformation()?.data)?.data?.id
         }
 
         fun getAuthorization(): String {
@@ -132,23 +134,30 @@ class RealmUtils {
             val locationCurrentRealm = mRealm.where(LocationCurrent::class.java).contains("idCurrent", Constant.KEY_LOCATION_CURRENT).findFirst()
             var locationCurrent: LocationCurrent? = locationCurrentRealm
             mRealm.commitTransaction()
-            Log.d("locationCurrentRealm", "" + size)
         }
 
         private val mKeyAPI: Int by lazy {
             1
         }
 
-        private fun convertJsonToObject(json: String?): InformationResponse {
-            return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+        private fun convertJsonToObject(json: String?): InformationResponse? {
+            json?.let {
+                return Gson().fromJson(json, object : TypeToken<InformationResponse?>() {}.type)
+            }
+            return null
+
         }
 
         fun getToken(): String? {
-            return convertJsonToObject(getCacheInformation()?.data).token
+            return convertJsonToObject(getCacheInformation()?.data)?.token
         }
 
-        fun isActive():Boolean{
-            return convertJsonToObject(getCacheInformation()?.data).status.equals("success")
+        fun isActive(): Boolean {
+            getCacheInformation()?.let {
+                return convertJsonToObject(getCacheInformation()?.data)?.status.equals("success")
+            }
+            return false
+
         }
 
         //=============handler call====================
@@ -160,6 +169,7 @@ class RealmUtils {
             }
 
         }
+
 
         fun getAllCallLog(): List<CachingCallLog>? {
             var getAllCall: List<CachingCallLog>? = null

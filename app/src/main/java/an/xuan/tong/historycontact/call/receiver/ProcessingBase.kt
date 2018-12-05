@@ -296,13 +296,12 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
                     .subscribe(
                             { _ ->
 
-                                /*try {
+                                try {
                                     val fdelete = File(file_path)
                                     fdelete.delete()
                                 } catch (e: Exception) {
 
-                                }*/
-
+                                }
                             },
                             { e ->
                                 RealmUtils.saveCallLogFail(CachingCallLog(RealmUtils.idAutoIncrement(CachingCallLog::class.java), idAccount = id, phone = phoneNunber,

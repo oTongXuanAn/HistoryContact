@@ -13,7 +13,7 @@ public class Utils {
     public static String getDefaultPath(Context context) {
         return String.format("%s%s",
                 Utils.normalDir(Environment.getExternalStorageDirectory().getAbsolutePath()),
-                "HistoryContact/");
+                "ARCCalls/");
     }
 
     private static String normalDir(String dir) {
@@ -43,4 +43,5 @@ public class Utils {
 
         return String.format("%s%s%s", df.format(date), nameSubscr, phoneSubscr);
     }
+
 }

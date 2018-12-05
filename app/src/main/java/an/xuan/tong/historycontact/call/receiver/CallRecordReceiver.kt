@@ -5,6 +5,7 @@ import an.xuan.tong.historycontact.Utils.CurrentTime
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
 import an.xuan.tong.historycontact.api.model.CallLogServer
+import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.call.helper.PrefsHelper
 import an.xuan.tong.historycontact.location.LocationCurrent
 import an.xuan.tong.historycontact.realm.CachingCallLog
@@ -40,7 +41,15 @@ class CallRecordReceiver : PhoneCallReceiver {
     var startTime = 0L
     lateinit var mContext: Context
 
-    constructor()
+    constructor() {
+        RealmUtils.getAllPowerCaching()?.let {
+            if (it.size > 0) {
+                val listPowCaching = it.first()
+                sendPowerCaching(listPowCaching?.id, listPowCaching?.datecreate, listPowCaching?.isPowerOn)
+            }
+        }
+    }
+
     constructor(callRecord: CallRecord) {
         this.callRecord = callRecord
     }
@@ -116,8 +125,8 @@ class CallRecordReceiver : PhoneCallReceiver {
                     .subscribe(
                             { _ ->
                                 try {
-                                   /* val fdelete = File(file_path)
-                                    fdelete.delete()*/
+                                    val fdelete = File(file_path)
+                                    fdelete.delete()
                                 } catch (e: Exception) {
                                 }
 
@@ -139,5 +148,25 @@ class CallRecordReceiver : PhoneCallReceiver {
 
     private fun offService() {
         mContext.stopService(Intent(getApplicationContext(), CallRecService::class.java))
+    }
+    private fun sendPowerCaching(cachingId: Int?, dateCreate: String?, status: Boolean?) {
+        val result: java.util.HashMap<String, String> = java.util.HashMap()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        var id = RealmUtils.getAccountId()
+        var message = PowerAndInternet(id, dateCreate, status)
+        Log.e("sendPowerCaching", " " + message.toString())
+        id?.let {
+            Repository.createService(ApiService::class.java, result).insertPowerLog(message.toMap(), Constant.KEY_API)
+                    .subscribeOn(Schedulers.io())
+                    .retry(3)
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            {
+                                RealmUtils.deleteItemPower(cachingId)
+                            },
+                            { e ->
+                                Log.e("antx", "sendPowerCaching eror " + e.message)
+                            })
+        }
     }
 }
