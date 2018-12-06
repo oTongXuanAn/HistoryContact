@@ -163,8 +163,7 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
         stopRecorder()
         var typeCall: Boolean
         typeCall = mTypeCall != 1
-        Log.d("antx", "stopRecord: " + filePathNoFormat + "typeCall" + typeCall)
-        sendRecoderToServer(filePathNoFormat, phoneNumber, mCallStartTime, mCallFinishTime, typeCall)
+        sendRecoderToServer(filePathNoFormat + ".wav", phoneNumber, mCallStartTime, mCallFinishTime, typeCall)
     }
 
     open protected fun onCheckRulesRecord(check: Boolean) {}
@@ -245,36 +244,43 @@ abstract class ProcessingBase(val context: Context) : IProcessing {
 
     private fun sendRecoderToServer(filePath: String, number: String, startDate: Date, endDate: Date, typeCall: Boolean) {
         try {
+
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
             result["Authorization"] = RealmUtils.getAuthorization()
-            var id = RealmUtils.getAccountId()
+            var id = RealmUtils.getAccountId();
             val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
             var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
             Log.d("antx", "insertCall: " + file.name)
-            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { result ->
-                                if (result.isNotEmpty()) {
+            id?.let {
+                Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(
+                                { result ->
+                                    if (result.isNotEmpty()) {
+                                        Log.e("antx", "urlPath: " + result[0])
+                                        var diffInMs = endDate.time - startDate.time
+                                        var diffInSec = diffInMs / 1000
+                                        var dateStop = CurrentTime.getLocalTime()
+                                        insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
+                                    }
+                                },
+                                { e ->
+                                    Log.e("antx", "error filePath: " + e.message)
                                     var diffInMs = endDate.time - startDate.time
                                     var diffInSec = diffInMs / 1000
                                     var dateStop = CurrentTime.getLocalTime()
-                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), result[0], typeCall, filePath)
-                                }
-                            },
-                            { e ->
-                                var diffInMs = endDate.time - startDate.time
-                                var diffInSec = diffInMs / 1000
-                                var dateStop = CurrentTime.getLocalTime()
-                                insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
-                            })
+                                    insertCall(number, dateStop.toString(), (diffInSec).toString(), filePath, typeCall, filePath)
+                                })
+            }
+
         } catch (e: Exception) {
             Log.d("antx Exception", "sendRcoderToServer " + e.message)
         }
 
     }
+
 
     private fun insertCall(phoneNunber: String?, datecreate: String, duration: String, fileaudio: String, type: Boolean? = null, file_path: String? = "") {
         val result: HashMap<String, String> = HashMap()

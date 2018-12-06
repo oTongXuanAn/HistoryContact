@@ -65,7 +65,6 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                 //handler call
                 val listCallLogFail = RealmUtils.getAllCallLog()
                 listCallLogFail?.forEachIndexed { index, it ->
-                    var a = RealmUtils.getAllCallLog()
                     if (it.fileaudio == "") {
                         sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
                     } else sendRecoderToServer(it.id, it.fileaudio, it.phone, it.datecreate, it.duration, it.lat, it.lng, it.type.toString())
@@ -199,14 +198,16 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
 
     //file audio server
     private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: String? = "null") {
-        try {
-            val file = File(filePath)
-            val result: HashMap<String, String> = HashMap()
-            result["Authorization"] = RealmUtils.getAuthorization()
-            var id = RealmUtils.getAccountId()
-            val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
-            var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
-            Repository.createService(ApiService::class.java, result).insertUpload(Constant.KEY_API, id, imageFile)
+
+        val file = File(filePath)
+        val result: HashMap<String, String> = HashMap()
+        result["Authorization"] = RealmUtils.getAuthorization()
+        val id = RealmUtils.getAccountId()
+        val temp = RequestBody.create(MediaType.parse("multipart/form-data"), file)
+        var imageFile = MultipartBody.Part.createFormData(file.name, file.name, temp)
+        id?.let {
+            Repository.createService(ApiService::class.java, result)
+                    .insertUpload(Constant.KEY_API, id, imageFile)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
@@ -219,8 +220,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                             { e ->
                                 Log.d("test", "sendRcoderToServer  error " + e.message)
                             })
-        } catch (e: Exception) {
-            Log.d("antx Exception", "sendRcoderToServer " + e.message)
+
         }
 
     }
