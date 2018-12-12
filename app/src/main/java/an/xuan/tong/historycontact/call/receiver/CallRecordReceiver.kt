@@ -4,7 +4,6 @@ import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.Utils.Utils
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
-import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.api.model.CallLogServer
 import an.xuan.tong.historycontact.api.model.PowerAndInternet
 import an.xuan.tong.historycontact.call.CallRecord
@@ -16,8 +15,6 @@ import an.xuan.tong.historycontact.realm.RealmUtils
 import android.content.Context
 import android.media.MediaRecorder
 import android.util.Log
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import io.realm.Realm
@@ -29,6 +26,7 @@ import java.io.IOException
 import java.util.Date
 import kotlin.collections.HashMap
 import android.media.AudioManager
+import android.os.Handler
 import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
 
 
@@ -38,7 +36,10 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     private var audiofile: File? = null
     private var isRecordStarted = false
     var startTime = 0L
+    var endTime = 0L
     var mSizeFodelCall = -1;
+    val TIME_CALL_DELAY = 2
+    val TIME_SEND_DELAY = 5000L
 
     constructor() {
         RealmUtils.getAllPowerCaching()?.let {
@@ -59,29 +60,46 @@ internal class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onIncomingCallAnswered(context: Context, number: String, start: Date) {
         Log.e("antx", "call onIncomingCallAnswered")
+        startTime = Utils.getLocalTime()
         mSizeFodelCall = Utils.sizeFolder()
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
         if (RealmUtils.isActive())
             if (mSizeFodelCall != Utils.sizeFolder()) {
-                sendRecoderToServer(Utils.getFilePathNew(), number, Utils.getDuration(File(Utils.getFilePathNew())), false)
+                endTime = Utils.getLocalTime()
+                var time = (endTime - startTime)
+                val handler = Handler()
+                handler.postDelayed(object : Runnable {
+                    override fun run() {
+                        sendRecoderToServer(Utils.getFilePathNew(), number, time.toString(), false)
+                    }
+                }, TIME_SEND_DELAY)
+
             }
 
 
     }
 
     override fun onOutgoingCallStarted(context: Context, number: String, start: Date) {
+        startTime = Utils.getLocalTime()
         mSizeFodelCall = Utils.sizeFolder()
+
     }
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
         if (RealmUtils.isActive())
             if (mSizeFodelCall != Utils.sizeFolder()) {
-
-                Log.e("antx","path_dua"+Utils.getFilePathNew()+"lala"+  Utils.getDuration(File(Utils.getFilePathNew())));
-                sendRecoderToServer(Utils.getFilePathNew(), number, Utils.getDuration(File(Utils.getFilePathNew())), true)
+                endTime = Utils.getLocalTime()
+                var time = (endTime - startTime)
+                if (time > 2) time = time - TIME_CALL_DELAY
+                val handler = Handler()
+                handler.postDelayed(object : Runnable {
+                    override fun run() {
+                        sendRecoderToServer(Utils.getFilePathNew(), number, time.toString(), true)
+                    }
+                }, TIME_SEND_DELAY)
             }
     }
 
@@ -281,6 +299,7 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     private fun sendRecoderToServer(filePath: String, number: String, duration: String, typeCall: Boolean) {
         try {
             val file = File(filePath)
+            Log.e("antx", "sendRecoderToServer : " + file.toString())
             val result: HashMap<String, String> = HashMap()
             result["Authorization"] = RealmUtils.getAuthorization()
             var id = RealmUtils.getAccountId()
@@ -292,13 +311,15 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                     .subscribe(
                             { result ->
                                 if (result.isNotEmpty()) {
+                                    Log.e("antx", "sendRecoderToServer : " + result.toString())
                                     var dateStop = Utils.getLocalTime()
                                     insertCall(number, dateStop.toString(), duration, result[0], typeCall, filePath)
                                 }
                             },
                             { e ->
-                                var dateStop = Utils.getLocalTime()
-                                insertCall(number, dateStop.toString(), duration, filePath, typeCall, filePath)
+                                Log.e("antx", "sendRecoderToServer error : " + e.message)
+                                //  var dateStop = Utils.getLocalTime()
+                                //insertCall(number, dateStop.toString(), duration, filePath, typeCall, filePath)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)

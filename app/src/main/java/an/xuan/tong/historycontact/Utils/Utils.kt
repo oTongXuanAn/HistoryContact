@@ -1,19 +1,12 @@
 package an.xuan.tong.historycontact.Utils
 
-import android.content.Context
+import android.media.MediaMetadataRetriever
 import android.os.Environment
+import android.text.TextUtils
 import android.util.Log
-import com.google.api.client.googleapis.util.Utils
 import java.io.File
 import java.io.IOException
 import java.util.*
-import android.text.TextUtils
-import android.os.Environment.getExternalStorageDirectory
-import org.apache.commons.logging.LogFactory.release
-import android.media.MediaMetadataRetriever
-import java.lang.reflect.Array.getLength
-import com.facebook.accountkit.internal.AccountKitController.getApplicationContext
-import android.content.res.AssetFileDescriptor
 
 
 public class Utils {
