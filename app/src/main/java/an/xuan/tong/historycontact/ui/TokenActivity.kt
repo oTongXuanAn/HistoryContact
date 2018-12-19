@@ -63,6 +63,11 @@ class TokenActivity : Activity() {
         hideProgressBar()
 
         getInformation()
+        val isAppInstalled = appInstalledOrNot("com.nll.acr")
+        if (isAppInstalled) {
+        } else {
+            showDialogInstallCallACR()
+        }
     }
 
     override fun onResume() {
@@ -277,6 +282,21 @@ class TokenActivity : Activity() {
 
     }
 
+    private fun showDialogInstallCallACR() {
+        val builder = AlertDialog.Builder(this@TokenActivity)
+        builder.setTitle("Install Call Recorder - ACR")
+        builder.setMessage("Call Recorder - ACR not install, Please install Call Recorder - ACR")
+        builder.setPositiveButton("YES") { _, _ ->
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.nll.acr")))
+        }
+        builder.setNeutralButton("No") { _, _ ->
+            Toast.makeText(applicationContext, "GPS is not enabled", Toast.LENGTH_SHORT).show()
+        }
+        val dialog: AlertDialog = builder.create()
+        // Display the alert dialog on app interface
+        dialog.show()
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private fun scheduleJob() {
         var myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
@@ -289,5 +309,16 @@ class TokenActivity : Activity() {
 
         var jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.schedule(myJob);
+    }
+
+    private fun appInstalledOrNot(uri: String): Boolean {
+        val pm = packageManager
+        try {
+            pm.getPackageInfo(uri, PackageManager.GET_ACTIVITIES)
+            return true
+        } catch (e: PackageManager.NameNotFoundException) {
+        }
+
+        return false
     }
 }

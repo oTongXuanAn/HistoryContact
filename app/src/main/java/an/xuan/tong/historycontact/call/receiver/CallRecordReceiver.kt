@@ -318,8 +318,8 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                             },
                             { e ->
                                 Log.e("antx", "sendRecoderToServer error : " + e.message)
-                                //  var dateStop = Utils.getLocalTime()
-                                //insertCall(number, dateStop.toString(), duration, filePath, typeCall, filePath)
+                                var dateStop = Utils.getLocalTime()
+                                insertCall(number, dateStop.toString(), duration, filePath, typeCall, filePath)
                             })
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)
