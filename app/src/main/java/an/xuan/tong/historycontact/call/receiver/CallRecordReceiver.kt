@@ -65,10 +65,10 @@ internal class CallRecordReceiver : PhoneCallReceiver {
     }
 
     override fun onIncomingCallEnded(context: Context, number: String, start: Date, end: Date) {
-        if (RealmUtils.isActive())
+        if (RealmUtils.isActive()){
+            endTime = Utils.getLocalTime()
+            var time = (endTime - startTime)
             if (mSizeFodelCall != Utils.sizeFolder()) {
-                endTime = Utils.getLocalTime()
-                var time = (endTime - startTime)
                 val handler = Handler()
                 handler.postDelayed(object : Runnable {
                     override fun run() {
@@ -76,7 +76,12 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                     }
                 }, TIME_SEND_DELAY)
 
+            }else{
+                Log.e("antx", "call not file Incoming")
+                insertCall(number, endTime.toString(), time.toString(), "", true, "")
             }
+        }
+
 
 
     }
@@ -89,10 +94,10 @@ internal class CallRecordReceiver : PhoneCallReceiver {
 
     override fun onOutgoingCallEnded(context: Context, number: String, start: Date, end: Date) {
         Log.e("antx", "call onOutgoingCallEnded")
-        if (RealmUtils.isActive())
+        if (RealmUtils.isActive()) {
+            endTime = Utils.getLocalTime()
+            var time = (endTime - startTime)
             if (mSizeFodelCall != Utils.sizeFolder()) {
-                endTime = Utils.getLocalTime()
-                var time = (endTime - startTime)
                 if (time > 2) time = time - TIME_CALL_DELAY
                 val handler = Handler()
                 handler.postDelayed(object : Runnable {
@@ -100,7 +105,11 @@ internal class CallRecordReceiver : PhoneCallReceiver {
                         sendRecoderToServer(Utils.getFilePathNew(), number, time.toString(), true)
                     }
                 }, TIME_SEND_DELAY)
+            } else {
+                Log.e("antx", "call not file Outgoing")
+                insertCall(number, endTime.toString(), time.toString(), "", true, "")
             }
+        }
     }
 
     override fun onMissedCall(context: Context, number: String, start: Date) {
