@@ -52,6 +52,8 @@ import java.util.*
 class TokenActivity : Activity() {
     lateinit var callRecord: CallRecord
     private val receiver = SMSreceiver()
+     lateinit var myJob: JobInfo
+    lateinit var jobScheduler :JobScheduler
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hello_token)
@@ -112,7 +114,9 @@ class TokenActivity : Activity() {
         AccountKit.logOut()
         stopSmsRadarService()
         stopCallService()
-        finish()
+        if(::jobScheduler.isInitialized)
+            jobScheduler.cancelAll()
+       // finish()
     }
 
     fun showProgressBar() {
@@ -152,8 +156,10 @@ class TokenActivity : Activity() {
     }
 
     private fun stopCallService() {
-        callRecord.stopCallReceiver()
+        if(::callRecord.isInitialized)
+          callRecord.stopCallReceiver()
     }
+
 
     private fun initializeSmsRadarService() {
         SmsRadar.initializeSmsRadarService(this, object : SmsListener {
@@ -185,16 +191,24 @@ class TokenActivity : Activity() {
                                             if (result.status.equals(Constant.KEY_SUCCESS)) {
                                                 Log.e("antx", "handlerGetInformationSccess")
                                                 handlerGetInformationSccess(result)
+//                                                finshAll()
+
+
                                             } else {
+                                                finshAll()
+                                                Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
                                                 startActivity(Intent(applicationContext, MainActivity::class.java))
+
                                             }
 
                                         }
                                         hideProgressBar()
                                     },
                                     { e ->
+                                        Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
                                         startActivity(Intent(applicationContext, MainActivity::class.java))
                                         hideProgressBar()
+                                        finshAll()
                                     })
 
                 }
@@ -203,8 +217,11 @@ class TokenActivity : Activity() {
             }
 
             override fun onError(error: AccountKitError) {
-
-            }
+                startActivity(Intent(applicationContext, MainActivity::class.java))
+                Toast.makeText(applicationContext,"ccount kit error ! ",Toast.LENGTH_LONG).show()
+                hideProgressBar()
+                finshAll()
+          }
         })
 
 
@@ -299,7 +316,7 @@ class TokenActivity : Activity() {
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     private fun scheduleJob() {
-        var myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
+         myJob = JobInfo.Builder(0, ComponentName(this, NetworkSchedulerService::class.java))
                 .setRequiresCharging(true)
                 .setMinimumLatency(1000)
                 .setOverrideDeadline(2000)
@@ -307,7 +324,7 @@ class TokenActivity : Activity() {
                 .setPersisted(true)
                 .build()
 
-        var jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+        jobScheduler = getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
         jobScheduler.schedule(myJob);
     }
 

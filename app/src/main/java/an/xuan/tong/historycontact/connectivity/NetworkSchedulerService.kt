@@ -66,7 +66,6 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                     //handler call
                     val listCallLogFail = RealmUtils.getAllCallLog()
                     listCallLogFail?.forEachIndexed { index, it ->
-
                         Log.e("ListCallLogFail ", it.id.toString() + it.fileaudio + it.phone + it.datecreate + it.duration + it.lat + it.lng + it.type)
                         if (it.fileaudio == "") {
                             sendCallFail(it.id, it.phone, it.datecreate, "0", "", it.lat, it.lng, it.type.toString())
@@ -173,6 +172,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
     //file audio local
     private fun sendCallFail(realmId: Int?, phoneNumber: String?, dateCreate: String?, duration: String?, fileAAudio: String?, lat: String?, lng: String?, type: String?, filePath: String? = "") {
         val result: HashMap<String, String> = HashMap()
+        Log.e("antx", "send sendCallFail")
         result["Authorization"] = RealmUtils.getAuthorization()
         var id = RealmUtils.getAccountId()
         var message = CallLogServer(id, phoneNumber,
@@ -203,6 +203,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
     //file audio server
     private fun sendRecoderToServer(realmID: Int?, filePath: String?, number: String?, dataCreate: String?, duaration: String?, lat: String?, lng: String?, typeCall: String? = "null") {
         try {
+            Log.e("antx", "send insertUpload")
             val file = File(filePath)
             val result: HashMap<String, String> = HashMap()
             result["Authorization"] = RealmUtils.getAuthorization()
@@ -214,7 +215,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(
                             { result ->
-                                Log.e("antx", "" + result.toString())
+                                Log.e("antx", "insertUpload" + result.toString())
                                 if (result.isNotEmpty()) {
                                     sendCallFail(realmID, number, dataCreate, duaration, result[0], lat, lng, typeCall.toString(), filePath)
                                 }
@@ -222,6 +223,7 @@ class NetworkSchedulerService : JobService(), ConnectivityReceiver.ConnectivityR
                             { e ->
                                 Log.e("test", "sendRcoderToServer  error " + e.message)
                             })
+
         } catch (e: Exception) {
             Log.e("antx Exception", "sendRcoderToServer " + e.message)
         }

@@ -81,6 +81,8 @@ public class SmsRadarService extends Service {
             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                     .setContentTitle("")
                     .setContentText("").build();
+
+
             startForeground(99, notification);
         }
 

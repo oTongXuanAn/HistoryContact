@@ -33,7 +33,6 @@ class TokenService : JobService() {
                         result["Authorization"] = RealmUtils.getAuthorization()
                         Repository.createService(ApiService::class.java, result).getRetoken(Constant.KEY_API, RealmUtils.getAccountId())
                                 .subscribeOn(Schedulers.io())
-                                .retry(5)
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribe(
                                         { result ->
