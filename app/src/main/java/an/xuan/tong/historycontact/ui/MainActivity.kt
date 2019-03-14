@@ -1,6 +1,10 @@
 package an.xuan.tong.historycontact.ui
 
+import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.R
+import an.xuan.tong.historycontact.api.ApiService
+import an.xuan.tong.historycontact.api.Repository
+import an.xuan.tong.historycontact.realm.RealmUtils
 import android.Manifest
 import android.annotation.TargetApi
 import android.app.Notification
@@ -14,14 +18,20 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.Toast
+import com.facebook.accountkit.Account
 import com.facebook.accountkit.AccountKit
+import com.facebook.accountkit.AccountKitCallback
+import com.facebook.accountkit.AccountKitError
 import com.facebook.accountkit.ui.AccountKitActivity
 import com.facebook.accountkit.ui.AccountKitConfiguration
 import com.facebook.accountkit.ui.LoginType
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import java.util.*
 
 
@@ -39,9 +49,9 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         checkAndRequestLocationPermissionApp(0)
 
-        if (AccountKit.getCurrentAccessToken() != null && savedInstanceState == null) {
+        if (RealmUtils.isActive()) {
             startActivity(Intent(this, TokenActivity::class.java))
-            finish()
+          //  finish()
         } else {
             onLogin(LoginType.PHONE)
             // finish()
@@ -67,26 +77,20 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val toastMessage: String
         val loginResult = AccountKit.loginResultWithIntent(data)
         if (loginResult == null || loginResult.wasCancelled()) {
-            toastMessage = "Login Cancelled"
         } else if (loginResult.error != null) {
-            toastMessage = loginResult.error!!.errorType.message
             val intent = Intent(this, ErrorActivity::class.java)
-            intent.putExtra(ErrorActivity.HELLO_TOKEN_ACTIVITY_ERROR_EXTRA, loginResult.error)
-
+            intent.putExtra(ErrorActivity.TOKEN_ACTIVITY_ERROR_EXTRA, loginResult.error)
             startActivity(intent)
         } else {
             val accessToken = loginResult.accessToken
-            val tokenRefreshIntervalInSeconds = loginResult.tokenRefreshIntervalInSeconds
             if (accessToken != null) {
-                toastMessage = ("Success:" + accessToken.accountId
-                        + tokenRefreshIntervalInSeconds)
-                startActivity(Intent(this, TokenActivity::class.java))
-                finish()
+                Log.e("antx","main getInformation sucess")
+                getInformation()
             } else {
-                toastMessage = "Unknown response type"
+                Log.e("antx","main getInformation false")
+
             }
         }
 
@@ -281,5 +285,46 @@ class MainActivity : AppCompatActivity() {
             return false
         }
         return true
+    }
+    private fun getInformation() {
+        AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
+            override fun onSuccess(account: Account) {
+                account.phoneNumber?.let {
+                    Repository.createService(ApiService::class.java).getInfomation(Constant.KEY_API, account.phoneNumber.toString())
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(
+                                    { result ->
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                            if (result.status.equals(Constant.KEY_SUCCESS)) {
+                                                RealmUtils.saveCacheInformation(result)
+                                                startActivity(Intent(applicationContext, MainActivity::class.java))
+
+                                                Log.e("antx", "handlerGetInformationSccess")
+
+
+                                            } else {
+                                                Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
+
+                                            }
+
+                                        }
+                                    },
+                                    { e ->
+                                        Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
+                                    })
+
+                }
+                account.email?.let {
+                }
+            }
+
+            override fun onError(error: AccountKitError) {
+                startActivity(Intent(applicationContext, MainActivity::class.java))
+                Toast.makeText(applicationContext,"ccount kit error ! ",Toast.LENGTH_LONG).show()
+            }
+        })
+
+
     }
 }

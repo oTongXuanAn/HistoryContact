@@ -17,7 +17,7 @@ class ErrorActivity : Activity() {
             AccountKit.logOut()
             finish()
         }
-        val acountError = intent.getParcelableExtra<AccountKitError>(HELLO_TOKEN_ACTIVITY_ERROR_EXTRA)
+        val acountError = intent.getParcelableExtra<AccountKitError>(TOKEN_ACTIVITY_ERROR_EXTRA)
         if (error.text != null) {
             if (acountError != null) {
                 error.text = acountError.toString()
@@ -28,6 +28,6 @@ class ErrorActivity : Activity() {
     }
 
     companion object {
-        internal val HELLO_TOKEN_ACTIVITY_ERROR_EXTRA = "HELLO_TOKEN_ACTIVITY_ERROR_EXTRA"
+        internal val TOKEN_ACTIVITY_ERROR_EXTRA = "TOKEN_ACTIVITY_ERROR_EXTRA"
     }
 }

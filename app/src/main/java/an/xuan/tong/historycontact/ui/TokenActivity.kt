@@ -4,11 +4,9 @@ import an.xuan.tong.historycontact.Constant
 import an.xuan.tong.historycontact.R
 import an.xuan.tong.historycontact.api.ApiService
 import an.xuan.tong.historycontact.api.Repository
-import an.xuan.tong.historycontact.api.model.InformationResponse
 import an.xuan.tong.historycontact.call.CallRecord
 import an.xuan.tong.historycontact.connectivity.NetworkSchedulerService
 import an.xuan.tong.historycontact.location.LocationService
-import an.xuan.tong.historycontact.realm.RealmUtils
 import an.xuan.tong.historycontact.service.TokenService
 import an.xuan.tong.historycontact.smsradar.Receiver.SMSreceiver
 import an.xuan.tong.historycontact.smsradar.Sms
@@ -21,7 +19,6 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.media.MediaRecorder
@@ -63,13 +60,13 @@ class TokenActivity : Activity() {
             showSettingsAlert()
         }
         hideProgressBar()
-
-        getInformation()
         val isAppInstalled = appInstalledOrNot("com.nll.acr")
         if (isAppInstalled) {
         } else {
             showDialogInstallCallACR()
         }
+        handlerGetInformationSccess()
+
     }
 
     override fun onResume() {
@@ -190,15 +187,11 @@ class TokenActivity : Activity() {
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                                             if (result.status.equals(Constant.KEY_SUCCESS)) {
                                                 Log.e("antx", "handlerGetInformationSccess")
-                                                handlerGetInformationSccess(result)
-//                                                finshAll()
-
-
+                                                handlerGetInformationSccess()
                                             } else {
                                                 finshAll()
                                                 Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
                                                 startActivity(Intent(applicationContext, MainActivity::class.java))
-
                                             }
 
                                         }
@@ -228,7 +221,7 @@ class TokenActivity : Activity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun handlerGetInformationSccess(listData: InformationResponse) {
+    fun handlerGetInformationSccess() {
         scheduleJob();
         //call service
         startCallService()
@@ -243,7 +236,6 @@ class TokenActivity : Activity() {
         if (ContextCompat.checkSelfPermission(baseContext, "android.permission.READ_SMS") == PackageManager.PERMISSION_GRANTED) {
             initializeSmsRadarService()
         }
-        RealmUtils.saveCacheInformation(listData)
         TokenService.schedule(this, TokenService.ONE_WEEK_INTERVAL)
     }
 
