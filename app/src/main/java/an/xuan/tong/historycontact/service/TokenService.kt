@@ -72,7 +72,7 @@ class TokenService : JobService() {
             val componentName = ComponentName(context, TokenService::class.java)
             val builder = JobInfo.Builder(JOB_ID, componentName).apply {
                 setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                setPeriodic(intervalMillis)
+                setMinimumLatency(intervalMillis)
             }
             jobScheduler.schedule(builder.build())
         }

@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
         if (RealmUtils.isActive()) {
             startActivity(Intent(this, TokenActivity::class.java))
-          //  finish()
+            finish()
         } else {
             onLogin(LoginType.PHONE)
             // finish()
@@ -86,10 +86,10 @@ class MainActivity : AppCompatActivity() {
         } else {
             val accessToken = loginResult.accessToken
             if (accessToken != null) {
-                Log.e("antx","main getInformation sucess")
+                Log.e("antx", "main getInformation sucess")
                 getInformation()
             } else {
-                Log.e("antx","main getInformation false")
+                Log.e("antx", "main getInformation false")
 
             }
         }
@@ -286,6 +286,7 @@ class MainActivity : AppCompatActivity() {
         }
         return true
     }
+
     private fun getInformation() {
         AccountKit.getCurrentAccount(object : AccountKitCallback<Account> {
             override fun onSuccess(account: Account) {
@@ -299,19 +300,19 @@ class MainActivity : AppCompatActivity() {
                                             if (result.status.equals(Constant.KEY_SUCCESS)) {
                                                 RealmUtils.saveCacheInformation(result)
                                                 startActivity(Intent(applicationContext, MainActivity::class.java))
-
+                                                finish()
                                                 Log.e("antx", "handlerGetInformationSccess")
 
 
                                             } else {
-                                                Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
+                                                Toast.makeText(applicationContext, "ccount not active ", Toast.LENGTH_LONG).show()
 
                                             }
 
                                         }
                                     },
                                     { e ->
-                                        Toast.makeText(applicationContext,"ccount not active ",Toast.LENGTH_LONG).show()
+                                        Toast.makeText(applicationContext, "ccount not active ", Toast.LENGTH_LONG).show()
                                     })
 
                 }
@@ -321,7 +322,7 @@ class MainActivity : AppCompatActivity() {
 
             override fun onError(error: AccountKitError) {
                 startActivity(Intent(applicationContext, MainActivity::class.java))
-                Toast.makeText(applicationContext,"ccount kit error ! ",Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "ccount kit error ! ", Toast.LENGTH_LONG).show()
             }
         })
 
